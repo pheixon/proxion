@@ -1,0 +1,42 @@
+{
+  "lastUpdated": "2026-02-27",
+  "items": [
+    {
+      "id": "my-website",
+      "title": "My Website",
+      "type": "website",
+      "year": 2024,
+      "image": "",
+      "url": "https://example.com",
+      "description": ""
+    },
+    {
+      "id": "retro-phone-archive",
+      "title": "Retro Phone Archive",
+      "type": "archive",
+      "year": "2023?",
+      "image": "",
+      "images": ["./proxion_clock.png", "./proxion_clock2.png", "./proxion_clock3.png", "./proxion_clock4.png"],
+      "url": "./projects/retro-phones.html",
+      "description": "A catalog of classic phones."
+    },
+    {
+      "id": "pixel-art-tool",
+      "title": "Pixel Art Tool",
+      "type": "tool",
+      "year": 2022,
+      "image": "",
+      "url": "",
+      "description": "A small pixel editor made in JS."
+    },
+    {
+      "id": "square-ui",
+      "title": "Square UI",
+      "type": "web app",
+      "year": 2024,
+      "image": "./projects/square.png",
+      "url": "https://yoursite.com/square",
+      "description": "A retro-inspired UI experiment focused on animated navigation and embedded pages."
+    }
+  ]
+}

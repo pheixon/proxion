@@ -1,0 +1,293 @@
+/* ================================
+   RESET MAIN PAGE LAYOUT RULES
+================================ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  display: block;
+  align-items: unset;
+  justify-content: unset;
+
+  height: auto;
+  min-height: 100vh;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #0a0a0a;
+}
+
+/* ================================
+   PAGE WRAPPER
+================================ */
+
+.videos-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #f5f5f5;
+}
+
+/* ================================
+   CATEGORY
+================================ */
+
+.category {
+  margin-bottom: 48px;
+}
+
+.category h2 {
+  font-size: 22px;
+  margin-bottom: 16px;
+  opacity: 0.85;
+  font-family: 'DINProBold';
+}
+
+/* ================================
+   GRID (3 x 2)
+================================ */
+
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* ================================
+   VIDEO CARD
+================================ */
+
+.video {
+  background: #141414;
+  padding: 12px;
+
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* Thumbnail */
+.thumbnail {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+/* Info */
+.video-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: 'DINPro';
+}
+
+.video-title {
+  font-size: 15px;
+  font-family: 'DINProBold';
+}
+
+.video-date {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: -5px;
+  font-family: 'DINPro'
+}
+
+/* Play button */
+.play {
+  margin-top: 8px;
+  width: 28px;
+  height: 28px;
+  fill: white;
+
+  align-self: flex-start;
+
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.play:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* ================================
+   LOAD MORE (LABEL STYLE)
+================================ */
+
+.load-more {
+  margin: 16px auto 0;
+  width: fit-content;
+  padding: 6px 14px;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+}
+
+.load-more.hidden {
+  display: none;
+}
+
+.load-more.label {
+  position: static;
+  opacity: 1;
+  transform: none;
+
+  pointer-events: auto;
+
+  visibility: visible;
+}
+
+/* ================================
+   LABEL COLOR BACKGROUNDS (VIDEOS PAGE)
+================================ */
+
+.load-more.red {
+  background-color: #e74c3c;
+}
+
+/* ================================
+   WATCH ON YOUTUBE (LABEL STYLE)
+================================ */
+
+.watch-btn {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 14px;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+  gap: 6px;
+  font-family: 'DINProBold';
+}
+
+.watch-btn.hidden {
+  display: none;
+}
+
+.watch-btn.label {
+  position: static;
+  opacity: 1;
+  transform: none;
+
+  pointer-events: auto;
+
+  visibility: visible;
+}
+
+/* ================================
+   LABEL COLOR BACKGROUNDS (VIDEOS PAGE)
+================================ */
+
+.watch-btn.red {
+  background-color: #e74c3c;
+}
+
+/* SVG inside button */
+.watch-btn svg {
+  width: 67px;
+  height: 28px;
+  fill: white;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 20px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #e74c3c;
+}
+
+@font-face {
+  font-family: 'DINProBold'; /* A name for your font */
+  src: url('./dinpro_bold.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'DINPro'; /* A name for your font */
+  src: url('./dinpro.otf') format('opentype');
+}
+
+.sort-bar {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.sort-label {
+  font-size: 14px;
+  opacity: 0.7;
+  text-transform: lowercase;
+  font-family: 'DINPro';
+}
+
+#sortSelect {
+  padding: 8px 28px 8px 0px;
+  background: #141414;
+  color: #f5f5f5;
+  border: 0px solid #333;
+  font-size: 14px;
+  font-family: 'DINProBold';
+  cursor: pointer;
+}
+
+#sections-container {
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+#sections-container.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#sections-container.fade-in {
+  opacity: 1;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.load-more.loading {
+  pointer-events: none;
+  cursor: default;
+}
+
+.video-count {
+  font-size: 14px;
+  font-family: 'DINPro';
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.got-stuck {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  bottom: 24px;
+}
+
+.got-stuck-label {
+  font-size: 14px;
+  color: #f5f5f5;
+  opacity: 0.7;
+  font-family: 'DINPro';
+  font-weight: 400;
+}

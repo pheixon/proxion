@@ -1,0 +1,129 @@
+/* ================================
+   COLLECTION GRID
+================================ */
+
+.phone-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* ================================
+   PHONE CARD
+================================ */
+
+.phone {
+  background: #141414;
+  padding: 12px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.phone img {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  background: #000;
+  flex-shrink: 0;
+}
+
+.phone-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phone-title {
+  font-size: 15px;
+  font-family: 'DINProBold';
+}
+
+.phone-meta {
+  font-size: 12px;
+  opacity: 0.6;
+  font-family: 'DINPro';
+}
+
+/* ================================
+   GREEN LABEL VARIANT
+================================ */
+
+.label.green {
+  background-color: #2ecc71;
+}
+
+.watch-btn.green {
+  background-color: #2ecc71;
+}
+
+.load-more.green {
+  background-color: #2ecc71;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2ecc71;
+}
+
+.wiki-row {
+  margin-top: 6px;
+}
+
+.wiki-status {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.thumbnail {
+  object-fit: cover;
+  background: #111;
+}
+
+.phones-total {
+  opacity: 0.7;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.thumbnail {
+  transition: opacity 0.2s ease;
+}
+
+.thumbnail.clickable {
+  cursor: pointer;
+}
+
+.thumbnail.clickable:hover {
+  opacity: 0.9;
+}
+
+.thumb-wrap {
+  position: relative;
+}
+
+.image-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  pointer-events: none;
+}
+
+.image-dots .dot {
+  width: 4px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.image-dots .dot.active {
+  background: white;
+  transform: scale(2, 1);
+}
+
+.no-article {
+  font-family: 'DINProBold';
+}

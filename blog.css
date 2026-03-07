@@ -1,0 +1,226 @@
+.blog-post {
+  margin-bottom: 64px;
+}
+
+.blog-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.blog-date {
+  opacity: 0.6;
+  font-size: 13px;
+  margin-bottom: 12px;
+  font-family: 'DINPro';
+}
+
+p {
+  font-family: 'DINPro';
+}
+
+strong {
+  font-family: 'DINProBold';
+}
+
+.category h2 {
+  margin-bottom: 0;
+}
+
+.blog-content {
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.watch-btn.orange {
+  background: #f39c12;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f39c12;
+}
+
+/* Reset blog text styles inside buttons */
+.blog-content .watch-btn {
+  margin: 0;
+  line-height: normal;
+  display: inline-flex;       /* centers text nicely */
+  align-items: center;
+  justify-content: center;
+}
+
+/* If markdown wraps buttons in <p>, remove that spacing */
+.blog-content p > .watch-btn {
+  margin-top: 0;
+}
+
+/* Optional: make buttons sit nicely inline with text */
+.blog-content .watch-btn.blog-btn {
+  vertical-align: middle;
+}
+
+/* Remove top/bottom margins when a paragraph ONLY contains a button */
+.blog-content p:has(.watch-btn) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Optional: small spacing if you want breathing room */
+.blog-content p:has(.watch-btn) + p {
+  margin-top: 8px;
+}
+
+.blog-inline-btn {
+  display: inline-flex;
+  vertical-align: middle;
+  margin: 0 6px;
+  height: auto;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.blog-post {
+  background: #141414;              /* slightly lighter than page bg */
+  padding: 28px;
+  margin-bottom: 32px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 20px solid #f39c12;
+}
+
+/* Subtle hover lift (optional but nice) */
+.blog-post:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* Title */
+.blog-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Date */
+.blog-date {
+  font-size: 13px;
+  opacity: 0.6;
+  margin-bottom: 18px;
+}
+
+/* Content spacing */
+.blog-content {
+  line-height: 1.7;
+}
+
+#blog-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.blog-id {
+  font-size: 12px;
+  opacity: 0.5;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.blog-id:hover {
+  opacity: 0.8;
+}
+
+.blog-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.blog-id {
+  font-size: 12px;
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.blog-share {
+  font-size: 12px;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.blog-share:hover {
+  opacity: 0.9;
+}
+
+.blog-nav {
+  margin-top: 28px;
+  text-align: center;
+}
+
+.blog-nav-btn {
+  display: inline-flex;
+  align-items: center;
+}
+
+.watch-btn svg {
+  width: auto;
+  height: 14px;
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+.watch-btn {
+  gap: 0
+}
+
+.blog-editor {
+  background: #111;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.blog-editor input,
+.blog-editor textarea {
+  width: 100%;
+  margin-top: 10px;
+  background: #0a0a0a;
+  border: 0px solid #333;
+  color: white;
+  padding: 10px;
+  font-family: 'DINPro';
+  font-weight: 600;
+}
+
+.blog-editor textarea {
+  min-height: 160px;
+  margin-bottom: 10px;
+}
+
+.blog-editor button {
+  margin-top: 12px;
+}
+
+.hidden {
+  display: none;
+}
+
+.post-preview {
+  margin: 10px 0 10px 0;
+  padding: 16px;
+  background: #0a0a0a;
+}
+
+.blog-admin-btn{
+  display: inline-block;
+  margin-top: 10px;
+  margin-right: 10px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #222;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.blog-admin-btn.delete{
+  background:#5a1b1b;
+}

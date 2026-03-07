@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Videos</title>
+
+  <!-- Main site styles -->
+  <link rel="stylesheet" href="../styles.css">
+
+  <!-- Videos page styles -->
+  <link rel="stylesheet" href="videos.css">
+</head>
+<body>
+
+  <div class="videos-page">
+    <div id="videos-container" class="videos-container">
+      <div id="videos-total" class="videos-total"></div>
+      <div id="videos-updated" class="video-count"></div>
+    </div>
+    <!-- Sort bar (persistent, never removed) -->
+    <div class="sort-bar-container">
+      <!-- Injected by videos.js -->
+    </div>
+
+    <!-- Sections container (animated on sort change) -->
+    <div id="sections-container">
+      <!-- Video sections are dynamically rendered here -->
+    </div>
+
+  </div>
+
+<div id="got-stuck-container" class="got-stuck hidden">
+  <div class="got-stuck-label">got stuck?</div>
+  <div id="standalone-back" class="load-more label red">
+    ← go back
+  </div>
+</div>
+
+  <script src="videos.js"></script>
+</body>
+</html>
