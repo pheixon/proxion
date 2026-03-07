@@ -36,21 +36,39 @@ body {
 
 /* --- Items (slots) --- */
 
-.item:not(.first) {
-  width: var(--collapsed-width);
+.item {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: var(--collapsed-width);
   transition: width 0.3s ease;
+}
+
+.item:not(:first-child)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -10px;
+  width: 10px;
+  height: 100%;
 }
 
 .item.first {
   width: var(--expanded-width);
-  transition: width 0.3s ease;
 }
 
-.item.first.collapsed {
+.button-container:not(.selected):has(.item:not(.first):hover) .item.first {
   width: var(--collapsed-width);
+}
+
+.button-container:not(.selected):has(.item:not(.first):hover) .item.first svg {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+}
+
+.button-container:not(.selected):has(.item:not(.first):hover) .item.first .label {
+  opacity: 0;
 }
 
 .button-container.selected .item.first {
@@ -87,14 +105,13 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(1);
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 /* --- Label --- */
 
 .label {
   margin-top: 8px;
-  margin-left: -20px;
   padding: 4px 8px;
   font-size: 18px;
   color: #f5f5f5;
@@ -103,6 +120,10 @@ body {
   transition: opacity 0.3s ease;
   white-space: nowrap;
   pointer-events: none;
+}
+
+.item.first .label {
+  min-width: max-content;
 }
 
 /* --- Active state (visible icon + label) --- */
@@ -143,10 +164,6 @@ body {
 }
 
 /* --- In selected mode: hide non-selected items --- */
-
-.button-container.selected .item:not(.selected):not(.first) {
-  width: var(--collapsed-width);
-}
 
 .button-container.selected .item:not(.selected) svg,
 .button-container.selected .item:not(.selected) .label {

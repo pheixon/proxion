@@ -1,43 +1,24 @@
 const embedFrame = document.getElementById('embed-frame');
 const embedContainer = document.querySelector('.embed-container');
-
-const pages = {
-  1: './videos.html',
-  2: './collection.html',
-  3: './projects.html',
-  4: './blog.html',
-  5: './socials.html',
-  6: './about.html',
-};
-
-const pageHashes = {
-  1: 'videos',
-  2: 'collection',
-  3: 'projects',
-  4: 'blog',
-  5: 'socials',
-  6: 'about',
-};
-
 const container = document.querySelector('.button-container');
 const items = document.querySelectorAll('.item');
 const firstItem = items[0];
 
 const TRANSITION_MS = 350;
 
+const menuItems = [
+  null,
+  { page: './videos.html', hash: 'videos' },
+  { page: './collection.html', hash: 'collection' },
+  { page: './projects.html', hash: 'projects' },
+  { page: './blog.html', hash: 'blog' },
+  { page: './socials.html', hash: 'socials' },
+  { page: './about.html', hash: 'about' },
+];
+
+let currentPage = null;
+
 items.forEach((item, index) => {
-  item.addEventListener('mouseenter', () => {
-    if (!item.classList.contains('first') && !container.classList.contains('selected')) {
-      firstItem.classList.add('collapsed');
-    }
-  });
-
-  item.addEventListener('mouseleave', () => {
-    if (!item.classList.contains('first') && !container.classList.contains('selected')) {
-      firstItem.classList.remove('collapsed');
-    }
-  });
-
   item.addEventListener('click', () => {
     const isSelectedMode = container.classList.contains('selected');
     const isAlreadySelected = item.classList.contains('selected');
@@ -45,7 +26,6 @@ items.forEach((item, index) => {
 
     if (isSelectedMode && isAlreadySelected && !isFirst) return;
 
-    // Home button — return to center
     if (isFirst && isSelectedMode) {
       embedContainer.classList.remove('active');
       container.classList.remove('selected');
@@ -54,6 +34,7 @@ items.forEach((item, index) => {
         i.classList.remove('active');
       });
       firstItem.classList.add('active');
+      currentPage = null;
 
       setTimeout(() => {
         embedFrame.src = '';
@@ -65,7 +46,9 @@ items.forEach((item, index) => {
 
     if (isFirst) return;
 
-    // Select a menu item
+    const menuItem = menuItems[index];
+    if (!menuItem) return;
+
     container.classList.add('selected');
     items.forEach(i => {
       i.classList.remove('selected');
@@ -73,39 +56,36 @@ items.forEach((item, index) => {
     });
     item.classList.add('selected');
 
-    if (pages[index] && embedFrame.src !== pages[index]) {
+    if (menuItem.page !== currentPage) {
       embedContainer.classList.remove('active');
+      currentPage = menuItem.page;
 
       setTimeout(() => {
-        embedFrame.src = pages[index];
+        embedFrame.src = menuItem.page;
         embedContainer.classList.add('active');
       }, TRANSITION_MS);
 
-      const hash = pageHashes[index];
-      if (hash) history.pushState(null, '', `#${hash}`);
+      history.pushState(null, '', `#${menuItem.hash}`);
     }
   });
 });
 
-// Open correct page on load with hash
-document.addEventListener('DOMContentLoaded', () => {
-  const hash = window.location.hash.replace('#', '');
-  if (!hash) return;
-  const index = Object.values(pageHashes).indexOf(hash);
+function navigateToHash(hash) {
+  if (!hash) return false;
+  const index = menuItems.findIndex(m => m && m.hash === hash);
   if (index !== -1) {
-    const item = items[index + 1];
-    if (item) item.click();
+    items[index]?.click();
+    return true;
   }
+  return false;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  navigateToHash(window.location.hash.replace('#', ''));
 });
 
-// Browser back/forward
 window.addEventListener('popstate', () => {
-  const hash = window.location.hash.replace('#', '');
-  const index = Object.values(pageHashes).indexOf(hash);
-  if (index !== -1) {
-    const item = items[index + 1];
-    if (item) item.click();
-  } else {
+  if (!navigateToHash(window.location.hash.replace('#', ''))) {
     firstItem.click();
   }
 });
