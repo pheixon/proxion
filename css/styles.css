@@ -2,6 +2,26 @@
   --collapsed-width: 20px;
   --medium-width: 60px;
   --expanded-width: 100px;
+
+  --bg: #0a0a0a;
+  --bg-card: #141414;
+  --bg-elevated: #111;
+  --bg-admin: #222;
+  --bg-admin-delete: #5a1b1b;
+  --text: #f5f5f5;
+
+  --color-blue: #3498db;
+  --color-red: #e74c3c;
+  --color-green: #2ecc71;
+  --color-purple: #9b59b6;
+  --color-orange: #f39c12;
+  --color-teal: #1abc9c;
+  --color-pink: #e84393;
+
+  --backdrop-bg: rgba(30, 30, 30, 0.6);
+  --backdrop-border: rgba(255, 255, 255, 0.08);
+  --dot-inactive: rgba(255, 255, 255, 0.4);
+  --shadow-hover: rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -11,11 +31,8 @@
 }
 
 body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #0a0a0a;
+  min-height: 100vh;
+  background: var(--bg);
   font-family: 'DINProBold', Arial, sans-serif;
 }
 
@@ -32,6 +49,29 @@ body {
 
 .button-container.selected {
   transform: translate(-50%, -47vh);
+}
+
+.menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--expanded-width) + 6 * var(--collapsed-width) + 6 * 10px + 80px);
+  height: 196px;
+  background: var(--backdrop-bg);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--backdrop-border);
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  z-index: 9;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.button-container.selected ~ .menu-backdrop {
+  opacity: 1;
 }
 
 /* --- Items (slots) --- */
@@ -114,7 +154,7 @@ body {
   margin-top: 8px;
   padding: 4px 8px;
   font-size: 18px;
-  color: #f5f5f5;
+  color: var(--text);
   user-select: none;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -187,24 +227,20 @@ body {
 
 /* --- Colors --- */
 
-.item.blue .button, .item.blue .label { background: #3498db; }
-.item.red .button, .item.red .label { background: #e74c3c; }
-.item.green .button, .item.green .label { background: #2ecc71; }
-.item.purple .button, .item.purple .label { background: #9b59b6; }
-.item.orange .button, .item.orange .label { background: #f39c12; }
-.item.teal .button, .item.teal .label { background: #1abc9c; }
-.item.pink .button, .item.pink .label { background: #e84393; }
+.item.blue .button, .item.blue .label { background: var(--color-blue); }
+.item.red .button, .item.red .label { background: var(--color-red); }
+.item.green .button, .item.green .label { background: var(--color-green); }
+.item.purple .button, .item.purple .label { background: var(--color-purple); }
+.item.orange .button, .item.orange .label { background: var(--color-orange); }
+.item.teal .button, .item.teal .label { background: var(--color-teal); }
+.item.pink .button, .item.pink .label { background: var(--color-pink); }
 
 /* --- Embed container --- */
 
 .embed-container {
-  position: fixed;
-  top: 168px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80vw;
+  width: 90vw;
   max-width: 1200px;
-  height: 65vh;
+  margin: 196px auto 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 350ms ease;
@@ -216,12 +252,6 @@ body {
   pointer-events: auto;
 }
 
-.embed-container iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: #0a0a0a;
-}
 
 /* --- Logo --- */
 
@@ -245,10 +275,10 @@ body {
 
 @font-face {
   font-family: 'DINProBold';
-  src: url('./dinpro_bold.otf') format('opentype');
+  src: url('../assets/fonts/dinpro_bold.otf') format('opentype');
 }
 
 @font-face {
   font-family: 'DINPro';
-  src: url('./dinpro.otf') format('opentype');
+  src: url('../assets/fonts/dinpro.otf') format('opentype');
 }

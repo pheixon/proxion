@@ -16,7 +16,7 @@ body {
 
   overflow-y: auto;
   overflow-x: hidden;
-  background: #0a0a0a;
+  background: var(--bg);
 }
 
 /* ================================
@@ -28,7 +28,7 @@ body {
   min-height: 100vh;
   padding: 24px;
   box-sizing: border-box;
-  color: #f5f5f5;
+  color: var(--text);
 }
 
 /* ================================
@@ -61,9 +61,9 @@ body {
 ================================ */
 
 .video {
-  background: #141414;
+  background: var(--bg-card);
   padding: 12px;
-
+  min-width: 0;
   display: flex;
   gap: 16px;
   align-items: flex-start;
@@ -81,6 +81,7 @@ body {
   flex-direction: column;
   gap: 6px;
   font-family: 'DINPro';
+  min-width: 0;
 }
 
 .video-title {
@@ -92,7 +93,7 @@ body {
   font-size: 12px;
   opacity: 0.6;
   margin-top: -5px;
-  font-family: 'DINPro'
+  font-family: 'DINPro';
 }
 
 /* Play button */
@@ -106,7 +107,9 @@ body {
 
   opacity: 0.7;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .play:hover {
@@ -141,12 +144,8 @@ body {
   visibility: visible;
 }
 
-/* ================================
-   LABEL COLOR BACKGROUNDS (VIDEOS PAGE)
-================================ */
-
 .load-more.red {
-  background-color: #e74c3c;
+  background-color: var(--color-red);
 }
 
 /* ================================
@@ -179,12 +178,8 @@ body {
   visibility: visible;
 }
 
-/* ================================
-   LABEL COLOR BACKGROUNDS (VIDEOS PAGE)
-================================ */
-
 .watch-btn.red {
-  background-color: #e74c3c;
+  background-color: var(--color-red);
 }
 
 /* SVG inside button */
@@ -194,29 +189,22 @@ body {
   fill: white;
 }
 
-/* width */
 ::-webkit-scrollbar {
-  width: 20px;
+  width: 10px;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
-  background: #141414;
+  background: transparent;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #e74c3c;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
 }
 
-@font-face {
-  font-family: 'DINProBold'; /* A name for your font */
-  src: url('./dinpro_bold.otf') format('opentype');
-}
-
-@font-face {
-  font-family: 'DINPro'; /* A name for your font */
-  src: url('./dinpro.otf') format('opentype');
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .sort-bar {
@@ -238,8 +226,8 @@ body {
 
 #sortSelect {
   padding: 8px 28px 8px 0px;
-  background: #141414;
-  color: #f5f5f5;
+  background: var(--bg-card);
+  color: var(--text);
   border: 0px solid #333;
   font-size: 14px;
   font-family: 'DINProBold';
@@ -286,7 +274,7 @@ body {
 
 .got-stuck-label {
   font-size: 14px;
-  color: #f5f5f5;
+  color: var(--text);
   opacity: 0.7;
   font-family: 'DINPro';
   font-weight: 400;
@@ -303,4 +291,29 @@ body {
   display: flex;
   align-items: center;
   gap: 2px;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 1200px) {
+  .videos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .videos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .thumbnail {
+    width: 120px;
+  }
+
+  .sort-bar {
+    position: static;
+    margin-bottom: 16px;
+  }
 }

@@ -14,7 +14,7 @@
     "type": "archive",
     "year": "2023?",
     "image": "",
-    "images": ["./proxion_clock.png", "./proxion_clock2.png", "./proxion_clock3.png", "./proxion_clock4.png"],
+    "images": ["assets/images/proxion_clock.png", "assets/images/proxion_clock2.png", "assets/images/proxion_clock3.png", "assets/images/proxion_clock4.png"],
     "url": "./projects/retro-phones.html",
     "description": "A catalog of classic phones."
   },

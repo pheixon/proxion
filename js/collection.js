@@ -1,7 +1,7 @@
 // =====================================================
 // CONFIG
 // =====================================================
-const DATA_URL = "./phones.json";
+const DATA_URL = "data/phones.json";
 const PHONES_PER_BATCH = 6;
 
 // =====================================================
@@ -232,7 +232,7 @@ function createPhoneCard(phone) {
 
   const images = Array.isArray(phone.images) && phone.images.length
     ? phone.images
-    : (phone.image && String(phone.image).trim() !== "" ? [phone.image] : ["./placeholder.png"]);
+    : (phone.image && String(phone.image).trim() !== "" ? [phone.image] : ["assets/images/placeholder.png"]);
 
   const wikiSlug = encodeURIComponent(`${phone.brand} ${phone.model}`.replace(/\s+/g, "_"));
   const viewUrl = `https://lpcwiki.miraheze.org/wiki/${wikiSlug}`;
@@ -336,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.classList.remove("hidden");
 
     backBtn.addEventListener("click", () => {
-      window.location.href = "./square_.html"; // EDIT THIS IN PRODUCTION
+      window.location.href = "../index.html";
     });
   }
 

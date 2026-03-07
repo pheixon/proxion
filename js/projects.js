@@ -1,4 +1,4 @@
-const PROJECTS_URL = "./projects.json";
+const PROJECTS_URL = "data/projects.json";
 const ITEMS_PER_BATCH = 6;
 
 let allProjects = [];
@@ -174,7 +174,7 @@ function createProjectCard(project) {
   }
 
   card.innerHTML = `
-    <img class="thumbnail" src="${hasPhoto ? images[0] : "./placeholder.png"}">
+    <img class="thumbnail" src="${hasPhoto ? images[0] : "assets/images/placeholder.png"}">
     <div class="video-info">
       <div class="video-title">${project.title}</div>
       <div class="video-date">released ${yearText} · ${project.type || "other"}</div>
@@ -245,7 +245,7 @@ function renderSingleProject(project) {
           <div class="image-row">
             <div class="image-nav-btn prev hidden">←</div>
             <div class="image-wrapper">
-              <img class="thumbnail clickable" src="${images[0] || "./placeholder.png"}">
+              <img class="thumbnail clickable" src="${images[0] || "assets/images/placeholder.png"}">
               <div class="image-dots hidden">
                 ${images.map((_, i) => `<div class="dot ${i === 0 ? "active" : ""}"></div>`).join("")}
               </div>

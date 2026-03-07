@@ -1,4 +1,4 @@
-const BLOG_URL = "./blog.json";
+const BLOG_URL = "data/blog.json";
 const params = new URLSearchParams(window.location.search);
 const adminMode = params.get("admin") === "1";
 

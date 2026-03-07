@@ -3,41 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <title>My Blog</title>
-
-  <link rel="stylesheet" href="./styles.css" />
-  <link rel="stylesheet" href="./videos.css" />
-  <link rel="stylesheet" href="./collection.css" />
-  <link rel="stylesheet" href="./projects.css" />
-  <link rel="stylesheet" href="./blog.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/videos.css" />
+  <link rel="stylesheet" href="../css/collection.css" />
+  <link rel="stylesheet" href="../css/projects.css" />
+  <link rel="stylesheet" href="../css/blog.css" />
 </head>
-
 <body class="videos-page">
 
   <div id="page-fade" class="fade-container">
 
   <div id="editor" class="blog-editor hidden">
-
     <h2>create / edit post</h2>
-
     <input id="post-title" type="text" placeholder="post title">
-
     <textarea id="post-content" placeholder="write markdown here..."></textarea>
-
     <h5>preview</h5>
-
     <div id="preview" class="post-preview"></div>
-
     <span id="publish-post" class="watch-btn orange">publish</span>
-
     <h3>note: this post editor will download a new version of blog.json to replace the old one with. it will not automatically apply changes to the existing blog.json</h3>
-
   </div>
 
     <div id="blog-container" class="project-wide"></div>
 
   </div>
 
-  <script src="./marked.min.js"></script>
-  <script src="./blog.js"></script>
+  <script src="../js/marked.min.js"></script>
+  <script src="../js/blog.js"></script>
 </body>
 </html>

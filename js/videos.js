@@ -483,7 +483,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.classList.remove("hidden");
 
     backBtn.addEventListener("click", () => {
-      window.location.href = "./square_.html"; // EDIT THIS IN PRODUCTION
+      window.location.href = "../index.html";
     });
   }
 

@@ -13,7 +13,7 @@
 ================================ */
 
 .phone {
-  background: #141414;
+  background: var(--bg-card);
   padding: 12px;
   display: flex;
   gap: 16px;
@@ -50,19 +50,15 @@
 ================================ */
 
 .label.green {
-  background-color: #2ecc71;
+  background-color: var(--color-green);
 }
 
 .watch-btn.green {
-  background-color: #2ecc71;
+  background-color: var(--color-green);
 }
 
 .load-more.green {
-  background-color: #2ecc71;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #2ecc71;
+  background-color: var(--color-green);
 }
 
 .wiki-row {
@@ -76,7 +72,8 @@
 
 .thumbnail {
   object-fit: cover;
-  background: #111;
+  background: var(--bg-elevated);
+  transition: opacity 0.2s ease;
 }
 
 .phones-total {
@@ -84,10 +81,6 @@
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.thumbnail {
-  transition: opacity 0.2s ease;
 }
 
 .thumbnail.clickable {
@@ -115,7 +108,7 @@
 .image-dots .dot {
   width: 4px;
   height: 8px;
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--dot-inactive);
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
