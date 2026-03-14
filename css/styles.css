@@ -56,18 +56,18 @@ body {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(var(--expanded-width) + 6 * var(--collapsed-width) + 6 * 10px + 80px);
+  width: 100vw;
   height: 196px;
-  background: var(--backdrop-bg);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border: 1px solid var(--backdrop-border);
-  border-top: none;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border-radius: 0 0 20px 20px;
   z-index: 9;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
+  mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
 }
 
 .button-container.selected ~ .menu-backdrop {

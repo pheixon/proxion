@@ -2,7 +2,9 @@
   background: var(--bg-card);
   padding: 28px;
   margin-bottom: 32px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   border-left: 20px solid var(--color-orange);
 }
 
@@ -130,7 +132,7 @@ strong {
 }
 
 .watch-btn {
-  gap: 0
+  gap: 0;
 }
 
 .blog-editor {
@@ -171,7 +173,6 @@ strong {
   margin-top: 10px;
   margin-right: 10px;
   padding: 6px 10px;
-  border-radius: 6px;
   background: var(--bg-admin);
   cursor: pointer;
   font-size: 12px;
@@ -179,4 +180,31 @@ strong {
 
 .blog-admin-btn.delete {
   background: var(--bg-admin-delete);
+}
+
+.inline-edit-title,
+.inline-edit-content {
+  width: 100%;
+  background: var(--bg);
+  border: none;
+  color: var(--text);
+  padding: 10px;
+  font-family: 'DINPro';
+  font-size: 16px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.inline-edit-title {
+  font-family: 'DINProBold';
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.inline-edit-content {
+  min-height: 140px;
+}
+
+.inline-edit-preview {
+  margin-bottom: 10px;
 }

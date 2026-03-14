@@ -208,7 +208,7 @@ body {
 }
 
 .sort-bar {
-  position: absolute;
+  position: fixed;
   top: 20px;
   right: 24px;
   display: flex;

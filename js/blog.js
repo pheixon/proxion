@@ -1,49 +1,63 @@
-const BLOG_URL = "data/blog.json";
+const API_BASE = '/api';
 const params = new URLSearchParams(window.location.search);
-const adminMode = params.get("admin") === "1";
+const adminMode = params.get('admin') === '1';
 
-document.addEventListener("DOMContentLoaded", () => {
-  const page = document.getElementById("page-fade");
+document.addEventListener('DOMContentLoaded', () => {
+  const page = document.getElementById('page-fade');
 
-  page.classList.add("fade-out");
+  page.classList.add('fade-out');
   requestAnimationFrame(() => {
-    page.classList.remove("fade-out");
-    page.classList.add("fade-in");
+    page.classList.remove('fade-out');
+    page.classList.add('fade-in');
   });
 
   loadBlog();
 
   if (adminMode) {
+    adminLogin().then(ok => {
+      if (ok) document.getElementById('editor').classList.remove('hidden');
+    });
+  }
+});
 
-    const alreadyLogged = sessionStorage.getItem("blog_admin");
+async function adminLogin() {
+  const existing = sessionStorage.getItem('blog_token');
+  if (existing) return true;
 
-    if (!alreadyLogged) {
-      const pass = prompt("Enter admin password");
+  const pass = prompt('Enter admin password');
+  if (!pass) return false;
 
-      if (pass !== "your-secret-password") {
-        alert("Access denied");
-        return;
-      }
+  const res = await fetch(`${API_BASE}/auth`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pass }),
+  });
 
-      sessionStorage.setItem("blog_admin", "true");
-    }
-
-    document.getElementById("editor").classList.remove("hidden");
-
+  if (!res.ok) {
+    alert('Access denied');
+    return false;
   }
 
-});
+  const { token } = await res.json();
+  sessionStorage.setItem('blog_token', token);
+  return true;
+}
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${sessionStorage.getItem('blog_token')}`,
+  };
+}
 
 async function loadBlog() {
   try {
-    const res = await fetch(BLOG_URL, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/posts`);
     const posts = await res.json();
 
-    posts.sort((a, b) => b.id - a.id);
-
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
-    const from = params.get("from");
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    const from = urlParams.get('from');
 
     if (id) {
       const post = posts.find(p => String(p.id) === id);
@@ -54,27 +68,35 @@ async function loadBlog() {
     }
 
     renderPosts(posts);
-
   } catch (err) {
-    console.error("Failed to load blog.json", err);
+    console.error('Failed to load posts', err);
     renderError();
   }
 }
 
+function formatDate(iso) {
+  return new Date(iso)
+    .toLocaleString('en-US', {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+    .replace(',', '')
+    .replace(', ', ' at ');
+}
+
 function renderPosts(posts) {
-  const container = document.getElementById("blog-container");
-  container.innerHTML = "";
+  const container = document.getElementById('blog-container');
+  container.innerHTML = '';
 
   posts.forEach(post => {
-    const el = document.createElement("section");
-    el.className = "category blog-post";
+    const el = document.createElement('section');
+    el.className = 'category blog-post';
 
-    const formatted = new Date(post.date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "2-digit",
-      year: "numeric"
-    });
-
+    const dateStr = `posted ${formatDate(post.date)}${post.updated_at ? ` · last edited ${formatDate(post.updated_at)}` : ''}`;
     const html = renderMarkdownWithButtons(post.content);
 
     el.innerHTML = `
@@ -83,36 +105,31 @@ function renderPosts(posts) {
         <div class="blog-share" data-id="${post.id}">share</div>
       </div>
       <h2 class="blog-title">${post.title}</h2>
-      <div class="blog-date">posted ${formatted}</div>
+      <div class="blog-date">${dateStr}</div>
       <div class="blog-content">${html}</div>
     `;
 
     container.appendChild(el);
 
-    el.querySelector(".blog-id").addEventListener("click", () => {
-      history.pushState(null, "", `?id=${post.id}`);
+    el.querySelector('.blog-id').addEventListener('click', () => {
+      history.pushState(null, '', `?id=${post.id}`);
       renderSinglePost(post);
+    });
 
     if (adminMode) {
+      const editBtn = document.createElement('div');
+      editBtn.className = 'blog-admin-btn';
+      editBtn.textContent = 'edit';
+      editBtn.onclick = () => editPost(post, el);
 
-      const editBtn = document.createElement("div");
-      editBtn.className = "blog-admin-btn";
-      editBtn.textContent = "edit";
-
-      editBtn.onclick = () => editPost(post.id);
-
-      const deleteBtn = document.createElement("div");
-      deleteBtn.className = "blog-admin-btn delete";
-      deleteBtn.textContent = "delete";
-
+      const deleteBtn = document.createElement('div');
+      deleteBtn.className = 'blog-admin-btn delete';
+      deleteBtn.textContent = 'delete';
       deleteBtn.onclick = () => deletePost(post.id);
 
       el.appendChild(editBtn);
       el.appendChild(deleteBtn);
     }
-
-    });
-
   });
 
   wireBlogButtons();
@@ -120,34 +137,29 @@ function renderPosts(posts) {
 }
 
 function renderMarkdownWithButtons(md) {
-
-  // 🔥 Replace BEFORE markdown parsing
   md = md.replace(/\[button:(.*?)\]/gi, (_, label) => {
     const key = label.trim().toLowerCase();
 
     const map = {
-      "my videos":     { hash: "#videos",     color: "red"    },
-      "my collection": { hash: "#collection", color: "green"  },
-      "my projects":   { hash: "#projects",   color: "purple" },
-      "my blog":       { hash: "#blog",       color: "orange" }
+      'my videos': { hash: '#videos', color: 'red' },
+      'my collection': { hash: '#collection', color: 'green' },
+      'my projects': { hash: '#projects', color: 'purple' },
+      'my blog': { hash: '#blog', color: 'orange' },
     };
 
     const btn = map[key];
     if (!btn) return label;
 
-    // IMPORTANT: inline span, not div
     return `<span class="watch-btn ${btn.color} blog-inline-btn" data-hash="${btn.hash}">${label} →</span>`;
   });
 
-  // Now parse markdown
   return marked.parse(md);
 }
 
 function wireBlogButtons() {
-  document.querySelectorAll(".blog-inline-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
+  document.querySelectorAll('.blog-inline-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
       const hash = btn.dataset.hash;
-
       if (window.parent && window.parent !== window) {
         window.parent.location.hash = hash;
       } else {
@@ -158,52 +170,46 @@ function wireBlogButtons() {
 }
 
 function wireShareButtons() {
-  document.querySelectorAll(".blog-share").forEach(btn => {
-    btn.addEventListener("click", async () => {
+  document.querySelectorAll('.blog-share').forEach(btn => {
+    btn.addEventListener('click', async () => {
       const id = btn.dataset.id;
-
-      // Build correct URL (works in iframe too)
-      const baseUrl =
-        window.location.origin + window.location.pathname;
-
-      const shareUrl = `${baseUrl}?id=${id}&from=share`;
+      const shareUrl = `${window.location.origin}/pages/blog.html?id=${id}&from=share`;
 
       try {
         await navigator.clipboard.writeText(shareUrl);
-        btn.textContent = "copied!";
-        setTimeout(() => btn.textContent = "share", 1200);
+        btn.textContent = 'copied!';
+        setTimeout(() => (btn.textContent = 'share'), 1200);
       } catch (err) {
-        console.error("Clipboard failed", err);
+        console.error('Clipboard failed', err);
       }
     });
   });
 }
 
 function wireSingleNav() {
-  const btn = document.querySelector(".blog-nav-btn");
+  const btn = document.querySelector('.blog-nav-btn');
   if (!btn) return;
 
-  btn.addEventListener("click", () => {
+  btn.addEventListener('click', () => {
     const action = btn.dataset.action;
 
-    if (action === "back") {
-      history.pushState(null, "", window.location.pathname);
+    if (action === 'back') {
+      history.pushState(null, '', window.location.pathname);
       loadBlog();
     }
 
-    if (action === "home") {
+    if (action === 'home') {
       const baseUrl =
         window.parent && window.parent !== window
           ? window.parent.location.origin + window.parent.location.pathname
-          : window.location.origin + "/index.html";
-
+          : window.location.origin + '/index.html';
       window.location.href = baseUrl;
     }
   });
 }
 
 function renderError() {
-  const container = document.getElementById("blog-container");
+  const container = document.getElementById('blog-container');
   container.innerHTML = `
     <section class="category">
       <h2>oops</h2>
@@ -213,21 +219,11 @@ function renderError() {
 }
 
 function renderSinglePost(post, from) {
-  const container = document.getElementById("blog-container");
-  container.innerHTML = "";
+  const container = document.getElementById('blog-container');
+  container.innerHTML = '';
 
-  const formatted = new Date(post.date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric"
-  });
-
+  const dateStr = `posted ${formatDate(post.date)}${post.updated_at ? ` · last edited ${formatDate(post.updated_at)}` : ''}`;
   const html = renderMarkdownWithButtons(post.content);
-
-  // Detect entry method
-  const cameFromSamePage =
-    document.referrer &&
-    document.referrer.includes(window.location.pathname);
 
   const brandSVG = `
   <svg width="1951" height="446" viewBox="0 0 1951 446" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -241,17 +237,10 @@ function renderSinglePost(post, from) {
   </svg>
   `;
 
-  const actionButton = from === "share"
-    ? `
-      <div class="watch-btn orange blog-nav-btn" data-action="home">
-        visit ${brandSVG}'s website
-      </div>
-      `
-    : `
-      <div class="watch-btn orange blog-nav-btn" data-action="back">
-        ← back to blog
-      </div>
-      `;
+  const actionButton =
+    from === 'share'
+      ? `<div class="watch-btn orange blog-nav-btn" data-action="home">visit ${brandSVG}'s website</div>`
+      : `<div class="watch-btn orange blog-nav-btn" data-action="back">← back to blog</div>`;
 
   container.innerHTML = `
     <section class="category blog-post single">
@@ -260,7 +249,7 @@ function renderSinglePost(post, from) {
         <span class="blog-share" data-id="${post.id}">share</span>
       </div>
       <h2 class="blog-title">${post.title}</h2>
-      <div class="blog-date">posted ${formatted}</div>
+      <div class="blog-date">${dateStr}</div>
       <div class="blog-content">${html}</div>
       <div class="blog-nav">
         ${actionButton}
@@ -273,102 +262,85 @@ function renderSinglePost(post, from) {
   wireSingleNav();
 }
 
-window.addEventListener("popstate", () => {
+window.addEventListener('popstate', () => {
   loadBlog();
 });
 
-document.getElementById("publish-post")?.addEventListener("click", publishPost);
+document.getElementById('publish-post')?.addEventListener('click', publishPost);
 
-async function publishPost(){
+async function publishPost() {
+  const title = document.getElementById('post-title').value.trim();
+  const content = document.getElementById('post-content').value.trim();
 
-const title = document.getElementById("post-title").value.trim();
-const content = document.getElementById("post-content").value.trim();
+  if (!title || !content) {
+    alert('Title and content required');
+    return;
+  }
 
-if(!title || !content){
-alert("Title and content required");
-return;
+  await fetch(`${API_BASE}/posts`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ title, content }),
+  });
+
+  document.getElementById('post-title').value = '';
+  document.getElementById('post-content').value = '';
+  document.getElementById('preview').innerHTML = '';
+
+  loadBlog();
 }
 
-const res = await fetch(BLOG_URL,{cache:"no-store"});
-const posts = await res.json();
+function editPost(post, el) {
+  el.innerHTML = `
+    <div class="blog-meta">
+      <div class="blog-id">post #${post.id}</div>
+    </div>
+    <input class="inline-edit-title" type="text" value="${post.title.replace(/"/g, '&quot;')}">
+    <textarea class="inline-edit-content">${post.content}</textarea>
+    <div class="post-preview inline-edit-preview"></div>
+    <div class="inline-edit-actions">
+      <span class="blog-admin-btn inline-save">save</span>
+      <span class="blog-admin-btn inline-cancel">cancel</span>
+    </div>
+  `;
 
-if(editingId){
+  const textarea = el.querySelector('.inline-edit-content');
+  const preview = el.querySelector('.inline-edit-preview');
 
-const post = posts.find(p => p.id === editingId);
+  preview.innerHTML = marked.parse(textarea.value);
+  textarea.addEventListener('input', () => {
+    preview.innerHTML = marked.parse(textarea.value);
+  });
 
-post.title = title;
-post.content = content;
+  el.querySelector('.inline-save').onclick = async () => {
+    const title = el.querySelector('.inline-edit-title').value.trim();
+    const content = textarea.value.trim();
+    if (!title || !content) return;
+    await fetch(`${API_BASE}/posts/${post.id}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ title, content }),
+    });
+    loadBlog();
+  };
 
-editingId = null;
-
-}else{
-
-const nextId = posts.length
-? Math.max(...posts.map(p => p.id)) + 1
-: 1;
-
-posts.push({
-id: nextId,
-title,
-date: new Date().toISOString(),
-content
-});
-
+  el.querySelector('.inline-cancel').onclick = () => loadBlog();
 }
 
-downloadJSON(posts);
+async function deletePost(id) {
+  if (!confirm('Delete this post?')) return;
 
+  await fetch(`${API_BASE}/posts/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+
+  loadBlog();
 }
 
-function downloadJSON(data) {
+const contentInput = document.getElementById('post-content');
+const preview = document.getElementById('preview');
 
-  const blob = new Blob(
-    [JSON.stringify(data, null, 2)],
-    { type: "application/json" }
-  );
-
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "blog.json";
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
-
-const contentInput = document.getElementById("post-content");
-const preview = document.getElementById("preview");
-
-contentInput?.addEventListener("input", () => {
+contentInput?.addEventListener('input', () => {
   preview.innerHTML = marked.parse(contentInput.value);
 });
-
-let editingId = null;
-
-function editPost(id){
-
-const post = blogPosts.find(p => p.id === id);
-
-document.getElementById("post-title").value = post.title;
-document.getElementById("post-content").value = post.content;
-
-preview.innerHTML = marked.parse(post.content);
-
-editingId = id;
-
-window.scrollTo({top:0, behavior:"smooth"});
-}
-
-async function deletePost(id){
-
-if(!confirm("Delete this post?")) return;
-
-const res = await fetch(BLOG_URL,{cache:"no-store"});
-const posts = await res.json();
-
-const updated = posts.filter(p => p.id !== id);
-
-downloadJSON(updated);
-
-}
