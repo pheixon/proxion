@@ -10,6 +10,21 @@
 <body>
 
   <div class="videos-page">
+    <div id="collection-editor" class="blog-editor hidden">
+      <h2>add phone</h2>
+      <div class="admin-edit-form">
+        <input id="new-brand" class="admin-field" placeholder="brand">
+        <input id="new-model" class="admin-field" placeholder="model">
+        <input id="new-type" class="admin-field" placeholder="type">
+        <input id="new-year" class="admin-field" placeholder="year" type="number">
+        <input id="new-image" class="admin-field" placeholder="image url">
+        <input id="new-aka" class="admin-field" placeholder="aka">
+        <label class="admin-check"><input type="checkbox" id="new-article"> has wiki article</label>
+        <label class="admin-check"><input type="checkbox" id="new-clone"> clone</label>
+      </div>
+      <span class="watch-btn green" onclick="createPhone()">add phone</span>
+    </div>
+
     <div id="phones-container" class="phones-container">
       <div id="phones-total" class="phones-total"></div>
       <div id="phones-updated" class="video-count"></div>

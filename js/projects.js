@@ -1,5 +1,29 @@
-const PROJECTS_URL = "data/projects.json";
+const PROJECTS_URL = "/api/projects";
 const ITEMS_PER_BATCH = 6;
+const adminMode = new URLSearchParams(window.location.search).get("admin") === "1";
+
+async function adminLogin() {
+  const existing = sessionStorage.getItem("blog_token");
+  if (existing) return true;
+  const pass = prompt("Enter admin password");
+  if (!pass) return false;
+  const res = await fetch("/api/auth", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: pass }),
+  });
+  if (!res.ok) { alert("Access denied"); return false; }
+  const { token } = await res.json();
+  sessionStorage.setItem("blog_token", token);
+  return true;
+}
+
+function authHeaders() {
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${sessionStorage.getItem("blog_token")}`,
+  };
+}
 
 let allProjects = [];
 let currentSort = "type";
@@ -12,6 +36,11 @@ const pageFade = document.getElementById("page-fade");
 document.addEventListener("DOMContentLoaded", () => {
   injectSortBar();
   loadProjects();
+  if (adminMode) {
+    adminLogin().then(ok => {
+      if (ok) document.getElementById("projects-editor").classList.remove("hidden");
+    });
+  }
 
   document.getElementById("back-btn")?.addEventListener("click", () => {
     switchToListView(true);
@@ -186,7 +215,83 @@ function createProjectCard(project) {
     openProjectById(project.id, true);
   });
 
+  if (adminMode) {
+    const editBtn = document.createElement("div");
+    editBtn.className = "blog-admin-btn";
+    editBtn.textContent = "edit";
+    editBtn.onclick = () => editProject(project, card);
+
+    const deleteBtn = document.createElement("div");
+    deleteBtn.className = "blog-admin-btn delete";
+    deleteBtn.textContent = "delete";
+    deleteBtn.onclick = () => deleteProject(project.id, card);
+
+    card.appendChild(editBtn);
+    card.appendChild(deleteBtn);
+  }
+
   return card;
+}
+
+/* ---------------- ADMIN ---------------- */
+
+function editProject(project, card) {
+  const saved = card.innerHTML;
+  card.innerHTML = `
+    <div class="admin-edit-form">
+      <input class="admin-field" id="ep-title" placeholder="title" value="${project.title}">
+      <input class="admin-field" id="ep-type" placeholder="type" value="${project.type || ""}">
+      <input class="admin-field" id="ep-year" placeholder="year" value="${project.year || ""}">
+      <input class="admin-field" id="ep-image" placeholder="image url" value="${project.image || ""}">
+      <textarea class="admin-field" id="ep-images" placeholder="extra images (one url per line)">${Array.isArray(project.images) ? project.images.join("\n") : ""}</textarea>
+      <input class="admin-field" id="ep-url" placeholder="project url" value="${project.url || ""}">
+      <textarea class="admin-field" id="ep-desc" placeholder="description">${project.description || ""}</textarea>
+      <div class="admin-actions">
+        <span class="blog-admin-btn">save</span>
+        <span class="blog-admin-btn delete">cancel</span>
+      </div>
+    </div>
+  `;
+  card.querySelector(".admin-actions .blog-admin-btn").onclick = async () => {
+    const imagesRaw = document.getElementById("ep-images").value.trim();
+    const body = {
+      title: document.getElementById("ep-title").value.trim(),
+      type: document.getElementById("ep-type").value.trim(),
+      year: document.getElementById("ep-year").value.trim(),
+      image: document.getElementById("ep-image").value.trim(),
+      images: imagesRaw ? imagesRaw.split("\n").map(s => s.trim()).filter(Boolean) : [],
+      url: document.getElementById("ep-url").value.trim(),
+      description: document.getElementById("ep-desc").value.trim(),
+    };
+    const res = await fetch(`/api/projects/${project.id}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(body) });
+    if (res.ok) { allProjects = allProjects.map(p => p.id === project.id ? { ...p, ...body } : p); render(); }
+  };
+  card.querySelector(".blog-admin-btn.delete").onclick = () => { card.innerHTML = saved; };
+}
+
+async function deleteProject(id, card) {
+  if (!confirm("Delete this project?")) return;
+  const res = await fetch(`/api/projects/${id}`, { method: "DELETE", headers: authHeaders() });
+  if (res.ok) { allProjects = allProjects.filter(p => p.id !== id); card.remove(); updateMeta(null); }
+}
+
+async function createProject() {
+  const get = id => document.getElementById(id).value.trim();
+  const imagesRaw = get("new-p-images");
+  const body = {
+    id: get("new-p-id"), title: get("new-p-title"), type: get("new-p-type"),
+    year: get("new-p-year"), image: get("new-p-image"),
+    images: imagesRaw ? imagesRaw.split("\n").map(s => s.trim()).filter(Boolean) : [],
+    url: get("new-p-url"), description: get("new-p-desc"),
+  };
+  if (!body.id || !body.title) return alert("ID and title are required");
+  const res = await fetch("/api/projects", { method: "POST", headers: authHeaders(), body: JSON.stringify(body) });
+  if (res.ok) {
+    allProjects.push(body);
+    ["new-p-id","new-p-title","new-p-type","new-p-year","new-p-image","new-p-images","new-p-url","new-p-desc"].forEach(id => document.getElementById(id).value = "");
+    updateMeta(null);
+    render();
+  }
 }
 
 /* ---------------- DETAIL VIEW ---------------- */

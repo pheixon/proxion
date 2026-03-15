@@ -50,28 +50,104 @@ function authHeaders() {
   };
 }
 
+let allPosts = [];
+
 async function loadBlog() {
   try {
     const res = await fetch(`${API_BASE}/posts`);
-    const posts = await res.json();
+    allPosts = await res.json();
 
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
     const from = urlParams.get('from');
 
     if (id) {
-      const post = posts.find(p => String(p.id) === id);
+      const post = allPosts.find(p => String(p.id) === id);
       if (post) {
         renderSinglePost(post, from);
         return;
       }
     }
 
-    renderPosts(posts);
+    injectSortBar();
+    renderPosts(allPosts);
   } catch (err) {
     console.error('Failed to load posts', err);
     renderError();
   }
+}
+
+function injectSortBar() {
+  const container = document.querySelector('.sort-bar-container');
+  container.innerHTML = `
+    <div class="sort-bar">
+      <div class="blog-search-wrap">
+        <input id="blogSearchInput" class="blog-search-input" type="text" placeholder="search posts..." />
+        <button id="blogSearchBtn" class="blog-search-btn" aria-label="Search" tabindex="0">
+          <svg class="icon-search" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <svg class="icon-cancel" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="2" y1="2" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="14" y1="2" x2="2" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <span class="sort-label">sort by</span>
+      <select id="sortSelect">
+        <option value="newest" selected>newest first</option>
+        <option value="oldest">oldest first</option>
+      </select>
+    </div>
+  `;
+
+  document.getElementById('sortSelect').addEventListener('change', () => {
+    applyFilters();
+  });
+
+  document.getElementById('blogSearchBtn').addEventListener('click', () => {
+    const input = document.getElementById('blogSearchInput');
+    const btn = document.getElementById('blogSearchBtn');
+    if (btn.classList.contains('cancel')) {
+      closeSearch();
+    } else {
+      input.classList.add('active');
+      btn.classList.add('cancel');
+      input.focus();
+    }
+  });
+
+  document.getElementById('blogSearchInput').addEventListener('input', () => applyFilters());
+
+  document.getElementById('blogSearchInput').addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSearch();
+  });
+
+  document.getElementById('blogSearchInput').addEventListener('blur', e => {
+    if (e.relatedTarget === document.getElementById('blogSearchBtn')) return;
+    if (!document.getElementById('blogSearchInput').value) closeSearch();
+  });
+}
+
+function closeSearch() {
+  const input = document.getElementById('blogSearchInput');
+  const btn = document.getElementById('blogSearchBtn');
+  if (!input) return;
+  input.value = '';
+  input.classList.remove('active');
+  btn.classList.remove('cancel');
+  applyFilters();
+}
+
+function applyFilters() {
+  const query = (document.getElementById('blogSearchInput')?.value || '').toLowerCase();
+  const order = document.getElementById('sortSelect')?.value || 'newest';
+  let filtered = query
+    ? allPosts.filter(p => p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query))
+    : [...allPosts];
+  filtered.sort((a, b) => (order === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date)));
+  renderPosts(filtered);
 }
 
 function formatDate(iso) {
@@ -88,11 +164,16 @@ function formatDate(iso) {
     .replace(', ', ' at ');
 }
 
-function renderPosts(posts) {
-  const container = document.getElementById('blog-container');
-  container.innerHTML = '';
+const PAGE_SIZE = 5;
 
-  posts.forEach(post => {
+function renderPosts(posts, append = false) {
+  const container = document.getElementById('blog-container');
+  if (!append) container.innerHTML = '';
+
+  const existing = container.querySelectorAll('.blog-post').length;
+  const slice = posts.slice(existing, existing + PAGE_SIZE);
+
+  slice.forEach(post => {
     const el = document.createElement('section');
     el.className = 'category blog-post';
 
@@ -134,6 +215,19 @@ function renderPosts(posts) {
 
   wireBlogButtons();
   wireShareButtons();
+
+  const oldBtn = document.getElementById('load-more-btn');
+  if (oldBtn) oldBtn.remove();
+
+  const shown = container.querySelectorAll('.blog-post').length;
+  if (shown < posts.length) {
+    const btn = document.createElement('div');
+    btn.id = 'load-more-btn';
+    btn.className = 'load-more label orange blog-load-more';
+    btn.textContent = 'load more';
+    btn.onclick = () => renderPosts(posts, true);
+    container.appendChild(btn);
+  }
 }
 
 function renderMarkdownWithButtons(md) {

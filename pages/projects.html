@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>My Projects</title>
@@ -8,11 +9,27 @@
   <link rel="stylesheet" href="../css/collection.css" />
   <link rel="stylesheet" href="../css/projects.css" />
 </head>
+
 <body class="videos-page">
 
   <div id="page-fade" class="fade-container">
 
     <div id="projects-list-view">
+      <div id="projects-editor" class="blog-editor hidden">
+        <h2>add project</h2>
+        <div class="admin-edit-form">
+          <input id="new-p-id" class="admin-field" placeholder="id (slug, e.g. my-project)">
+          <input id="new-p-title" class="admin-field" placeholder="title">
+          <input id="new-p-type" class="admin-field" placeholder="type">
+          <input id="new-p-year" class="admin-field" placeholder="year">
+          <input id="new-p-image" class="admin-field" placeholder="image url">
+          <textarea id="new-p-images" class="admin-field" placeholder="extra images (one url per line)"></textarea>
+          <input id="new-p-url" class="admin-field" placeholder="project url">
+          <textarea id="new-p-desc" class="admin-field" placeholder="description"></textarea>
+        </div>
+        <span class="watch-btn purple" onclick="createProject()">add project</span>
+      </div>
+
       <div id="projects-container" class="projects-container">
         <div id="projects-total" class="projects-total"></div>
         <div id="projects-updated" class="video-count"></div>
@@ -34,4 +51,5 @@
 
   <script src="../js/projects.js"></script>
 </body>
+
 </html>

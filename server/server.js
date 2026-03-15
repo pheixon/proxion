@@ -23,7 +23,28 @@ db.exec(`
     date TEXT NOT NULL,
     content TEXT NOT NULL,
     updated_at TEXT
-  )
+  );
+  CREATE TABLE IF NOT EXISTS phones (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand TEXT NOT NULL,
+    model TEXT NOT NULL,
+    type TEXT,
+    year INTEGER,
+    image TEXT,
+    article INTEGER DEFAULT 0,
+    clone INTEGER DEFAULT 0,
+    aka TEXT
+  );
+  CREATE TABLE IF NOT EXISTS projects (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    type TEXT,
+    year TEXT,
+    image TEXT,
+    images TEXT,
+    url TEXT,
+    description TEXT
+  );
 `);
 
 function auth(req, res, next) {
@@ -43,7 +64,7 @@ app.post('/api/auth', (req, res) => {
   res.json({ token });
 });
 
-app.get('/api/posts', (req, res) => {
+app.get('/api/posts', (_req, res) => {
   res.json(db.prepare('SELECT * FROM posts ORDER BY date DESC').all());
 });
 
@@ -72,6 +93,60 @@ app.put('/api/posts/:id', auth, (req, res) => {
 
 app.delete('/api/posts/:id', auth, (req, res) => {
   db.prepare('DELETE FROM posts WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
+});
+
+app.post('/api/phones', auth, (req, res) => {
+  const { brand, model, type, year, image, article, clone, aka } = req.body;
+  if (!brand || !model) return res.status(400).json({ error: 'brand and model required' });
+  const { lastInsertRowid } = db.prepare(
+    'INSERT INTO phones (brand, model, type, year, image, article, clone, aka) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(brand, model, type || null, year || null, image || '', article ? 1 : 0, clone ? 1 : 0, aka || '');
+  res.json({ ok: true, id: lastInsertRowid });
+});
+
+app.put('/api/phones/:id', auth, (req, res) => {
+  const { brand, model, type, year, image, article, clone, aka } = req.body;
+  db.prepare(
+    'UPDATE phones SET brand=?, model=?, type=?, year=?, image=?, article=?, clone=?, aka=? WHERE id=?'
+  ).run(brand, model, type || null, year || null, image || '', article ? 1 : 0, clone ? 1 : 0, aka || '', req.params.id);
+  res.json({ ok: true });
+});
+
+app.delete('/api/phones/:id', auth, (req, res) => {
+  db.prepare('DELETE FROM phones WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
+});
+
+app.get('/api/phones', (_req, res) => {
+  const rows = db.prepare('SELECT * FROM phones ORDER BY brand, model').all();
+  res.json(rows.map(r => ({ ...r, article: !!r.article, clone: !!r.clone })));
+});
+
+app.get('/api/projects', (_req, res) => {
+  const rows = db.prepare('SELECT * FROM projects').all();
+  res.json(rows.map(r => ({ ...r, images: r.images ? JSON.parse(r.images) : [] })));
+});
+
+app.post('/api/projects', auth, (req, res) => {
+  const { id, title, type, year, image, images, url, description } = req.body;
+  if (!id || !title) return res.status(400).json({ error: 'id and title required' });
+  db.prepare(
+    'INSERT INTO projects (id, title, type, year, image, images, url, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(id, title, type || null, year || null, image || '', images ? JSON.stringify(images) : null, url || '', description || '');
+  res.json({ ok: true, id });
+});
+
+app.put('/api/projects/:id', auth, (req, res) => {
+  const { title, type, year, image, images, url, description } = req.body;
+  db.prepare(
+    'UPDATE projects SET title=?, type=?, year=?, image=?, images=?, url=?, description=? WHERE id=?'
+  ).run(title, type || null, year || null, image || '', images ? JSON.stringify(images) : null, url || '', description || '', req.params.id);
+  res.json({ ok: true });
+});
+
+app.delete('/api/projects/:id', auth, (req, res) => {
+  db.prepare('DELETE FROM projects WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
 });
 
