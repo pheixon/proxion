@@ -45,6 +45,13 @@ function injectSortBar() {
 
   sortContainer.innerHTML = `
     <div class="sort-bar">
+      <div class="blog-search-wrap">
+        <input id="pageSearchInput" class="blog-search-input" type="text" placeholder="search videos..." />
+        <button id="pageSearchBtn" class="blog-search-btn" aria-label="Search" tabindex="0">
+          <svg class="icon-search" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg class="icon-cancel" width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="2" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="14" y1="2" x2="2" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
       <span class="sort-label">sort by</span>
       <select id="sortSelect">
         <option value="category" selected>category</option>
@@ -59,6 +66,57 @@ function injectSortBar() {
       currentSort = e.target.value;
       render();
     });
+
+  wirePageSearch();
+}
+
+let searchQuery = "";
+
+function wirePageSearch() {
+  const input = document.getElementById("pageSearchInput");
+  const btn = document.getElementById("pageSearchBtn");
+
+  btn.addEventListener("click", () => {
+    if (btn.classList.contains("cancel")) {
+      input.value = "";
+      input.classList.remove("active");
+      btn.classList.remove("cancel");
+      searchQuery = "";
+      render();
+    } else {
+      input.classList.add("active");
+      btn.classList.add("cancel");
+      input.focus();
+    }
+  });
+
+  input.addEventListener("input", () => {
+    searchQuery = input.value.toLowerCase();
+    render();
+  });
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      input.value = "";
+      input.classList.remove("active");
+      btn.classList.remove("cancel");
+      searchQuery = "";
+      render();
+    }
+  });
+
+  input.addEventListener("blur", e => {
+    if (e.relatedTarget === btn) return;
+    if (!input.value) {
+      input.classList.remove("active");
+      btn.classList.remove("cancel");
+    }
+  });
+}
+
+function getFilteredVideos() {
+  if (!searchQuery) return allVideos;
+  return allVideos.filter(v => v.rawTitle.toLowerCase().includes(searchQuery) || v.cleanTitle.toLowerCase().includes(searchQuery));
 }
 
 // =====================================================
@@ -214,7 +272,7 @@ function renderByCategory() {
 
   groups.other = [];
 
-  allVideos.forEach(v => {
+  getFilteredVideos().forEach(v => {
     groups[v.category]?.push(v);
   });
 
@@ -228,7 +286,7 @@ function renderByYear() {
 
   const groups = {};
 
-  allVideos.forEach(v => {
+  getFilteredVideos().forEach(v => {
     const year = new Date(v.date).getFullYear();
     if (!groups[year]) groups[year] = [];
     groups[year].push(v);
@@ -248,7 +306,7 @@ function renderByTitle() {
 
   const groups = {};
 
-  allVideos.forEach(v => {
+  getFilteredVideos().forEach(v => {
     const first = v.cleanTitle.charAt(0).toUpperCase();
     const key = first >= "A" && first <= "Z" ? first : "#";
 

@@ -118,14 +118,21 @@ app.delete('/api/phones/:id', auth, (req, res) => {
   res.json({ ok: true });
 });
 
+function stripDotZero(v) {
+  if (typeof v === 'string' && v.endsWith('.0')) return v.slice(0, -2);
+  if (typeof v === 'number' && Number.isInteger(v)) return v;
+  if (typeof v === 'number') return Math.round(v);
+  return v;
+}
+
 app.get('/api/phones', (_req, res) => {
   const rows = db.prepare('SELECT * FROM phones ORDER BY brand, model').all();
-  res.json(rows.map(r => ({ ...r, article: !!r.article, clone: !!r.clone })));
+  res.json(rows.map(r => ({ ...r, model: stripDotZero(r.model), year: stripDotZero(r.year), article: !!r.article, clone: !!r.clone })));
 });
 
 app.get('/api/projects', (_req, res) => {
   const rows = db.prepare('SELECT * FROM projects').all();
-  res.json(rows.map(r => ({ ...r, images: r.images ? JSON.parse(r.images) : [] })));
+  res.json(rows.map(r => ({ ...r, year: stripDotZero(r.year), images: r.images ? JSON.parse(r.images) : [] })));
 });
 
 app.post('/api/projects', auth, (req, res) => {
@@ -148,6 +155,27 @@ app.put('/api/projects/:id', auth, (req, res) => {
 app.delete('/api/projects/:id', auth, (req, res) => {
   db.prepare('DELETE FROM projects WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
+});
+
+app.get('/api/search', (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q) return res.json([]);
+  const like = `%${q}%`;
+  const posts = db.prepare("SELECT id, title, content as detail, 'post' as source FROM posts WHERE title LIKE ? OR content LIKE ?").all(like, like);
+  const phones = db.prepare(`SELECT id, brand || ' ' || model as title,
+    CASE WHEN aka IS NOT NULL AND aka != '' THEN 'aka ' || brand || ' ' || aka || ' · ' ELSE '' END
+    || COALESCE(year,'')
+    || ' · ' || type
+    || CASE WHEN clone = 1 THEN ' · clone' ELSE '' END
+    as detail, 'phone' as source
+    FROM phones WHERE brand LIKE ? OR model LIKE ? OR aka LIKE ?`).all(like, like, like);
+  const projects = db.prepare("SELECT id, title, description as detail, 'project' as source FROM projects WHERE title LIKE ? OR description LIKE ?").all(like, like);
+  const all = [...posts, ...phones, ...projects].map(r => ({
+    ...r,
+    title: stripDotZero(r.title),
+    detail: typeof r.detail === 'string' ? r.detail.replace(/(\d+)\.0/g, '$1') : r.detail,
+  }));
+  res.json(all);
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

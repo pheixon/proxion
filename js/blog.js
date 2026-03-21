@@ -143,11 +143,37 @@ function closeSearch() {
 function applyFilters() {
   const query = (document.getElementById('blogSearchInput')?.value || '').toLowerCase();
   const order = document.getElementById('sortSelect')?.value || 'newest';
-  let filtered = query
-    ? allPosts.filter(p => p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query))
-    : [...allPosts];
-  filtered.sort((a, b) => (order === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date)));
-  renderPosts(filtered);
+  const container = document.getElementById('blog-container');
+  const posts = container.querySelectorAll('.blog-post');
+
+  if (!posts.length) {
+    let filtered = query
+      ? allPosts.filter(p => p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query))
+      : [...allPosts];
+    filtered.sort((a, b) => (order === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date)));
+    renderPosts(filtered);
+    return;
+  }
+
+  const matchIds = new Set(
+    (query ? allPosts.filter(p => p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query)) : allPosts)
+      .map(p => String(p.id))
+  );
+
+  posts.forEach(el => {
+    const id = el.querySelector('.blog-id')?.textContent.replace('post #', '');
+    el.style.display = matchIds.has(id) ? '' : 'none';
+  });
+
+  const visible = [...posts].filter(el => el.style.display !== 'none');
+  if (order === 'oldest') {
+    visible.reverse().forEach(el => container.appendChild(el));
+  } else {
+    visible.forEach(el => container.appendChild(el));
+  }
+
+  const loadBtn = document.getElementById('load-more-btn');
+  if (loadBtn) container.appendChild(loadBtn);
 }
 
 function formatDate(iso) {

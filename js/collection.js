@@ -56,6 +56,13 @@ function injectSortBar() {
 
   sortContainer.innerHTML = `
     <div class="sort-bar">
+      <div class="blog-search-wrap">
+        <input id="pageSearchInput" class="blog-search-input" type="text" placeholder="search phones..." />
+        <button id="pageSearchBtn" class="blog-search-btn" aria-label="Search" tabindex="0">
+          <svg class="icon-search" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg class="icon-cancel" width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="2" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="14" y1="2" x2="2" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
       <span class="sort-label">sort by</span>
       <select id="sortSelect">
         <option value="brand" selected>brand</option>
@@ -69,6 +76,61 @@ function injectSortBar() {
     currentSort = e.target.value;
     render();
   });
+
+  wirePageSearch();
+}
+
+let searchQuery = "";
+
+function wirePageSearch() {
+  const input = document.getElementById("pageSearchInput");
+  const btn = document.getElementById("pageSearchBtn");
+
+  btn.addEventListener("click", () => {
+    if (btn.classList.contains("cancel")) {
+      input.value = "";
+      input.classList.remove("active");
+      btn.classList.remove("cancel");
+      searchQuery = "";
+      render();
+    } else {
+      input.classList.add("active");
+      btn.classList.add("cancel");
+      input.focus();
+    }
+  });
+
+  input.addEventListener("input", () => {
+    searchQuery = input.value.toLowerCase();
+    render();
+  });
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      input.value = "";
+      input.classList.remove("active");
+      btn.classList.remove("cancel");
+      searchQuery = "";
+      render();
+    }
+  });
+
+  input.addEventListener("blur", e => {
+    if (e.relatedTarget === btn) return;
+    if (!input.value) {
+      input.classList.remove("active");
+      btn.classList.remove("cancel");
+    }
+  });
+}
+
+function getFilteredPhones() {
+  if (!searchQuery) return allPhones;
+  return allPhones.filter(p =>
+    p.brand.toLowerCase().includes(searchQuery) ||
+    p.model.toString().toLowerCase().includes(searchQuery) ||
+    (p.aka || "").toLowerCase().includes(searchQuery)
+  );
 }
 
 // =====================================================
@@ -120,7 +182,7 @@ function render() {
 function renderByBrand() {
   const groups = { clones: [] };
 
-  allPhones.forEach(p => {
+  getFilteredPhones().forEach(p => {
     if (p.clone) {
       groups.clones.push(p);
     } else {
@@ -141,7 +203,7 @@ function renderByBrand() {
 function renderByType() {
   const groups = {};
 
-  allPhones.forEach(p => {
+  getFilteredPhones().forEach(p => {
     const type = p.type || "other";
     if (!groups[type]) groups[type] = [];
     groups[type].push(p);
@@ -153,7 +215,7 @@ function renderByType() {
 function renderByYear() {
   const groups = {};
 
-  allPhones.forEach(p => {
+  getFilteredPhones().forEach(p => {
     let yearKey = "unknown";
 
     if (p.year) {

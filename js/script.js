@@ -6,6 +6,15 @@ const firstItem = items[0];
 
 const TRANSITION_MS = 350;
 
+const scrollbarColors = {
+  videos: [231, 76, 60],
+  collection: [46, 204, 113],
+  projects: [155, 89, 182],
+  blog: [243, 156, 18],
+  socials: [26, 188, 156],
+  about: [232, 67, 147],
+};
+
 const menuItems = [
   null,
   { page: 'pages/videos.html', hash: 'videos', scripts: ['js/videos.js'] },
@@ -33,7 +42,7 @@ async function loadPage(menuItem) {
   if (inlineStyles.length) {
     const style = document.createElement('style');
     style.id = styleId;
-    inlineStyles.forEach(s => style.textContent += s.textContent);
+    inlineStyles.forEach(s => (style.textContent += s.textContent));
     document.head.appendChild(style);
   }
 
@@ -68,6 +77,7 @@ async function loadPage(menuItem) {
     document.body.appendChild(script);
     loadedScripts.push(script);
   }
+
 }
 
 function clearPage() {
@@ -95,6 +105,7 @@ items.forEach((item, index) => {
       });
       firstItem.classList.add('active');
       currentPage = null;
+      document.documentElement.style.removeProperty('--scrollbar-thumb');
 
       setTimeout(() => {
         clearPage();
@@ -116,6 +127,11 @@ items.forEach((item, index) => {
       i.classList.remove('active');
     });
     item.classList.add('selected');
+
+    const rgb = scrollbarColors[menuItem.hash];
+    if (rgb) {
+      document.documentElement.style.setProperty('--scrollbar-thumb', `rgba(${rgb}, 1)`);
+    }
 
     if (menuItem.page !== currentPage) {
       embedContainer.classList.remove('active');
@@ -143,6 +159,108 @@ function navigateToHash(hash) {
 
 document.addEventListener('DOMContentLoaded', () => {
   navigateToHash(window.location.hash.replace('#', ''));
+
+  const controls = document.getElementById('bottom-controls');
+  const searchBtn = document.getElementById('global-search-btn');
+  const searchInput = document.getElementById('global-search-input');
+  const searchResults = document.getElementById('global-search-results');
+  let searchTimeout = null;
+
+  searchBtn?.addEventListener('click', () => {
+    if (controls.classList.contains('searching')) {
+      closeGlobalSearch();
+    } else {
+      controls.classList.add('searching');
+      searchInput.focus();
+    }
+  });
+
+  function closeGlobalSearch() {
+    controls.classList.remove('searching');
+    searchInput.value = '';
+    searchResults.innerHTML = '';
+    searchResults.classList.remove('active');
+    searchResults.classList.remove('fade-out');
+    container.style.opacity = '';
+    container.style.pointerEvents = '';
+  }
+
+  searchInput?.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(async () => {
+      const q = searchInput.value.trim();
+      if (!q) {
+        searchResults.innerHTML = '';
+        searchResults.classList.remove('active');
+        container.style.opacity = '';
+        container.style.pointerEvents = '';
+        return;
+      }
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      const results = await res.json();
+      container.style.opacity = '0';
+      container.style.pointerEvents = 'none';
+      setTimeout(() => {
+        searchResults.classList.add('active');
+        if (!results.length) {
+          searchResults.innerHTML = '<div class="global-search-empty">no results</div>';
+          return;
+        }
+        const sourceLabels = { post: 'blog', phone: 'collection', project: 'projects' };
+        const sourceHashes = { post: 'blog', phone: 'collection', project: 'projects' };
+        searchResults.innerHTML = results
+          .map(r => {
+            const detail = (r.detail || '')
+              .replace(/\[button:([^\]]*)\]/g, '$1')
+              .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+              .replace(/[#*_`>~\[\]]/g, '')
+              .replace(/\n+/g, ' ')
+              .trim()
+              .slice(0, 100);
+            return `
+            <div class="global-search-result" data-source="${r.source}" data-id="${r.id}">
+              <div class="global-search-result-info">
+                <div class="global-search-result-title">${r.title}</div>
+                ${detail ? `<div class="global-search-result-detail">${detail}${r.detail.length > 100 ? '...' : ''}</div>` : ''}
+              </div>
+              <span class="global-search-result-source">${sourceLabels[r.source] || r.source}</span>
+            </div>
+          `;
+          })
+          .join('');
+        searchResults.querySelectorAll('.global-search-result').forEach(el => {
+          el.addEventListener('click', () => {
+            const hash = sourceHashes[el.dataset.source];
+            searchResults.classList.add('fade-out');
+            setTimeout(() => {
+              closeGlobalSearch();
+              if (hash) navigateToHash(hash);
+            }, 300);
+          });
+        });
+      }, 300);
+    }, 250);
+  });
+
+  searchInput?.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeGlobalSearch();
+  });
+
+  searchInput?.addEventListener('blur', e => {
+    if (e.relatedTarget === searchBtn) return;
+    if (!searchInput.value) closeGlobalSearch();
+  });
+
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    if (next === 'dark') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', next);
+    }
+    localStorage.setItem('theme', next);
+  });
 });
 
 window.addEventListener('popstate', () => {

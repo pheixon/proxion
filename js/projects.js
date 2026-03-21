@@ -108,7 +108,7 @@ function render() {
 
 function renderByType() {
   const groups = {};
-  allProjects.forEach(p => {
+  getFilteredProjects().forEach(p => {
     const type = p.type || "other";
     if (!groups[type]) groups[type] = [];
     groups[type].push(p);
@@ -118,7 +118,7 @@ function renderByType() {
 
 function renderByYear() {
   const groups = {};
-  allProjects.forEach(p => {
+  getFilteredProjects().forEach(p => {
     let year = p.year || "unknown";
     year = String(year).replace("?", "");
     if (!groups[year]) groups[year] = [];
@@ -138,7 +138,7 @@ function renderByYear() {
 
 function renderByTitle() {
   const groups = {};
-  allProjects.forEach(p => {
+  getFilteredProjects().forEach(p => {
     const first = p.title.charAt(0).toUpperCase();
     const key = first >= "A" && first <= "Z" ? first : "#";
     if (!groups[key]) groups[key] = [];
@@ -407,10 +407,19 @@ function setupCarousel(images) {
 
 /* ---------------- UI ---------------- */
 
+let searchQuery = "";
+
 function injectSortBar() {
   const sortContainer = document.querySelector(".sort-bar-container");
   sortContainer.innerHTML = `
     <div class="sort-bar">
+      <div class="blog-search-wrap">
+        <input id="pageSearchInput" class="blog-search-input" type="text" placeholder="search projects..." />
+        <button id="pageSearchBtn" class="blog-search-btn" aria-label="Search" tabindex="0">
+          <svg class="icon-search" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg class="icon-cancel" width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="2" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="14" y1="2" x2="2" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
       <span class="sort-label">sort by</span>
       <select id="sortSelect">
         <option value="type" selected>type</option>
@@ -424,6 +433,59 @@ function injectSortBar() {
     currentSort = e.target.value;
     render();
   });
+
+  wirePageSearch();
+}
+
+function wirePageSearch() {
+  const input = document.getElementById("pageSearchInput");
+  const btn = document.getElementById("pageSearchBtn");
+
+  btn.addEventListener("click", () => {
+    if (btn.classList.contains("cancel")) {
+      input.value = "";
+      input.classList.remove("active");
+      btn.classList.remove("cancel");
+      searchQuery = "";
+      render();
+    } else {
+      input.classList.add("active");
+      btn.classList.add("cancel");
+      input.focus();
+    }
+  });
+
+  input.addEventListener("input", () => {
+    searchQuery = input.value.toLowerCase();
+    render();
+  });
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      input.value = "";
+      input.classList.remove("active");
+      btn.classList.remove("cancel");
+      searchQuery = "";
+      render();
+    }
+  });
+
+  input.addEventListener("blur", e => {
+    if (e.relatedTarget === btn) return;
+    if (!input.value) {
+      input.classList.remove("active");
+      btn.classList.remove("cancel");
+    }
+  });
+}
+
+function getFilteredProjects() {
+  if (!searchQuery) return allProjects;
+  return allProjects.filter(p =>
+    p.title.toLowerCase().includes(searchQuery) ||
+    (p.description || "").toLowerCase().includes(searchQuery) ||
+    (p.type || "").toLowerCase().includes(searchQuery)
+  );
 }
 
 function updateMeta(lastUpdatedHeader) {
