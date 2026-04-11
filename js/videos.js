@@ -1,7 +1,6 @@
 // =====================================================
 // CONFIG
 // =====================================================
-const API_KEY = "AIzaSyBujIgsM22aI6i8Th5cxCnLDXSGdxy_Nf0";
 const CHANNEL_ID = "UCalOFAYtXcoCeVj48OB_w9w";
 
 const CACHE_KEY = "youtube_full_channel_cache_v3";
@@ -150,10 +149,7 @@ function fetchAllUploads(pageToken = "", collected = []) {
     "UU" + CHANNEL_ID.substring(2); // UCxxxx → UUxxxx
 
   fetch(
-    `https://www.googleapis.com/youtube/v3/playlistItems?` +
-    `part=snippet&playlistId=${uploadsPlaylistId}` +
-    `&maxResults=50&pageToken=${pageToken}` +
-    `&key=${API_KEY}`
+    `/api/youtube/playlist?playlistId=${uploadsPlaylistId}&pageToken=${pageToken}`
   )
     .then(res => res.json())
     .then(data => {
@@ -213,7 +209,7 @@ async function fetchLiveStreamIds(videoIds) {
     const batch = videoIds.slice(i, i + 50).join(",");
     try {
       const res = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${batch}&key=${API_KEY}`
+        `/api/youtube/videos?ids=${batch}`
       );
       const data = await res.json();
       if (data.items) {

@@ -178,4 +178,30 @@ app.get('/api/search', (req, res) => {
   res.json(all);
 });
 
+const YT_KEY = process.env.YOUTUBE_API_KEY;
+
+app.get('/api/youtube/playlist', async (req, res) => {
+  const { playlistId, pageToken } = req.query;
+  if (!playlistId) return res.status(400).json({ error: 'playlistId required' });
+  const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&pageToken=${pageToken || ''}&key=${YT_KEY}`;
+  const r = await fetch(url);
+  res.json(await r.json());
+});
+
+app.get('/api/youtube/videos', async (req, res) => {
+  const { ids, part } = req.query;
+  if (!ids) return res.status(400).json({ error: 'ids required' });
+  const url = `https://www.googleapis.com/youtube/v3/videos?part=${part || 'liveStreamingDetails'}&id=${ids}&key=${YT_KEY}`;
+  const r = await fetch(url);
+  res.json(await r.json());
+});
+
+app.get('/api/youtube/channels', async (req, res) => {
+  const { id } = req.query;
+  if (!id) return res.status(400).json({ error: 'id required' });
+  const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${id}&key=${YT_KEY}`;
+  const r = await fetch(url);
+  res.json(await r.json());
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

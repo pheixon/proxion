@@ -1,4 +1,3 @@
-const SOCIALS_API_KEY = "AIzaSyBujIgsM22aI6i8Th5cxCnLDXSGdxy_Nf0";
 const SOCIALS_CHANNEL_ID = "UCalOFAYtXcoCeVj48OB_w9w";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -9,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function fetchChannelStats() {
   fetch(
-    `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${SOCIALS_CHANNEL_ID}&key=${SOCIALS_API_KEY}`
+    `/api/youtube/channels?id=${SOCIALS_CHANNEL_ID}`
   )
     .then(res => res.json())
     .then(data => {
@@ -26,7 +25,7 @@ function fetchLatestVideo() {
   const playlistId = "UU" + SOCIALS_CHANNEL_ID.substring(2);
 
   fetch(
-    `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=1&key=${SOCIALS_API_KEY}`
+    `/api/youtube/playlist?playlistId=${playlistId}&pageToken=`
   )
     .then(res => res.json())
     .then(data => {
