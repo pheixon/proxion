@@ -21,7 +21,7 @@ const menuItems = [
   { page: 'pages/collection.html', hash: 'collection', scripts: ['js/collection.js'] },
   { page: 'pages/projects.html', hash: 'projects', scripts: ['js/projects.js'] },
   { page: 'pages/blog.html', hash: 'blog', scripts: ['js/blog.js'] },
-  { page: 'pages/socials.html', hash: 'socials', scripts: [] },
+  { page: 'pages/socials.html', hash: 'socials', scripts: ['js/socials.js'] },
   { page: 'pages/about.html', hash: 'about', scripts: [] },
 ];
 
@@ -88,6 +88,17 @@ function clearPage() {
   loadedScripts = [];
 }
 
+function updateBackdropWidth() {
+  const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+  if (scrollbarWidth > 0) {
+    document.documentElement.style.setProperty('--backdrop-width', `calc(100vw - ${scrollbarWidth}px)`);
+  } else {
+    document.documentElement.style.removeProperty('--backdrop-width');
+  }
+}
+
+new ResizeObserver(updateBackdropWidth).observe(document.documentElement);
+
 items.forEach((item, index) => {
   item.addEventListener('click', () => {
     const isSelectedMode = container.classList.contains('selected');
@@ -97,6 +108,7 @@ items.forEach((item, index) => {
     if (isSelectedMode && isAlreadySelected && !isFirst) return;
 
     if (isFirst && isSelectedMode) {
+      document.querySelector('.sort-bar')?.classList.remove('visible');
       embedContainer.classList.remove('active');
       container.classList.remove('selected');
       items.forEach(i => {
@@ -111,6 +123,7 @@ items.forEach((item, index) => {
         clearPage();
         window.scrollTo({ top: 0 });
         history.pushState(null, '', window.location.pathname);
+        document.documentElement.style.removeProperty('--backdrop-width');
       }, TRANSITION_MS);
 
       return;
@@ -128,18 +141,26 @@ items.forEach((item, index) => {
     });
     item.classList.add('selected');
 
-    const rgb = scrollbarColors[menuItem.hash];
-    if (rgb) {
-      document.documentElement.style.setProperty('--scrollbar-thumb', `rgba(${rgb}, 1)`);
-    }
-
     if (menuItem.page !== currentPage) {
+      document.querySelector('.sort-bar')?.classList.remove('visible');
       embedContainer.classList.remove('active');
       currentPage = menuItem.page;
 
       setTimeout(async () => {
+        document.body.style.overflow = 'hidden';
+        window.scrollTo({ top: 0 });
+        const rgb = scrollbarColors[menuItem.hash];
+        if (rgb) {
+          document.documentElement.style.setProperty('--scrollbar-thumb', `rgba(${rgb}, 1)`);
+        }
         await loadPage(menuItem);
         embedContainer.classList.add('active');
+        document.body.style.overflow = '';
+        setTimeout(() => {
+          document.querySelector('.sort-bar')?.classList.add('visible');
+          updateBackdropWidth();
+          setTimeout(updateBackdropWidth, 500);
+        }, 350);
       }, TRANSITION_MS);
 
       history.pushState(null, '', `#${menuItem.hash}`);
@@ -251,7 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!searchInput.value) closeGlobalSearch();
   });
 
-  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+  const themeToggle = document.getElementById('theme-toggle');
+  themeToggle?.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'light' ? 'dark' : 'light';
     if (next === 'dark') {
@@ -260,6 +282,69 @@ document.addEventListener('DOMContentLoaded', () => {
       document.documentElement.setAttribute('data-theme', next);
     }
     localStorage.setItem('theme', next);
+  });
+
+  const THEMES = ['proxion', 'retro', 'luna', 'aero', 'liquid-glass'];
+
+  function activateThemeSelect() {
+    localStorage.setItem('konami', '1');
+    if (document.getElementById('theme-select')) return;
+    const select = document.createElement('select');
+    select.id = 'theme-select';
+    select.className = 'bottom-btn';
+    THEMES.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      select.appendChild(opt);
+    });
+    const current = document.documentElement.getAttribute('data-theme');
+    select.value = THEMES.includes(current) ? current : 'proxion';
+    select.addEventListener('change', () => {
+      const v = select.value;
+      if (v === 'proxion') {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', v);
+        localStorage.setItem('theme', v);
+      }
+    });
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'bottom-btn';
+    closeBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
+    closeBtn.addEventListener('click', () => {
+      localStorage.removeItem('konami');
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'dark');
+      select.replaceWith(themeToggle);
+      closeBtn.remove();
+    });
+
+    themeToggle.replaceWith(select);
+    select.after(closeBtn);
+  }
+
+  if (localStorage.getItem('konami')) {
+    activateThemeSelect();
+  }
+
+  const konamiSequence = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'];
+  let konamiIndex = 0;
+  document.addEventListener('keydown', e => {
+    if (e.code === konamiSequence[konamiIndex]) {
+      konamiIndex++;
+      if (konamiIndex === konamiSequence.length) {
+        konamiIndex = 0;
+        document.body.style.transition = 'filter 0.3s';
+        document.body.style.filter = 'brightness(2)';
+        setTimeout(() => { document.body.style.filter = ''; }, 300);
+        activateThemeSelect();
+      }
+    } else {
+      konamiIndex = 0;
+    }
   });
 });
 

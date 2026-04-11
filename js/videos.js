@@ -4,7 +4,7 @@
 const API_KEY = "AIzaSyBujIgsM22aI6i8Th5cxCnLDXSGdxy_Nf0";
 const CHANNEL_ID = "UCalOFAYtXcoCeVj48OB_w9w";
 
-const CACHE_KEY = "youtube_full_channel_cache_v2";
+const CACHE_KEY = "youtube_full_channel_cache_v3";
 const CACHE_TIME = 1000 * 60 * 60 * 6; // 6 hours
 const VIDEOS_PER_BATCH = 6;
 
@@ -21,6 +21,10 @@ const CATEGORY_CONFIG = {
   preloaded: {
     label: "preloaded media",
     keywords: ["demo", "tour", "video", "beyond samsung"]
+  },
+  livestreams: {
+    label: "livestreams",
+    keywords: []
   }
 };
 
@@ -35,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   injectSortBar();
   loadVideos();
 });
+
 
 // =====================================================
 // SORT BAR
@@ -180,18 +185,45 @@ function fetchAllUploads(pageToken = "", collected = []) {
 // =====================================================
 // PROCESS DATA
 // =====================================================
-function processVideos(items) {
-  allVideos = items.map(item => ({
-    id: item.snippet.resourceId.videoId,
-    rawTitle: item.snippet.title,
-    cleanTitle: cleanTitle(item.snippet.title),
-    date: item.snippet.publishedAt,
-    thumbnails: item.snippet.thumbnails,
-    category: getCategory(item.snippet.title)
-  }));
+async function processVideos(items) {
+  const videoIds = items.map(i => i.snippet.resourceId.videoId);
+  const liveIds = await fetchLiveStreamIds(videoIds);
+
+  allVideos = items.map(item => {
+    const id = item.snippet.resourceId.videoId;
+    const isLive = liveIds.has(id);
+    const keywordCategory = getCategory(item.snippet.title);
+    return {
+      id,
+      rawTitle: item.snippet.title,
+      cleanTitle: cleanTitle(item.snippet.title),
+      date: item.snippet.publishedAt,
+      thumbnails: item.snippet.thumbnails,
+      category: isLive && keywordCategory === "other" ? "livestreams" : keywordCategory
+    };
+  });
 
   updateVideoMeta(allVideos);
   render();
+}
+
+async function fetchLiveStreamIds(videoIds) {
+  const liveIds = new Set();
+  for (let i = 0; i < videoIds.length; i += 50) {
+    const batch = videoIds.slice(i, i + 50).join(",");
+    try {
+      const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${batch}&key=${API_KEY}`
+      );
+      const data = await res.json();
+      if (data.items) {
+        data.items.forEach(v => {
+          if (v.liveStreamingDetails) liveIds.add(v.id);
+        });
+      }
+    } catch (e) {}
+  }
+  return liveIds;
 }
 
 // =====================================================
@@ -380,7 +412,7 @@ function renderSections(groups, useCategoryLabels = false) {
       loadBtn
     };
 
-    renderNextBatch(key);
+    renderNextBatch(key, true);
 
     loadBtn.onclick = () => renderNextBatch(key);
   });
@@ -395,39 +427,32 @@ function replaceSections() {
 // =====================================================
 // PAGINATION
 // =====================================================
-function renderNextBatch(key) {
+function renderNextBatch(key, immediate) {
   const state = sectionState[key];
   const { videos, rendered, grid, loadBtn } = state;
 
-  // Prevent double-click
   if (loadBtn.classList.contains("loading")) return;
 
-  // Set loading state
-  loadBtn.classList.add("loading");
-  const originalText = loadBtn.textContent;
-  loadBtn.textContent = "loading...";
-
-  // Small delay to allow visual feedback
-  setTimeout(() => {
-
+  function addBatch() {
     const next = videos.slice(rendered, rendered + VIDEOS_PER_BATCH);
-
     next.forEach(video => {
       grid.appendChild(createVideoCard(video));
     });
-
     state.rendered += next.length;
-
-    // Remove loading state
     loadBtn.classList.remove("loading");
-    loadBtn.textContent = originalText;
-
-    // Hide button if all videos loaded
+    loadBtn.textContent = "load more";
     if (state.rendered >= videos.length) {
       loadBtn.classList.add("hidden");
     }
+  }
 
-  }, 250); // small delay for smoother UX
+  if (immediate) {
+    addBatch();
+  } else {
+    loadBtn.classList.add("loading");
+    loadBtn.textContent = "loading...";
+    setTimeout(addBatch, 250);
+  }
 }
 
 // =====================================================
@@ -438,7 +463,12 @@ function createVideoCard(video) {
   card.className = "video";
 
   card.innerHTML = `
-    <img class="thumbnail" src="${video.thumbnails.medium.url}">
+    <div class="thumb-wrap">
+      <img class="thumbnail" src="${video.thumbnails.medium.url}">
+      <div class="thumb-play">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+    </div>
     <div class="video-info">
       <div class="video-title">${video.cleanTitle}</div>
       <div class="video-date">${formatDate(video.date)}</div>
@@ -488,6 +518,9 @@ function createVideoCard(video) {
         "_blank"
       );
     });
+
+  card.querySelector(".thumb-wrap")
+    .addEventListener("click", () => openVideoModal(video));
 
   return card;
 }
@@ -593,8 +626,42 @@ function renderSectionsFromOrderedKeys(groups, orderedKeys, useCategoryLabels = 
       loadBtn
     };
 
-    renderNextBatch(key);
+    renderNextBatch(key, true);
 
     loadBtn.onclick = () => renderNextBatch(key);
   });
+}
+
+function openVideoModal(video) {
+  const existing = document.querySelector('.video-modal-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'video-modal-overlay';
+  overlay.innerHTML = `
+    <div class="video-modal">
+      <div class="video-modal-close">✕</div>
+      <iframe src="https://www.youtube.com/embed/${video.id}?autoplay=1" allowfullscreen allow="autoplay"></iframe>
+      <div class="video-modal-title">${video.cleanTitle}</div>
+      <div class="video-modal-date">${formatDate(video.date)}</div>
+    </div>
+  `;
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay || e.target.classList.contains('video-modal-close')) {
+      overlay.classList.add('fade-out');
+      setTimeout(() => overlay.remove(), 300);
+    }
+  });
+
+  document.addEventListener('keydown', function handler(e) {
+    if (e.key === 'Escape') {
+      overlay.classList.add('fade-out');
+      setTimeout(() => overlay.remove(), 300);
+      document.removeEventListener('keydown', handler);
+    }
+  });
+
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('active'));
 }

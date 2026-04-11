@@ -1,0 +1,31 @@
+[data-theme="aero"] {
+  --bg: #1b4a7a;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-elevated: rgba(240, 245, 255, 0.9);
+  --bg-admin: rgba(220, 230, 250, 0.9);
+  --bg-admin-delete: rgba(240, 180, 180, 0.9);
+  --text: #1a1a1a;
+
+  --color-blue: #2066b0;
+  --color-red: #c0392b;
+  --color-green: #27ae60;
+  --color-purple: #8e44ad;
+  --color-orange: #e67e22;
+  --color-teal: #16a085;
+  --color-pink: #d63384;
+
+  --backdrop-bg: rgba(200, 220, 255, 0.6);
+  --backdrop-border: rgba(255, 255, 255, 0.3);
+  --dot-inactive: rgba(0, 0, 0, 0.3);
+  --shadow-hover: rgba(0, 0, 0, 0.15);
+
+  --logo-fill: #ffffff;
+  --btn-text: #f5f5f5;
+}
+
+[data-theme="aero"] .bottom-btn,
+[data-theme="aero"] .bottom-controls select {
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+}

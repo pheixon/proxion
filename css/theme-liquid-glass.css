@@ -1,0 +1,36 @@
+[data-theme="liquid-glass"] {
+  --bg: #0f0f1a;
+  --bg-card: rgba(255, 255, 255, 0.08);
+  --bg-elevated: rgba(255, 255, 255, 0.05);
+  --bg-admin: rgba(255, 255, 255, 0.1);
+  --bg-admin-delete: rgba(200, 50, 50, 0.2);
+  --text: #f0f0ff;
+
+  --color-blue: #60a5fa;
+  --color-red: #f87171;
+  --color-green: #34d399;
+  --color-purple: #c084fc;
+  --color-orange: #fbbf24;
+  --color-teal: #2dd4bf;
+  --color-pink: #f472b6;
+
+  --backdrop-bg: rgba(255, 255, 255, 0.05);
+  --backdrop-border: rgba(255, 255, 255, 0.15);
+  --dot-inactive: rgba(255, 255, 255, 0.3);
+  --shadow-hover: rgba(0, 0, 0, 0.5);
+
+  --logo-fill: #f0f0ff;
+  --btn-text: #f0f0ff;
+}
+
+[data-theme="liquid-glass"] .bottom-btn,
+[data-theme="liquid-glass"] .bottom-controls select {
+  backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="liquid-glass"] .menu-backdrop {
+  backdrop-filter: blur(30px) saturate(1.8);
+}

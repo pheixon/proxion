@@ -1,0 +1,30 @@
+[data-theme="luna"] {
+  --bg: #0054e3;
+  --bg-card: #ece9d8;
+  --bg-elevated: #d6d2c2;
+  --bg-admin: #e4e0d0;
+  --bg-admin-delete: #e8b0b0;
+  --text: #000000;
+
+  --color-blue: #0054e3;
+  --color-red: #c00000;
+  --color-green: #3c8000;
+  --color-purple: #7b3f9e;
+  --color-orange: #e88200;
+  --color-teal: #1e8e6e;
+  --color-pink: #d64292;
+
+  --backdrop-bg: rgba(236, 233, 216, 0.9);
+  --backdrop-border: rgba(0, 0, 0, 0.12);
+  --dot-inactive: rgba(0, 0, 0, 0.3);
+  --shadow-hover: rgba(0, 0, 0, 0.15);
+
+  --logo-fill: #ffffff;
+  --btn-text: #000000;
+}
+
+[data-theme="luna"] .bottom-btn,
+[data-theme="luna"] .bottom-controls select {
+  border-radius: 6px;
+  border: 1px solid #0054e3;
+}

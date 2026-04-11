@@ -1,5 +1,6 @@
 :root {
   --collapsed-width: 20px;
+  --backdrop-width: 100vw;
   --medium-width: 60px;
   --expanded-width: 100px;
 
@@ -49,6 +50,10 @@
   padding: 0;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   min-height: 100vh;
   background: var(--bg);
@@ -77,7 +82,7 @@ body {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 100vw;
+  width: var(--backdrop-width, 100vw);
   height: 196px;
   background: var(--backdrop-bg);
   backdrop-filter: blur(40px);
@@ -323,12 +328,26 @@ body {
   opacity: 0.7;
 }
 
-#theme-toggle {
+#theme-toggle,
+#theme-select {
   transition: width 0.25s ease, opacity 0.25s ease, padding 0.25s ease;
   overflow: hidden;
 }
 
-.bottom-controls.searching #theme-toggle {
+#theme-select {
+  height: 40px;
+  width: auto;
+  padding: 0 8px;
+  font-size: 13px;
+  font-family: 'DINPro';
+  background: var(--bg-card);
+  color: var(--text);
+  border: none;
+  cursor: pointer;
+}
+
+.bottom-controls.searching #theme-toggle,
+.bottom-controls.searching #theme-select {
   width: 0;
   padding: 0;
   opacity: 0;

@@ -2,33 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>About Me</title>
-  <style>
-    @font-face {
-      font-family: 'DINProBold';
-      src: url('../assets/fonts/dinpro_bold.otf') format('opentype');
-    }
-    @font-face {
-      font-family: 'DINPro';
-      src: url('../assets/fonts/dinpro.otf') format('opentype');
-    }
-    body {
-      background: #0a0a0a;
-    }
-    h1, p {
-      color: #e84393;
-    }
-    h1 {
-      font-family: 'DINProBold', Arial, sans-serif;
-    }
-    p {
-      font-family: 'DINPro', Arial, sans-serif;
-    }
-  </style>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/about.css">
 </head>
 <body>
-  <h1>About Me</h1>
-  <p>If you can read this, then your webpage works</p>
+
+  <div class="about-page">
+
+    <section class="about-section intro">
+      <div class="about-avatar"></div>
+      <div class="about-intro-text">
+        <h2>hi, i'm proxion</h2>
+        <p>placeholder intro text — tell people who you are, what you do, and what you're passionate about.</p>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2>what's on this site</h2>
+      <div class="about-grid">
+        <div class="about-card">
+          <span class="about-card-title">my videos</span>
+          <span class="about-card-desc">placeholder — describe your YouTube content.</span>
+        </div>
+        <div class="about-card">
+          <span class="about-card-title">my collection</span>
+          <span class="about-card-desc">placeholder — describe your phone collection.</span>
+        </div>
+        <div class="about-card">
+          <span class="about-card-title">my projects</span>
+          <span class="about-card-desc">placeholder — describe your projects.</span>
+        </div>
+        <div class="about-card">
+          <span class="about-card-title">my blog</span>
+          <span class="about-card-desc">placeholder — describe your blog.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2>faq</h2>
+      <div class="about-faq">
+        <div class="faq-item">
+          <div class="faq-question">what's with the phone collection?</div>
+          <div class="faq-answer">placeholder answer.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">why do you do this?</div>
+          <div class="faq-answer">placeholder answer.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">what equipment do you use?</div>
+          <div class="faq-answer">placeholder answer.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">can i contribute?</div>
+          <div class="faq-answer">placeholder answer.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2>timeline</h2>
+      <div class="about-timeline">
+        <div class="timeline-item">
+          <span class="timeline-year">2022</span>
+          <span class="timeline-text">placeholder — started collecting phones.</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">2023</span>
+          <span class="timeline-text">placeholder — created YouTube channel.</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">2024</span>
+          <span class="timeline-text">placeholder — launched this website.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2>contact</h2>
+      <p>placeholder — how to reach you (email, Discord DM, etc.)</p>
+    </section>
+
+    <section class="about-section">
+      <h2>credits</h2>
+      <p>placeholder — what the site is built with, acknowledgements, etc.</p>
+    </section>
+
+  </div>
+
+  <div id="got-stuck-container" class="got-stuck hidden">
+    <div class="got-stuck-label">got stuck?</div>
+    <div id="standalone-back" class="load-more label red">
+      ← go back
+    </div>
+  </div>
+
 </body>
 </html>

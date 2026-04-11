@@ -1,0 +1,122 @@
+.about-page {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  color: var(--text);
+}
+
+.about-section {
+  margin-bottom: 32px;
+  background: var(--bg-card);
+  padding: 28px;
+  border-left: 20px solid var(--color-pink);
+}
+
+.about-section h2 {
+  font-size: 22px;
+  margin-bottom: 16px;
+  font-family: 'DINProBold';
+}
+
+.about-section p {
+  font-family: 'DINPro';
+  font-size: 15px;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+.intro {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.about-avatar {
+  width: 100px;
+  height: 100px;
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+.about-intro-text h2 {
+  margin-bottom: 8px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.about-card {
+  background: var(--bg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.about-card-title {
+  font-family: 'DINProBold';
+  font-size: 15px;
+}
+
+.about-card-desc {
+  font-family: 'DINPro';
+  font-size: 13px;
+  opacity: 0.6;
+  line-height: 1.5;
+}
+
+.about-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-item {
+  background: var(--bg);
+  padding: 16px;
+}
+
+.faq-question {
+  font-family: 'DINProBold';
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.faq-answer {
+  font-family: 'DINPro';
+  font-size: 14px;
+  opacity: 0.7;
+  line-height: 1.6;
+}
+
+.about-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-left: 3px solid var(--color-pink);
+  padding-left: 20px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.timeline-year {
+  font-family: 'DINProBold';
+  font-size: 15px;
+  color: var(--color-pink);
+  flex-shrink: 0;
+}
+
+.timeline-text {
+  font-family: 'DINPro';
+  font-size: 14px;
+  opacity: 0.8;
+  line-height: 1.5;
+}

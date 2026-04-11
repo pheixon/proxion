@@ -1,0 +1,164 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  display: block;
+  align-items: unset;
+  justify-content: unset;
+  height: auto;
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg);
+}
+
+.socials-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px;
+  box-sizing: border-box;
+  color: var(--text);
+}
+
+.socials-section {
+  margin-bottom: 48px;
+}
+
+.socials-section h2 {
+  font-size: 22px;
+  margin-bottom: 16px;
+  opacity: 0.85;
+  font-family: 'DINProBold';
+}
+
+.socials-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.socials-grid.primary {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.socials-grid.secondary {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.social-card {
+  background: var(--bg-card);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: var(--text);
+  transition: opacity 0.2s ease;
+}
+
+.social-card:hover {
+  opacity: 0.8;
+}
+
+.social-card.small {
+  padding: 16px;
+}
+
+.social-icon {
+  width: 36px;
+  height: 36px;
+  fill: var(--color-teal);
+  flex-shrink: 0;
+}
+
+.social-card.small .social-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.social-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+
+
+.watch-btn.teal {
+  background-color: var(--color-teal);
+}
+
+.latest-video-container {
+  background: var(--bg-card);
+  padding: 12px;
+}
+
+.latest-video-container iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+}
+
+.latest-video-title {
+  font-family: 'DINProBold';
+  font-size: 15px;
+  margin-top: 12px;
+}
+
+.latest-video-date {
+  font-family: 'DINPro';
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+::-webkit-scrollbar {
+  width: var(--collapsed-width);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-card);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, rgba(255, 255, 255, 0.08));
+  border: none;
+  border-radius: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.got-stuck {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  bottom: 24px;
+}
+
+.got-stuck-label {
+  font-size: 14px;
+  color: var(--text);
+  opacity: 0.7;
+  font-family: 'DINPro';
+  font-weight: 400;
+}
+
+@media (max-width: 1200px) {
+  .socials-grid.primary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .socials-grid.secondary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .socials-grid.primary,
+  .socials-grid.secondary {
+    grid-template-columns: 1fr;
+  }
+}
