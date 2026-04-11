@@ -78,6 +78,11 @@ body {
 }
 
 .thumbnail {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.thumb-wrap .thumbnail {
   width: 100%;
   display: block;
 }
