@@ -116,10 +116,9 @@ strong {
   align-items: center;
 }
 
-.watch-btn svg {
-  width: auto;
-  height: 14px;
-  margin-top: 5px;
+svg.brand-svg {
+  height: 20px;
+  margin-top: 3px;
   margin-left: 5px;
 }
 

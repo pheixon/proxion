@@ -105,7 +105,6 @@ body {
 .thumb-play svg {
   width: 30px;
   height: 30px;
-  margin-left: 2px;
 }
 
 .thumb-wrap:hover .thumb-play {

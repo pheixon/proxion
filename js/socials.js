@@ -2,7 +2,7 @@ const SOCIALS_CHANNEL_ID = "UCalOFAYtXcoCeVj48OB_w9w";
 
 document.addEventListener("DOMContentLoaded", () => {
   fetchChannelStats();
-  fetchLatestVideo();
+  fetchLatestContent();
   initGotStuck();
 });
 
@@ -21,33 +21,49 @@ function fetchChannelStats() {
     .catch(() => {});
 }
 
-function fetchLatestVideo() {
+async function fetchLatestContent() {
   const playlistId = "UU" + SOCIALS_CHANNEL_ID.substring(2);
+  try {
+    const res = await fetch(`/api/youtube/playlist?playlistId=${playlistId}&pageToken=`);
+    const data = await res.json();
+    if (!data.items || !data.items.length) return;
 
-  fetch(
-    `/api/youtube/playlist?playlistId=${playlistId}&pageToken=`
-  )
-    .then(res => res.json())
-    .then(data => {
-      if (!data.items || !data.items.length) return;
-      const video = data.items[0].snippet;
-      const videoId = video.resourceId.videoId;
-      const container = document.getElementById("latest-video-container");
-      if (!container) return;
+    const items = data.items.slice(0, 50);
+    const ids = items.map(i => i.snippet.resourceId.videoId).join(",");
+    const detRes = await fetch(`/api/youtube/videos?ids=${ids}`);
+    const detData = await detRes.json();
+    const liveSet = new Set();
+    (detData.items || []).forEach(v => {
+      if (v.liveStreamingDetails) liveSet.add(v.id);
+    });
 
-      const date = new Date(video.publishedAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric"
-      });
+    const isShort = i => /#shorts?\b/i.test(i.snippet.title);
+    const latestVideo = items.find(i => !liveSet.has(i.snippet.resourceId.videoId) && !isShort(i));
+    const latestLive = items.find(i => liveSet.has(i.snippet.resourceId.videoId));
+    const latestShort = items.find(i => isShort(i));
 
-      container.innerHTML = `
-        <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
-        <div class="latest-video-title">${video.title}</div>
-        <div class="latest-video-date">${date}</div>
-      `;
-    })
-    .catch(() => {});
+    renderEmbed("latest-video-container", latestVideo, "video");
+    renderEmbed("latest-stream-container", latestLive, "livestream");
+    renderEmbed("latest-short-container", latestShort, "short");
+  } catch (e) {}
+}
+
+function renderEmbed(containerId, item, label) {
+  const container = document.getElementById(containerId);
+  if (!container || !item) return;
+  const videoId = item.snippet.resourceId.videoId;
+  const date = new Date(item.snippet.publishedAt).toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric"
+  });
+  const title = item.snippet.title.replace(/#shorts?\b/gi, '').trim();
+  container.innerHTML = `
+    <div class="latest-video-label">latest ${label}</div>
+    <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+    <div class="latest-video-title">${title}</div>
+    <div class="latest-video-date">${date}</div>
+  `;
 }
 
 function initGotStuck() {
