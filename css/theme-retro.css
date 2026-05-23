@@ -1,3 +1,19 @@
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("../assets/fonts/ms_sans_serif.woff2") format("woff2"),
+       url("../assets/fonts/ms_sans_serif.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("../assets/fonts/ms_sans_serif_bold.woff2") format("woff2"),
+       url("../assets/fonts/ms_sans_serif_bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+}
+
 [data-theme="retro"] {
   --bg: #008080;
   --bg-card: #c0c0c0;
@@ -23,12 +39,247 @@
   --btn-text: #000000;
 }
 
-[data-theme="retro"] .bottom-btn,
-[data-theme="retro"] .bottom-controls select {
-  border: 2px outset #dfdfdf;
+[data-theme="retro"] body {
+  background: #008080;
+  font-family: "Pixelated MS Sans Serif", Tahoma, Arial, sans-serif;
+  color: #222;
 }
 
-[data-theme="retro"] .button .icon-default,
-[data-theme="retro"] .button .icon-selected {
-  stroke: #000000;
+[data-theme="retro"] * {
+  font-family: "Pixelated MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  text-rendering: optimizeSpeed;
+}
+
+/* Bold where DINProBold was used */
+[data-theme="retro"] .global-search-input,
+[data-theme="retro"] .global-search-result-title,
+[data-theme="retro"] .socials-section h2,
+[data-theme="retro"] .latest-video-label,
+[data-theme="retro"] .latest-video-title,
+[data-theme="retro"] .phone-title,
+[data-theme="retro"] .no-article,
+[data-theme="retro"] .stat-value,
+[data-theme="retro"] .about-section h2,
+[data-theme="retro"] .about-card-title,
+[data-theme="retro"] .faq-question,
+[data-theme="retro"] .timeline-year,
+[data-theme="retro"] strong,
+[data-theme="retro"] .inline-edit-title,
+[data-theme="retro"] .category h2,
+[data-theme="retro"] .video-modal-title,
+[data-theme="retro"] .video-title {
+  font-weight: 700;
+}
+
+[data-theme="retro"] .watch-btn,
+[data-theme="retro"] .load-more,
+[data-theme="retro"] .label,
+[data-theme="retro"] .button,
+[data-theme="retro"] .bottom-btn,
+[data-theme="retro"] #sortSelect {
+  font-weight: 400;
+}
+
+[data-theme="retro"] a {
+  color: #0000ff;
+}
+
+/* 98.css window-style cards */
+[data-theme="retro"] .blog-post,
+[data-theme="retro"] .about-section,
+[data-theme="retro"] .social-card,
+[data-theme="retro"] .stat-item,
+[data-theme="retro"] .about-card,
+[data-theme="retro"] .faq-item,
+[data-theme="retro"] .latest-video-container,
+[data-theme="retro"] .blog-editor,
+[data-theme="retro"] .admin-edit-form {
+  background: silver;
+  border-radius: 0;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #dfdfdf,
+    inset -2px -2px grey,
+    inset 2px 2px #fff;
+  padding: 6px;
+}
+
+/* Category as a 98.css window */
+[data-theme="retro"] .category {
+  background: silver;
+  border-radius: 0;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #dfdfdf,
+    inset -2px -2px grey,
+    inset 2px 2px #fff;
+  padding: 3px;
+}
+
+/* Title bar */
+[data-theme="retro"] .category h2 {
+  background: linear-gradient(90deg, navy, #1084d0);
+  color: #fff;
+  font-weight: 700;
+  padding: 3px 4px;
+  margin: 0;
+  border-radius: 0;
+  opacity: 1;
+}
+
+[data-theme="retro"] .category h2 .video-count {
+  color: #fff;
+  opacity: 0.85;
+}
+
+[data-theme="retro"] .category .videos-grid {
+  background: silver;
+  padding: 8px;
+  gap: 8px;
+}
+
+[data-theme="retro"] .category .load-more {
+  margin: 0 8px 8px;
+}
+
+/* Flat cards inside the category window */
+[data-theme="retro"] .video {
+  background: #fff;
+  box-shadow:
+    inset -1px -1px #fff,
+    inset 1px 1px grey,
+    inset -2px -2px #dfdfdf,
+    inset 2px 2px #0a0a0a;
+  border-radius: 0;
+}
+
+/* 98.css beveled buttons */
+[data-theme="retro"] .watch-btn,
+[data-theme="retro"] .load-more,
+[data-theme="retro"] .label,
+[data-theme="retro"] .button,
+[data-theme="retro"] .bottom-btn,
+[data-theme="retro"] .blog-search-btn,
+[data-theme="retro"] .item .button,
+[data-theme="retro"] .item .label {
+  background: silver;
+  color: #222;
+  border: none;
+  border-radius: 0;
+  font-family: "Pixelated MS Sans Serif", Tahoma, Arial, sans-serif;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #fff,
+    inset -2px -2px grey,
+    inset 2px 2px #dfdfdf;
+}
+
+[data-theme="retro"] .item .button svg * {
+  stroke: #000 !important;
+}
+
+[data-theme="retro"] .watch-btn:active,
+[data-theme="retro"] .load-more:active,
+[data-theme="retro"] .label:active,
+[data-theme="retro"] .button:active,
+[data-theme="retro"] .bottom-btn:active,
+[data-theme="retro"] .blog-search-btn:active,
+[data-theme="retro"] .item:active .button,
+[data-theme="retro"] .item:active .label {
+  box-shadow:
+    inset -1px -1px #fff,
+    inset 1px 1px #0a0a0a,
+    inset -2px -2px #dfdfdf,
+    inset 2px 2px grey;
+}
+
+/* 98.css select + search input */
+[data-theme="retro"] #sortSelect,
+[data-theme="retro"] #theme-select,
+[data-theme="retro"] .blog-search-input.active {
+  background-color: #fff;
+  color: #222;
+  border: none;
+  border-radius: 0;
+  box-shadow:
+    inset -1px -1px #fff,
+    inset 1px 1px grey,
+    inset -2px -2px #dfdfdf,
+    inset 2px 2px #0a0a0a;
+}
+
+/* 98.css taskbar-style menu backdrop */
+[data-theme="retro"] .menu-backdrop {
+  background: silver;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #dfdfdf,
+    inset -2px -2px grey,
+    inset 2px 2px #fff;
+}
+
+/* 98.css scrollbar */
+[data-theme="retro"] ::-webkit-scrollbar {
+  width: 16px;
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-corner {
+  background: #dfdfdf;
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-track {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='2' height='2' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M1 0H0v1h1v1h1V1H1V0z' fill='silver'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M2 0H1v1H0v1h1V1h1V0z' fill='%23fff'/%3E%3C/svg%3E");
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-thumb {
+  background-color: #dfdfdf;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #fff,
+    inset -2px -2px grey,
+    inset 2px 2px #dfdfdf;
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-button:vertical:start:decrement,
+[data-theme="retro"] ::-webkit-scrollbar-button:vertical:end:increment,
+[data-theme="retro"] ::-webkit-scrollbar-button:horizontal:start:decrement,
+[data-theme="retro"] ::-webkit-scrollbar-button:horizontal:end:increment {
+  display: block;
+  background-color: #dfdfdf;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #fff,
+    inset -2px -2px grey,
+    inset 2px 2px #dfdfdf;
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-button:vertical:start {
+  height: 16px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='16' height='16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 5h1v1h1v1h1v1h1v1H4V9h1V8h1V7h1V6h1V5z' fill='%23000'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: rotate(180deg);
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-button:vertical:end {
+  height: 16px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='16' height='16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 5h1v1h1v1h1v1h1v1H4V9h1V8h1V7h1V6h1V5z' fill='%23000'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-button:horizontal:start {
+  width: 16px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='16' height='16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 8h1V7h1V6h1V5h1v8H8v-1H7v-1H6v-1H5V8z' fill='%23000' transform='rotate(180 8 8)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-button:horizontal:end {
+  width: 16px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='16' height='16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 8h1V7h1V6h1V5h1v8H8v-1H7v-1H6v-1H5V8z' fill='%23000'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
 }

@@ -97,6 +97,8 @@ function render() {
     if (currentSort === "year") renderByYear();
     if (currentSort === "title") renderByTitle();
 
+    updateMeta();
+
     void container.offsetWidth;
 
     container.classList.remove("fade-out");
@@ -446,8 +448,10 @@ function wirePageSearch() {
       input.value = "";
       input.classList.remove("active");
       btn.classList.remove("cancel");
-      searchQuery = "";
-      render();
+      if (searchQuery) {
+        searchQuery = "";
+        render();
+      }
     } else {
       input.classList.add("active");
       btn.classList.add("cancel");
@@ -465,8 +469,10 @@ function wirePageSearch() {
       input.value = "";
       input.classList.remove("active");
       btn.classList.remove("cancel");
-      searchQuery = "";
-      render();
+      if (searchQuery) {
+        searchQuery = "";
+        render();
+      }
     }
   });
 
@@ -488,10 +494,21 @@ function getFilteredProjects() {
   );
 }
 
-function updateMeta(lastUpdatedHeader) {
+let lastUpdatedHeader = null;
+
+function updateMeta(header) {
+  if (header !== undefined) lastUpdatedHeader = header;
+
   const totalEl = document.getElementById("projects-total");
   const updatedEl = document.getElementById("projects-updated");
   if (!totalEl || !updatedEl) return;
+
+  if (searchQuery) {
+    const found = getFilteredProjects().length;
+    totalEl.textContent = `${found} ${found === 1 ? "project" : "projects"} found`;
+    updatedEl.textContent = "";
+    return;
+  }
 
   totalEl.textContent = `${allProjects.length} ${allProjects.length === 1 ? "project" : "projects"} total`;
 

@@ -116,13 +116,21 @@ strong {
   align-items: center;
 }
 
-svg.brand-svg {
+.blog-nav-btn svg {
+  width: 20px;
   height: 20px;
   margin-top: 3px;
   margin-left: 5px;
 }
 
-.watch-btn {
+svg.brand-svg {
+  width: 67px;
+  height: 20px;
+  margin-top: 3px;
+  margin-left: 5px;
+}
+
+.blog-nav-btn.watch-btn {
   gap: 0;
 }
 
@@ -235,6 +243,7 @@ svg.brand-svg {
 
 .blog-search-input {
   width: 0;
+  height: 32px;
   padding: 0;
   border: none;
   background: transparent;

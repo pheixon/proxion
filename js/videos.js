@@ -85,8 +85,10 @@ function wirePageSearch() {
       input.value = "";
       input.classList.remove("active");
       btn.classList.remove("cancel");
-      searchQuery = "";
-      render();
+      if (searchQuery) {
+        searchQuery = "";
+        render();
+      }
     } else {
       input.classList.add("active");
       btn.classList.add("cancel");
@@ -104,8 +106,10 @@ function wirePageSearch() {
       input.value = "";
       input.classList.remove("active");
       btn.classList.remove("cancel");
-      searchQuery = "";
-      render();
+      if (searchQuery) {
+        searchQuery = "";
+        render();
+      }
     }
   });
 
@@ -271,6 +275,8 @@ function render() {
     if (currentSort === "category") renderByCategory();
     if (currentSort === "year") renderByYear();
     if (currentSort === "title") renderByTitle();
+
+    updateVideoMeta(allVideos);
 
     // Force browser reflow (important!)
     void container.offsetWidth;
@@ -539,6 +545,13 @@ function updateVideoMeta(videos) {
   const updatedEl = document.getElementById("videos-updated");
 
   if (!totalEl || !updatedEl || !Array.isArray(videos)) return;
+
+  if (searchQuery) {
+    const found = getFilteredVideos().length;
+    totalEl.textContent = `${found} ${found === 1 ? "video" : "videos"} found`;
+    updatedEl.textContent = "";
+    return;
+  }
 
   const total = videos.length;
   totalEl.textContent = `${total} ${total === 1 ? "video" : "videos"} total`;

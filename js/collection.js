@@ -91,8 +91,10 @@ function wirePageSearch() {
       input.value = "";
       input.classList.remove("active");
       btn.classList.remove("cancel");
-      searchQuery = "";
-      render();
+      if (searchQuery) {
+        searchQuery = "";
+        render();
+      }
     } else {
       input.classList.add("active");
       btn.classList.add("cancel");
@@ -110,8 +112,10 @@ function wirePageSearch() {
       input.value = "";
       input.classList.remove("active");
       btn.classList.remove("cancel");
-      searchQuery = "";
-      render();
+      if (searchQuery) {
+        searchQuery = "";
+        render();
+      }
     }
   });
 
@@ -166,6 +170,8 @@ function render() {
     if (currentSort === "brand") renderByBrand();
     if (currentSort === "type") renderByType();
     if (currentSort === "year") renderByYear();
+
+    updateTotalCount();
 
     void container.offsetWidth;
 
@@ -493,6 +499,12 @@ async function createPhone() {
 function updateTotalCount() {
   const totalEl = document.getElementById("phones-total");
   if (!totalEl) return;
+
+  if (searchQuery) {
+    const found = getFilteredPhones().length;
+    totalEl.textContent = `${found} ${found === 1 ? "phone" : "phones"} found`;
+    return;
+  }
 
   const total = allPhones.length;
   totalEl.textContent = `${total} ${total === 1 ? "phone" : "phones"} total`;

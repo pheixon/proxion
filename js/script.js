@@ -22,7 +22,7 @@ const menuItems = [
   { page: 'pages/projects.html', hash: 'projects', scripts: ['js/projects.js'] },
   { page: 'pages/blog.html', hash: 'blog', scripts: ['js/blog.js'] },
   { page: 'pages/socials.html', hash: 'socials', scripts: ['js/socials.js'] },
-  { page: 'pages/about.html', hash: 'about', scripts: [] },
+  { page: 'pages/about.html', hash: 'about', scripts: ['js/about.js'] },
 ];
 
 let currentPage = null;
