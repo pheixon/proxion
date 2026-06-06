@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — Not Found</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme-retro.css">
+  <link rel="stylesheet" href="css/theme-luna.css">
+  <link rel="stylesheet" href="css/theme-aero.css">
+  <link rel="stylesheet" href="css/theme-liquid-glass.css">
+  <script>const t=localStorage.getItem('theme');if(t&&t!=='dark')document.documentElement.setAttribute('data-theme',t);if(t==='dark')document.documentElement.removeAttribute('data-theme');</script>
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; gap: 16px; padding: 24px; text-align: center; }
+    .err-code { font-family: 'DINProBold'; font-size: 96px; line-height: 1; color: var(--color-red); }
+    .err-title { font-family: 'DINProBold'; font-size: 24px; margin-top: 8px; }
+    .err-msg { font-family: 'DINPro'; font-size: 14px; opacity: 0.7; max-width: 400px; line-height: 1.5; }
+    .err-home { display: inline-block; margin-top: 16px; padding: 8px 16px; background: var(--color-blue); color: #fff; text-decoration: none; font-family: 'DINProBold'; }
+  </style>
+</head>
+<body>
+  <div class="err-code">404</div>
+  <div class="err-title">page not found</div>
+  <div class="err-msg">the page you're looking for doesn't exist or has been moved.</div>
+  <a class="err-home" href="/">← back to home</a>
+</body>
+</html>

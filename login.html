@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>you probably shouldn't be here</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme-retro.css">
+  <link rel="stylesheet" href="css/theme-luna.css">
+  <link rel="stylesheet" href="css/theme-aero.css">
+  <link rel="stylesheet" href="css/theme-liquid-glass.css">
+  <script>const t=localStorage.getItem('theme');if(t&&t!=='dark')document.documentElement.setAttribute('data-theme',t);if(t==='dark')document.documentElement.removeAttribute('data-theme');</script>
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+    .login-box { background: var(--bg-card); padding: 32px; max-width: 360px; width: 100%; display: flex; flex-direction: column; gap: 16px; border-left: 20px solid var(--color-orange); }
+    .login-title { font-family: 'DINProBold'; font-size: 24px; color: var(--text); }
+    .login-msg { font-family: 'DINPro'; font-size: 13px; opacity: 0.7; color: var(--text); }
+    .login-input { padding: 10px; background: var(--bg); color: var(--text); border: none; font-family: 'DINPro'; font-size: 14px; outline: none; }
+    .login-btn { padding: 10px; background: var(--color-orange); color: #f5f5f5; border: none; font-family: 'DINProBold'; font-size: 14px; cursor: pointer; }
+    .login-err { font-family: 'DINPro'; font-size: 12px; color: var(--color-red); display: none; }
+    .login-err.show { display: block; }
+    .login-back { font-family: 'DINPro'; font-size: 12px; opacity: 0.6; color: var(--text); text-decoration: none; text-align: center; }
+  </style>
+</head>
+<body>
+  <form class="login-box" id="login-form">
+    <div class="login-title">admin login</div>
+    <div class="login-msg">enter password to manage blog, collection, and projects.</div>
+    <input class="login-input" type="password" id="password" placeholder="password" autofocus>
+    <div class="login-err" id="error">access denied</div>
+    <button class="login-btn" type="submit">log in</button>
+    <a class="login-back" href="/">← back to home</a>
+  </form>
+
+  <script>
+    const API_BASE = window.location.origin + '/api';
+    const form = document.getElementById('login-form');
+    const errEl = document.getElementById('error');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      errEl.classList.remove('show');
+      const pass = document.getElementById('password').value;
+      if (!pass) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pass }),
+        });
+        if (!res.ok) {
+          errEl.classList.add('show');
+          return;
+        }
+        const { token } = await res.json();
+        sessionStorage.setItem('blog_token', token);
+        const next = new URLSearchParams(window.location.search).get('next') || '/?admin=1';
+        window.location.href = next;
+      } catch {
+        errEl.classList.add('show');
+      }
+    });
+  </script>
+</body>
+</html>

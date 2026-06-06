@@ -1,3 +1,45 @@
+@font-face {
+  font-family: "Tahoma";
+  src: url("../assets/fonts/fs-tahoma-8px.otf.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Tahoma";
+  src: url("../assets/fonts/windows-xp-tahoma-bold.otf.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+
+[data-theme="luna"] * {
+  font-family: "Tahoma", sans-serif !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="luna"] .category h2,
+[data-theme="luna"] .about-section > h2 {
+  font-family: "Trebuchet MS", Tahoma, sans-serif !important;
+}
+
+[data-theme="luna"] .global-search-input,
+[data-theme="luna"] .global-search-result-title,
+[data-theme="luna"] .socials-section h2,
+[data-theme="luna"] .latest-video-label,
+[data-theme="luna"] .latest-video-title,
+[data-theme="luna"] .phone-title,
+[data-theme="luna"] .no-article,
+[data-theme="luna"] .stat-value,
+[data-theme="luna"] .about-card-title,
+[data-theme="luna"] .faq-question,
+[data-theme="luna"] .timeline-year,
+[data-theme="luna"] strong,
+[data-theme="luna"] .inline-edit-title,
+[data-theme="luna"] .video-modal-title,
+[data-theme="luna"] .video-title {
+  font-family: "Tahoma", sans-serif !important; font-weight: 700 !important;
+}
+
 [data-theme="luna"] {
   --bg: #5a7edc;
   --bg-card: #ece9d8;
@@ -64,9 +106,52 @@
   opacity: 0.85;
 }
 
+/* About-section as a full XP window with title bar */
+[data-theme="luna"] .about-section {
+  background: #ece9d8;
+  border-left: 3px solid #0054e3;
+  border-right: 3px solid #0054e3;
+  border-bottom: 3px solid #0054e3;
+  border-radius: 8px 8px 0 0;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+[data-theme="luna"] .about-section > h2 {
+  background: linear-gradient(180deg,
+    #0997ff 0%,
+    #0053ee 8%,
+    #0050ee 40%,
+    #06f 88%,
+    #06f 93%,
+    #005bff 95%,
+    #003dd7 96%,
+    #003dd7 100%);
+  color: #fff;
+  font-family: "Trebuchet MS", Tahoma, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-shadow: 1px 1px #0f1089;
+  padding: 4px 10px;
+  margin: 0 -3px 12px;
+  border-radius: 8px 8px 0 0;
+}
+
+[data-theme="luna"] .about-section > *:not(h2) {
+  padding: 0 12px 12px;
+}
+
+[data-theme="luna"] .about-section.intro {
+  padding: 12px;
+}
+
+[data-theme="luna"] .about-section.intro > * {
+  padding: 0;
+}
+
 /* XP window-style cards */
 [data-theme="luna"] .blog-post,
-[data-theme="luna"] .about-section,
 [data-theme="luna"] .social-card,
 [data-theme="luna"] .stat-item,
 [data-theme="luna"] .about-card,
