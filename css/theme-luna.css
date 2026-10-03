@@ -272,6 +272,10 @@
     0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+[data-theme="luna"] .item .label {
+  color: #fff;
+}
+
 [data-theme="luna"] .item .button::after,
 [data-theme="luna"] .item .label::after {
   content: '';

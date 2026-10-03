@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+const API_BASE = 'api';
 const params = new URLSearchParams(window.location.search);
 const adminMode = params.get('admin') === '1';
 
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function adminLogin() {
-  const existing = sessionStorage.getItem('blog_token');
+  const existing = sessionStorage.getItem('proxion:blog_token');
   if (existing) return true;
 
   const pass = prompt('Enter admin password');
@@ -39,14 +39,14 @@ async function adminLogin() {
   }
 
   const { token } = await res.json();
-  sessionStorage.setItem('blog_token', token);
+  sessionStorage.setItem('proxion:blog_token', token);
   return true;
 }
 
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${sessionStorage.getItem('blog_token')}`,
+    Authorization: `Bearer ${sessionStorage.getItem('proxion:blog_token')}`,
   };
 }
 
@@ -293,7 +293,7 @@ function wireShareButtons() {
   document.querySelectorAll('.blog-share').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.dataset.id;
-      const shareUrl = `${window.location.origin}/pages/blog.html?id=${id}&from=share`;
+      const shareUrl = new URL(`pages/blog.html?id=${id}&from=share`, document.baseURI).href;
 
       try {
         await navigator.clipboard.writeText(shareUrl);
@@ -322,7 +322,7 @@ function wireSingleNav() {
       const baseUrl =
         window.parent && window.parent !== window
           ? window.parent.location.origin + window.parent.location.pathname
-          : window.location.origin + '/index.html';
+          : new URL('index.html', document.baseURI).href;
       window.location.href = baseUrl;
     }
   });

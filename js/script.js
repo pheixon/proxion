@@ -27,21 +27,73 @@ const menuItems = [
 
 let currentPage = null;
 let loadedScripts = [];
+let pageScope = null;
+
+// Page scripts outlive their page; once it is replaced, their timers and fetches go silent.
+function createPageScope() {
+  let alive = true;
+  const cleanups = [];
+  const hang = new Promise(() => {});
+  const gate = value => (alive ? value : hang);
+  return {
+    setTimeout: (fn, ms, ...args) => window.setTimeout(() => alive && fn(...args), ms),
+    requestAnimationFrame: fn => window.requestAnimationFrame(time => alive && fn(time)),
+    fetch: (...args) => window.fetch(...args).then(res => {
+      ['json', 'text'].forEach(method => {
+        const read = res[method].bind(res);
+        res[method] = () => read().then(gate);
+      });
+      return gate(res);
+    }, err => {
+      if (alive) throw err;
+      return hang;
+    }),
+    listen(target, type, fn, options) {
+      EventTarget.prototype.addEventListener.call(target, type, fn, options);
+      cleanups.push(() => target.removeEventListener(type, fn, options));
+    },
+    dispose() {
+      alive = false;
+      cleanups.forEach(cleanup => cleanup());
+    },
+  };
+}
+
+function wrapPageScript(code) {
+  return `(function(scope) {
+    var setTimeout = scope.setTimeout, requestAnimationFrame = scope.requestAnimationFrame, fetch = scope.fetch;
+    document.addEventListener = function(type, fn, options) {
+      if (type === 'DOMContentLoaded') return fn();
+      scope.listen(document, type, fn, options);
+    };
+    window.addEventListener = function(type, fn, options) {
+      scope.listen(window, type, fn, options);
+    };
+    try {
+      ${code}
+    } finally {
+      delete document.addEventListener;
+      delete window.addEventListener;
+    }
+  })(window.__pageScope);`;
+}
 
 async function loadPage(menuItem) {
-  const res = await fetch(menuItem.page);
-  const html = await res.text();
+  const [html, ...codes] = await Promise.all(
+    [menuItem.page, ...menuItem.scripts.map(src => `${src}?t=${Date.now()}`)]
+      .map(url => fetch(url).then(res => res.text()))
+  );
+  if (currentPage !== menuItem.page) return false;
+  clearPage();
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
   // Extract inline styles from <head>
   const inlineStyles = doc.querySelectorAll('head style');
-  const styleId = 'page-inline-styles';
-  document.getElementById(styleId)?.remove();
   if (inlineStyles.length) {
     const style = document.createElement('style');
-    style.id = styleId;
+    style.id = 'page-inline-styles';
     inlineStyles.forEach(s => (style.textContent += s.textContent));
     document.head.appendChild(style);
   }
@@ -53,34 +105,20 @@ async function loadPage(menuItem) {
   // Remove got-stuck containers (only needed for standalone access)
   pageContent.querySelectorAll('.got-stuck').forEach(el => el.remove());
 
-  // Remove old page scripts
-  loadedScripts.forEach(s => s.remove());
-  loadedScripts = [];
-
-  // Load and execute scripts in isolated scope
-  for (const src of menuItem.scripts) {
-    const scriptRes = await fetch(src + '?t=' + Date.now());
-    const code = await scriptRes.text();
-
-    const wrapped = `(function() {
-      var _orig = document.addEventListener;
-      document.addEventListener = function(type, fn) {
-        if (type === 'DOMContentLoaded') { fn(); return; }
-        _orig.apply(document, arguments);
-      };
-      ${code}
-      document.addEventListener = _orig;
-    })();`;
-
+  pageScope = createPageScope();
+  window.__pageScope = pageScope;
+  codes.forEach(code => {
     const script = document.createElement('script');
-    script.textContent = wrapped;
+    script.textContent = wrapPageScript(code);
     document.body.appendChild(script);
     loadedScripts.push(script);
-  }
-
+  });
+  return true;
 }
 
 function clearPage() {
+  pageScope?.dispose();
+  pageScope = null;
   pageContent.innerHTML = '';
   pageContent.className = '';
   document.getElementById('page-inline-styles')?.remove();
@@ -120,9 +158,10 @@ items.forEach((item, index) => {
       document.documentElement.style.removeProperty('--scrollbar-thumb');
 
       setTimeout(() => {
+        if (currentPage) return;
         clearPage();
         window.scrollTo({ top: 0 });
-        history.pushState(null, '', window.location.pathname);
+        if (location.hash) history.pushState(null, '', window.location.pathname);
         document.documentElement.style.removeProperty('--backdrop-width');
       }, TRANSITION_MS);
 
@@ -147,15 +186,17 @@ items.forEach((item, index) => {
       currentPage = menuItem.page;
 
       setTimeout(async () => {
+        if (currentPage !== menuItem.page) return;
         document.body.style.overflow = 'hidden';
         window.scrollTo({ top: 0 });
         const rgb = scrollbarColors[menuItem.hash];
         if (rgb) {
           document.documentElement.style.setProperty('--scrollbar-thumb', `rgba(${rgb}, 1)`);
         }
-        await loadPage(menuItem);
-        embedContainer.classList.add('active');
+        const loaded = await loadPage(menuItem);
         document.body.style.overflow = '';
+        if (!loaded) return;
+        embedContainer.classList.add('active');
         setTimeout(() => {
           document.querySelector('.sort-bar')?.classList.add('visible');
           updateBackdropWidth();
@@ -163,7 +204,7 @@ items.forEach((item, index) => {
         }, 350);
       }, TRANSITION_MS);
 
-      history.pushState(null, '', `#${menuItem.hash}`);
+      if (location.hash !== `#${menuItem.hash}`) history.pushState(null, '', `#${menuItem.hash}`);
     }
   });
 });
@@ -217,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.style.pointerEvents = '';
         return;
       }
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`api/search?q=${encodeURIComponent(q)}`);
       const results = await res.json();
       container.style.opacity = '0';
       container.style.pointerEvents = 'none';
@@ -281,13 +322,21 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       document.documentElement.setAttribute('data-theme', next);
     }
-    localStorage.setItem('theme', next);
+    localStorage.setItem('proxion:theme', next);
   });
 
   const THEMES = ['proxion', 'retro', 'luna', 'aero', 'liquid-glass'];
 
+  function loadLiquidGlass(theme) {
+    if (theme !== 'liquid-glass' || document.getElementById('liquid-glass-js')) return;
+    const script = document.createElement('script');
+    script.id = 'liquid-glass-js';
+    script.src = 'js/liquid-glass.js';
+    document.head.appendChild(script);
+  }
+
   function activateThemeSelect() {
-    localStorage.setItem('konami', '1');
+    localStorage.setItem('proxion:konami', '1');
     if (document.getElementById('theme-select')) return;
     const select = document.createElement('select');
     select.id = 'theme-select';
@@ -304,20 +353,27 @@ document.addEventListener('DOMContentLoaded', () => {
       const v = select.value;
       if (v === 'proxion') {
         document.documentElement.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.documentElement.setAttribute('data-theme', v);
-        localStorage.setItem('theme', v);
+        localStorage.setItem('proxion:theme', 'dark');
+        return;
       }
+      const apply = () => {
+        if (select.value !== v) return;
+        document.documentElement.setAttribute('data-theme', v);
+        localStorage.setItem('proxion:theme', v);
+        loadLiquidGlass(v);
+      };
+      const link = loadThemeCss(v);
+      if (link) link.onload = apply;
+      else apply();
     });
 
     const closeBtn = document.createElement('button');
     closeBtn.className = 'bottom-btn';
     closeBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
     closeBtn.addEventListener('click', () => {
-      localStorage.removeItem('konami');
+      localStorage.removeItem('proxion:konami');
       document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem('theme', 'dark');
+      localStorage.setItem('proxion:theme', 'dark');
       select.replaceWith(themeToggle);
       closeBtn.remove();
     });
@@ -326,9 +382,10 @@ document.addEventListener('DOMContentLoaded', () => {
     select.after(closeBtn);
   }
 
-  if (localStorage.getItem('konami')) {
+  if (localStorage.getItem('proxion:konami')) {
     activateThemeSelect();
   }
+  loadLiquidGlass(document.documentElement.getAttribute('data-theme'));
 
   const konamiSequence = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'];
   let konamiIndex = 0;

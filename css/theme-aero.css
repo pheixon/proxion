@@ -208,6 +208,10 @@
   overflow: hidden;
 }
 
+[data-theme="aero"] .item .label {
+  color: #fff;
+}
+
 [data-theme="aero"] .item .button::after,
 [data-theme="aero"] .item .label::after {
   content: '';

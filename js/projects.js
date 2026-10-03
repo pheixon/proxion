@@ -1,27 +1,27 @@
-const PROJECTS_URL = "/api/projects";
+const PROJECTS_URL = "api/projects";
 const ITEMS_PER_BATCH = 6;
 const adminMode = new URLSearchParams(window.location.search).get("admin") === "1";
 
 async function adminLogin() {
-  const existing = sessionStorage.getItem("blog_token");
+  const existing = sessionStorage.getItem("proxion:blog_token");
   if (existing) return true;
   const pass = prompt("Enter admin password");
   if (!pass) return false;
-  const res = await fetch("/api/auth", {
+  const res = await fetch("api/auth", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ password: pass }),
   });
   if (!res.ok) { alert("Access denied"); return false; }
   const { token } = await res.json();
-  sessionStorage.setItem("blog_token", token);
+  sessionStorage.setItem("proxion:blog_token", token);
   return true;
 }
 
 function authHeaders() {
   return {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${sessionStorage.getItem("blog_token")}`,
+    Authorization: `Bearer ${sessionStorage.getItem("proxion:blog_token")}`,
   };
 }
 
@@ -265,7 +265,7 @@ function editProject(project, card) {
       url: document.getElementById("ep-url").value.trim(),
       description: document.getElementById("ep-desc").value.trim(),
     };
-    const res = await fetch(`/api/projects/${project.id}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(body) });
+    const res = await fetch(`api/projects/${project.id}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(body) });
     if (res.ok) { allProjects = allProjects.map(p => p.id === project.id ? { ...p, ...body } : p); render(); }
   };
   card.querySelector(".blog-admin-btn.delete").onclick = () => { card.innerHTML = saved; };
@@ -273,7 +273,7 @@ function editProject(project, card) {
 
 async function deleteProject(id, card) {
   if (!confirm("Delete this project?")) return;
-  const res = await fetch(`/api/projects/${id}`, { method: "DELETE", headers: authHeaders() });
+  const res = await fetch(`api/projects/${id}`, { method: "DELETE", headers: authHeaders() });
   if (res.ok) { allProjects = allProjects.filter(p => p.id !== id); card.remove(); updateMeta(null); }
 }
 
@@ -287,7 +287,7 @@ async function createProject() {
     url: get("new-p-url"), description: get("new-p-desc"),
   };
   if (!body.id || !body.title) return alert("ID and title are required");
-  const res = await fetch("/api/projects", { method: "POST", headers: authHeaders(), body: JSON.stringify(body) });
+  const res = await fetch("api/projects", { method: "POST", headers: authHeaders(), body: JSON.stringify(body) });
   if (res.ok) {
     allProjects.push(body);
     ["new-p-id","new-p-title","new-p-type","new-p-year","new-p-image","new-p-images","new-p-url","new-p-desc"].forEach(id => document.getElementById(id).value = "");

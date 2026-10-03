@@ -4,12 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>you probably shouldn't be here</title>
+  <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/theme-retro.css">
-  <link rel="stylesheet" href="css/theme-luna.css">
-  <link rel="stylesheet" href="css/theme-aero.css">
-  <link rel="stylesheet" href="css/theme-liquid-glass.css">
-  <script>const t=localStorage.getItem('theme');if(t&&t!=='dark')document.documentElement.setAttribute('data-theme',t);if(t==='dark')document.documentElement.removeAttribute('data-theme');</script>
+  <script>function loadThemeCss(t){const id='theme-css-'+t;if(!t||t==='dark'||t==='light'||document.getElementById(id))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/theme-'+t+'.css';l.id=id;l.setAttribute('blocking','render');document.head.appendChild(l);return l}const t=localStorage.getItem('proxion:theme');if(t&&t!=='dark'){document.documentElement.setAttribute('data-theme',t);loadThemeCss(t)}</script>
   <style>
     body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
     .login-box { background: var(--bg-card); padding: 32px; max-width: 360px; width: 100%; display: flex; flex-direction: column; gap: 16px; border-left: 20px solid var(--color-orange); }
@@ -29,11 +26,11 @@
     <input class="login-input" type="password" id="password" placeholder="password" autofocus>
     <div class="login-err" id="error">access denied</div>
     <button class="login-btn" type="submit">log in</button>
-    <a class="login-back" href="/">← back to home</a>
+    <a class="login-back" href="./">← back to home</a>
   </form>
 
   <script>
-    const API_BASE = window.location.origin + '/api';
+    const API_BASE = 'api';
     const form = document.getElementById('login-form');
     const errEl = document.getElementById('error');
 
@@ -54,9 +51,9 @@
           return;
         }
         const { token } = await res.json();
-        sessionStorage.setItem('blog_token', token);
-        const next = new URLSearchParams(window.location.search).get('next') || '/?admin=1';
-        window.location.href = next;
+        sessionStorage.setItem('proxion:blog_token', token);
+        const next = new URL(new URLSearchParams(window.location.search).get('next') || './?admin=1', window.location.href);
+        window.location.href = next.origin === window.location.origin ? next.href : './?admin=1';
       } catch {
         errEl.classList.add('show');
       }

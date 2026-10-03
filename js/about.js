@@ -3,9 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function loadStats() {
-  fetchCount('/api/phones', 'stat-phones');
-  fetchCount('/api/projects', 'stat-projects');
-  fetchCount('/api/posts', 'stat-posts');
+  fetchCount('api/phones', 'stat-phones');
+  fetchCount('api/projects', 'stat-projects');
+  fetchCount('api/posts', 'stat-posts');
   fetchYouTubeCount();
 }
 
@@ -20,7 +20,7 @@ function fetchCount(url, id) {
 }
 
 function fetchYouTubeCount() {
-  const cached = localStorage.getItem("youtube_full_channel_cache_v3");
+  const cached = localStorage.getItem("proxion:youtube_full_channel_cache_v3");
   if (cached) {
     try {
       const { items } = JSON.parse(cached);
@@ -29,7 +29,7 @@ function fetchYouTubeCount() {
       return;
     } catch (e) {}
   }
-  fetch('/api/youtube/channels?id=UCalOFAYtXcoCeVj48OB_w9w')
+  fetch('api/youtube/channels?id=UCalOFAYtXcoCeVj48OB_w9w')
     .then(r => r.json())
     .then(data => {
       const el = document.getElementById('stat-videos');

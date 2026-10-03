@@ -3,7 +3,7 @@
 // =====================================================
 const CHANNEL_ID = "UCalOFAYtXcoCeVj48OB_w9w";
 
-const CACHE_KEY = "youtube_full_channel_cache_v3";
+const CACHE_KEY = "proxion:youtube_full_channel_cache_v3";
 const CACHE_TIME = 1000 * 60 * 60 * 6; // 6 hours
 const VIDEOS_PER_BATCH = 6;
 
@@ -153,7 +153,7 @@ function fetchAllUploads(pageToken = "", collected = []) {
     "UU" + CHANNEL_ID.substring(2); // UCxxxx → UUxxxx
 
   fetch(
-    `/api/youtube/playlist?playlistId=${uploadsPlaylistId}&pageToken=${pageToken}`
+    `api/youtube/playlist?playlistId=${uploadsPlaylistId}&pageToken=${pageToken}`
   )
     .then(res => res.json())
     .then(data => {
@@ -213,7 +213,7 @@ async function fetchLiveStreamIds(videoIds) {
     const batch = videoIds.slice(i, i + 50).join(",");
     try {
       const res = await fetch(
-        `/api/youtube/videos?ids=${batch}`
+        `api/youtube/videos?ids=${batch}`
       );
       const data = await res.json();
       if (data.items) {
@@ -577,13 +577,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const container = document.getElementById("got-stuck-container");
   const backBtn = document.getElementById("standalone-back");
+  if (!container) return;
 
   // If opened directly (not inside iframe)
   if (window.self === window.top) {
     container.classList.remove("hidden");
 
     backBtn.addEventListener("click", () => {
-      window.location.href = "../index.html";
+      window.location.href = "index.html";
     });
   }
 
@@ -659,14 +660,14 @@ function openVideoModal(video) {
   overlay.addEventListener('click', e => {
     if (e.target === overlay || e.target.classList.contains('video-modal-close')) {
       overlay.classList.add('fade-out');
-      setTimeout(() => overlay.remove(), 300);
+      window.setTimeout(() => overlay.remove(), 300);
     }
   });
 
   document.addEventListener('keydown', function handler(e) {
     if (e.key === 'Escape') {
       overlay.classList.add('fade-out');
-      setTimeout(() => overlay.remove(), 300);
+      window.setTimeout(() => overlay.remove(), 300);
       document.removeEventListener('keydown', handler);
     }
   });

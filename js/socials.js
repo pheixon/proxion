@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function fetchChannelStats() {
   fetch(
-    `/api/youtube/channels?id=${SOCIALS_CHANNEL_ID}`
+    `api/youtube/channels?id=${SOCIALS_CHANNEL_ID}`
   )
     .then(res => res.json())
     .then(data => {
@@ -24,13 +24,13 @@ function fetchChannelStats() {
 async function fetchLatestContent() {
   const playlistId = "UU" + SOCIALS_CHANNEL_ID.substring(2);
   try {
-    const res = await fetch(`/api/youtube/playlist?playlistId=${playlistId}&pageToken=`);
+    const res = await fetch(`api/youtube/playlist?playlistId=${playlistId}&pageToken=`);
     const data = await res.json();
     if (!data.items || !data.items.length) return;
 
     const items = data.items.slice(0, 50);
     const ids = items.map(i => i.snippet.resourceId.videoId).join(",");
-    const detRes = await fetch(`/api/youtube/videos?ids=${ids}`);
+    const detRes = await fetch(`api/youtube/videos?ids=${ids}`);
     const detData = await detRes.json();
     const liveSet = new Set();
     (detData.items || []).forEach(v => {
@@ -69,11 +69,12 @@ function renderEmbed(containerId, item, label) {
 function initGotStuck() {
   const container = document.getElementById("got-stuck-container");
   const backBtn = document.getElementById("standalone-back");
+  if (!container) return;
 
   if (window.self === window.top) {
     container.classList.remove("hidden");
     backBtn.addEventListener("click", () => {
-      window.location.href = "../index.html";
+      window.location.href = "index.html";
     });
   }
 }

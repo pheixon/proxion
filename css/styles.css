@@ -253,13 +253,16 @@ body {
 
 /* --- Colors --- */
 
-.item.blue .button, .item.blue .label { background: var(--color-blue); }
-.item.red .button, .item.red .label { background: var(--color-red); }
-.item.green .button, .item.green .label { background: var(--color-green); }
-.item.purple .button, .item.purple .label { background: var(--color-purple); }
-.item.orange .button, .item.orange .label { background: var(--color-orange); }
-.item.teal .button, .item.teal .label { background: var(--color-teal); }
-.item.pink .button, .item.pink .label { background: var(--color-pink); }
+.item.blue { --tint: var(--color-blue); }
+.item.red { --tint: var(--color-red); }
+.item.green { --tint: var(--color-green); }
+.item.purple { --tint: var(--color-purple); }
+.item.orange { --tint: var(--color-orange); }
+.item.teal { --tint: var(--color-teal); }
+.item.pink { --tint: var(--color-pink); }
+
+.button-container .item .button,
+.button-container .item .label { background: var(--tint); }
 
 /* --- Embed container --- */
 

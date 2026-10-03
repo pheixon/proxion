@@ -2,26 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>403 — Forbidden</title>
+  <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/theme-retro.css">
-  <link rel="stylesheet" href="css/theme-luna.css">
-  <link rel="stylesheet" href="css/theme-aero.css">
-  <link rel="stylesheet" href="css/theme-liquid-glass.css">
-  <script>const t=localStorage.getItem('theme');if(t&&t!=='dark')document.documentElement.setAttribute('data-theme',t);if(t==='dark')document.documentElement.removeAttribute('data-theme');</script>
+  <script>function loadThemeCss(t){const id='theme-css-'+t;if(!t||t==='dark'||t==='light'||document.getElementById(id))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/theme-'+t+'.css';l.id=id;l.setAttribute('blocking','render');document.head.appendChild(l);return l}const t=localStorage.getItem('proxion:theme');if(t&&t!=='dark'){document.documentElement.setAttribute('data-theme',t);loadThemeCss(t)}</script>
   <style>
     body { display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; gap: 16px; padding: 24px; text-align: center; }
     .err-code { font-family: 'DINProBold'; font-size: 96px; line-height: 1; color: var(--color-orange); }
     .err-title { font-family: 'DINProBold'; font-size: 24px; margin-top: 8px; }
     .err-msg { font-family: 'DINPro'; font-size: 14px; opacity: 0.7; max-width: 400px; line-height: 1.5; }
-    .err-home { display: inline-block; margin-top: 16px; padding: 8px 16px; background: var(--color-blue); color: #fff; text-decoration: none; font-family: 'DINProBold'; }
+    .err-home, [data-theme] .err-home { display: inline-block; margin-top: 16px; padding: 8px 16px; background: var(--color-blue); color: #fff; text-decoration: none; font-family: 'DINProBold'; }
   </style>
 </head>
 <body>
   <div class="err-code">403</div>
   <div class="err-title">access forbidden</div>
   <div class="err-msg">you don't have permission to view this page.</div>
-  <a class="err-home" href="/">← back to home</a>
+  <a class="err-home" href="./">← back to home</a>
 </body>
 </html>

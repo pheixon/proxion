@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hover Expand Buttons</title>
+  <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/videos.css">
   <link rel="stylesheet" href="css/collection.css">
@@ -12,11 +13,7 @@
   <link rel="stylesheet" href="css/blog.css">
   <link rel="stylesheet" href="css/socials.css">
   <link rel="stylesheet" href="css/about.css">
-  <link rel="stylesheet" href="css/theme-retro.css">
-  <link rel="stylesheet" href="css/theme-luna.css">
-  <link rel="stylesheet" href="css/theme-aero.css">
-  <link rel="stylesheet" href="css/theme-liquid-glass.css">
-  <script>const t=localStorage.getItem('theme');if(t&&t!=='dark')document.documentElement.setAttribute('data-theme',t);if(t==='dark')document.documentElement.removeAttribute('data-theme');</script>
+  <script>function loadThemeCss(t){const id='theme-css-'+t;if(!t||t==='dark'||t==='light'||document.getElementById(id))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/theme-'+t+'.css';l.id=id;l.setAttribute('blocking','render');document.head.appendChild(l);return l}const t=localStorage.getItem('proxion:theme');if(t&&t!=='dark'){document.documentElement.setAttribute('data-theme',t);loadThemeCss(t)}</script>
 </head>
 
 <body>
