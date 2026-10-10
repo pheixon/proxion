@@ -124,16 +124,16 @@ body {
   width: var(--expanded-width);
 }
 
-.button-container:not(.selected):has(.item:not(.first):hover) .item.first {
+.button-container:not(.selected):has(.item:not(.first):is(:hover, .preview)) .item.first {
   width: var(--collapsed-width);
 }
 
-.button-container:not(.selected):has(.item:not(.first):hover) .item.first svg {
+.button-container:not(.selected):has(.item:not(.first):is(:hover, .preview)) .item.first svg {
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.6);
 }
 
-.button-container:not(.selected):has(.item:not(.first):hover) .item.first .label {
+.button-container:not(.selected):has(.item:not(.first):is(:hover, .preview)) .item.first .label {
   opacity: 0;
 }
 
@@ -201,15 +201,15 @@ body {
 
 /* --- Hover (only in default/center mode) --- */
 
-.button-container:not(.selected) .item:not(.first):hover {
+.button-container:not(.selected) .item:not(.first):is(:hover, .preview) {
   width: var(--expanded-width);
 }
 
-.button-container:not(.selected) .item:hover .label {
+.button-container:not(.selected) .item:is(:hover, .preview) .label {
   opacity: 1;
 }
 
-.item:not(.first):hover svg {
+.item:not(.first):is(:hover, .preview) svg {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
@@ -486,10 +486,16 @@ body {
 
 @font-face {
   font-family: 'DINProBold';
-  src: url('../assets/fonts/dinpro_bold.otf') format('opentype');
+  src: url('../assets/fonts/dinpro_bold.woff2') format('woff2');
 }
 
 @font-face {
   font-family: 'DINPro';
-  src: url('../assets/fonts/dinpro.otf') format('opentype');
+  src: url('../assets/fonts/dinpro.woff2') format('woff2');
+}
+
+@supports (-moz-appearance: none) {
+  html {
+    scrollbar-color: var(--scrollbar-thumb, rgba(255, 255, 255, 0.08)) var(--bg-card);
+  }
 }

@@ -8,3 +8,18 @@ ErrorDocument 500 /500.html
     RewriteRule ^api/(.*)$ http://127.0.0.1:3000/api/$1 [P,L]
   </IfModule>
 </IfModule>
+
+<IfModule mod_deflate.c>
+  <IfModule mod_filter.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
+  </IfModule>
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|css|js)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(woff2|png|jpe?g|webp|gif|svg)$">
+    Header set Cache-Control "max-age=604800"
+  </FilesMatch>
+</IfModule>

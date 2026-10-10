@@ -283,3 +283,9 @@
   background-repeat: no-repeat;
   background-position: center;
 }
+
+@supports (-moz-appearance: none) {
+  [data-theme="retro"] {
+    scrollbar-color: silver #e8e8e8;
+  }
+}

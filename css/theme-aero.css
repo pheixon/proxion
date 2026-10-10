@@ -338,3 +338,9 @@
   background: var(--w7-el-grad-h);
   border-color: var(--w7-el-bd-h);
 }
+
+@supports (-moz-appearance: none) {
+  [data-theme="aero"] {
+    scrollbar-color: #cfcfcf #f0f0f0;
+  }
+}

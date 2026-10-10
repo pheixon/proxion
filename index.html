@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hover Expand Buttons</title>
+  <title>proxion experimental</title>
+  <meta name="description" content="proxion's corner of the web: phone videos, a collection of classic mobile phones, projects and a blog.">
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/videos.css">
@@ -20,7 +21,7 @@
 
   <div class="button-container">
     <div class="item first active blue">
-      <button class="button">
+      <button class="button" aria-label="home">
         <svg class="icon-default" viewBox="0 0 32 32">
           <polyline fill="none" stroke="#ffffff" stroke-width="2" stroke-miterlimit="10" points="3,17 16,4 29,17 " />
           <polyline fill="none" stroke="#ffffff" stroke-width="2" stroke-miterlimit="10"
@@ -36,7 +37,7 @@
     </div>
 
     <div class="item red">
-      <button class="button">
+      <button class="button" aria-label="my videos">
         <svg viewBox="0 0 32 32">
           <rect x="5" y="5" fill="none" stroke="#ffffff" stroke-width="2" stroke-miterlimit="10" width="22"
             height="22" />
@@ -58,7 +59,7 @@
     </div>
 
     <div class="item green">
-      <button class="button">
+      <button class="button" aria-label="my collection">
         <svg viewBox="0 0 32 32">
           <path fill="none" stroke="#ffffff" stroke-width="2" stroke-miterlimit="10"
             d="M13.6,8.5L9.5,4.3C9,3.9,8.3,3.9,7.8,4.3L4.7,7.5C4,8.1,3.8,9.1,4.1,9.9c0.8,2.3,2.9,6.9,7,11s8.7,6.1,11,7c0.9,0.3,1.8,0.1,2.5-0.5l3.1-3.1c0.5-0.5,0.5-1.2,0-1.7l-4.1-4.1c-0.5-0.5-1.2-0.5-1.7,0l-2.5,2.5c0,0-2.8-1.2-5-3.3s-3.3-5-3.3-5l2.5-2.5C14.1,9.7,14.1,8.9,13.6,8.5z" />
@@ -68,7 +69,7 @@
     </div>
 
     <div class="item purple">
-      <button class="button">
+      <button class="button" aria-label="my projects">
         <svg viewBox="0 0 32 32">
           <rect x="4" y="7" fill="none" stroke="#ffffff" stroke-width="2" stroke-miterlimit="10" width="24"
             height="18" />
@@ -82,7 +83,7 @@
     </div>
 
     <div class="item orange">
-      <button class="button">
+      <button class="button" aria-label="my blog">
         <svg viewBox="0 0 32 32">
           <polygon points="22,16.8 22,26 6,26 6,10 15.2,10 17.2,8 4,8 4,28 24,28 24,14.8 " />
           <path fill="none" stroke="#ffffff" stroke-width="2" stroke-miterlimit="10"
@@ -93,7 +94,7 @@
     </div>
 
     <div class="item teal">
-      <button class="button">
+      <button class="button" aria-label="my socials">
         <svg viewBox="0 0 32 32">
           <path fill="none" stroke="#ffffff" stroke-width="2" stroke-miterlimit="10"
             d="M9.7,23.4C11.3,25,13.6,26,16,26s4.7-1,6.3-2.6" />
@@ -110,7 +111,7 @@
     </div>
 
     <div class="item pink">
-      <button class="button">
+      <button class="button" aria-label="about me">
         <svg viewBox="0 0 32 32">
           <circle style="fill:none;stroke:#ffffff;stroke-width:2;stroke-miterlimit:10;" cx="16" cy="12" r="6" />
           <path style="fill:none;stroke:#ffffff;stroke-width:2;stroke-miterlimit:10;"
@@ -123,9 +124,9 @@
 
   <div class="menu-backdrop"></div>
 
-  <div class="embed-container">
+  <main class="embed-container">
     <div id="page-content"></div>
-  </div>
+  </main>
 
   <div class="logo">
     <svg width="5069" height="446" viewBox="0 0 5069 446" fill="none" xmlns="http://www.w3.org/2000/svg">

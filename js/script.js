@@ -5,6 +5,7 @@ const items = document.querySelectorAll('.item');
 const firstItem = items[0];
 
 const TRANSITION_MS = 350;
+const HOME_TITLE = document.title;
 
 const scrollbarColors = {
   videos: [231, 76, 60],
@@ -80,8 +81,8 @@ function wrapPageScript(code) {
 
 async function loadPage(menuItem) {
   const [html, ...codes] = await Promise.all(
-    [menuItem.page, ...menuItem.scripts.map(src => `${src}?t=${Date.now()}`)]
-      .map(url => fetch(url).then(res => {
+    [menuItem.page, ...menuItem.scripts]
+      .map(url => fetch(url, { cache: 'no-cache' }).then(res => {
         if (!res.ok) throw new Error(`${res.status} ${url}`);
         return res.text();
       }))
@@ -104,6 +105,7 @@ async function loadPage(menuItem) {
   // Insert body content
   pageContent.innerHTML = doc.body.innerHTML;
   pageContent.className = doc.body.className || '';
+  document.title = doc.title;
 
   // Remove got-stuck containers (only needed for standalone access)
   pageContent.querySelectorAll('.got-stuck').forEach(el => el.remove());
@@ -149,6 +151,10 @@ items.forEach((item, index) => {
 
     if (isSelectedMode && isAlreadySelected && !isFirst) return;
 
+    const isPreviewTap = matchMedia('(hover: none)').matches && !isSelectedMode && !isFirst && !item.classList.contains('preview');
+    items.forEach(i => i.classList.toggle('preview', isPreviewTap && i === item));
+    if (isPreviewTap) return;
+
     if (isFirst && isSelectedMode) {
       embedContainer.classList.remove('active');
       container.classList.remove('selected');
@@ -163,6 +169,7 @@ items.forEach((item, index) => {
       setTimeout(() => {
         if (currentPage) return;
         clearPage();
+        document.title = HOME_TITLE;
         window.scrollTo({ top: 0 });
         if (location.hash) pushSectionUrl('');
         document.documentElement.style.removeProperty('--backdrop-width');
@@ -214,6 +221,10 @@ items.forEach((item, index) => {
       if (location.hash !== `#${menuItem.hash}`) pushSectionUrl(menuItem.hash);
     }
   });
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.item')) items.forEach(i => i.classList.remove('preview'));
 });
 
 function pushSectionUrl(hash) {
@@ -341,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('proxion:theme', next);
   });
 
-  const THEMES = ['proxion', 'retro', 'luna', 'aero', 'liquid-glass'];
+  const THEMES = ['proxion', 'light', 'retro', 'luna', 'aero', 'liquid-glass'];
 
   function loadLiquidGlass(theme) {
     if (theme !== 'liquid-glass' || document.getElementById('liquid-glass-js')) return;
@@ -357,6 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const select = document.createElement('select');
     select.id = 'theme-select';
     select.className = 'bottom-btn';
+    select.setAttribute('aria-label', 'Theme');
     THEMES.forEach(name => {
       const opt = document.createElement('option');
       opt.value = name;
@@ -385,6 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeBtn = document.createElement('button');
     closeBtn.className = 'bottom-btn';
+    closeBtn.setAttribute('aria-label', 'Close theme picker');
     closeBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
     closeBtn.addEventListener('click', () => {
       localStorage.removeItem('proxion:konami');
