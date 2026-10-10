@@ -11,12 +11,6 @@ const pageFade = document.getElementById("page-fade");
 document.addEventListener("DOMContentLoaded", () => {
   injectSortBar();
   loadProjects();
-  document.getElementById("create-project-btn")?.addEventListener("click", createProject);
-  if (adminMode) {
-    adminLogin().then(ok => {
-      if (ok) document.getElementById("projects-editor").classList.remove("hidden");
-    });
-  }
 
   document.getElementById("back-btn")?.addEventListener("click", () => {
     switchToListView(true);
@@ -191,71 +185,7 @@ function createProjectCard(project) {
     openProjectById(project.id, true);
   });
 
-  if (adminMode) {
-    card.querySelector(".video-info").appendChild(adminButtons(() => editProject(project, card), () => deleteProject(project.id, card)));
-  }
-
   return card;
-}
-
-/* ---------------- ADMIN ---------------- */
-
-function editProject(project, card) {
-  card.innerHTML = `
-    <div class="admin-edit-form">
-      <input class="admin-field" id="ep-title" placeholder="title" value="${escapeHtml(project.title)}">
-      <input class="admin-field" id="ep-type" placeholder="type" value="${escapeHtml(project.type)}">
-      <input class="admin-field" id="ep-year" placeholder="year" value="${escapeHtml(project.year)}">
-      <input class="admin-field" id="ep-image" placeholder="image url" value="${escapeHtml(project.image)}">
-      <textarea class="admin-field" id="ep-images" placeholder="extra images (one url per line)">${escapeHtml(Array.isArray(project.images) ? project.images.join("\n") : "")}</textarea>
-      <input class="admin-field" id="ep-url" placeholder="project url" value="${escapeHtml(project.url)}">
-      <textarea class="admin-field" id="ep-desc" placeholder="description">${escapeHtml(project.description)}</textarea>
-      <div class="admin-actions">
-        <span class="blog-admin-btn">save</span>
-        <span class="blog-admin-btn delete">cancel</span>
-      </div>
-    </div>
-  `;
-  card.querySelector(".admin-actions .blog-admin-btn").onclick = async () => {
-    const imagesRaw = card.querySelector("#ep-images").value.trim();
-    const body = {
-      title: card.querySelector("#ep-title").value.trim(),
-      type: card.querySelector("#ep-type").value.trim(),
-      year: card.querySelector("#ep-year").value.trim(),
-      image: card.querySelector("#ep-image").value.trim(),
-      images: imagesRaw ? imagesRaw.split("\n").map(s => s.trim()).filter(Boolean) : [],
-      url: card.querySelector("#ep-url").value.trim(),
-      description: card.querySelector("#ep-desc").value.trim(),
-    };
-    const res = await adminFetch(`api/projects/${encodeURIComponent(project.id)}`, { method: "PUT", body: JSON.stringify(body) });
-    if (res.ok) { allProjects = allProjects.map(p => p.id === project.id ? { ...p, ...body } : p); render(); }
-  };
-  card.querySelector(".blog-admin-btn.delete").onclick = () => card.replaceWith(createProjectCard(project));
-}
-
-async function deleteProject(id, card) {
-  if (!confirm("Delete this project?")) return;
-  const res = await adminFetch(`api/projects/${encodeURIComponent(id)}`, { method: "DELETE" });
-  if (res.ok) { allProjects = allProjects.filter(p => p.id !== id); card.remove(); updateMeta(null); }
-}
-
-async function createProject() {
-  const get = id => document.getElementById(id).value.trim();
-  const imagesRaw = get("new-p-images");
-  const body = {
-    id: get("new-p-id"), title: get("new-p-title"), type: get("new-p-type"),
-    year: get("new-p-year"), image: get("new-p-image"),
-    images: imagesRaw ? imagesRaw.split("\n").map(s => s.trim()).filter(Boolean) : [],
-    url: get("new-p-url"), description: get("new-p-desc"),
-  };
-  if (!body.id || !body.title) return alert("ID and title are required");
-  const res = await adminFetch("api/projects", { method: "POST", body: JSON.stringify(body) });
-  if (res.ok) {
-    allProjects.push(body);
-    ["new-p-id","new-p-title","new-p-type","new-p-year","new-p-image","new-p-images","new-p-url","new-p-desc"].forEach(id => document.getElementById(id).value = "");
-    updateMeta(null);
-    render();
-  }
 }
 
 /* ---------------- DETAIL VIEW ---------------- */

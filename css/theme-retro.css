@@ -18,8 +18,6 @@
   --bg: #008080;
   --bg-card: #c0c0c0;
   --bg-elevated: #dfdfdf;
-  --bg-admin: #c0c0c0;
-  --bg-admin-delete: #c07070;
   --text: #000000;
 
   --color-blue: #000080;
@@ -66,7 +64,6 @@
 [data-theme="retro"] .faq-question,
 [data-theme="retro"] .timeline-year,
 [data-theme="retro"] strong,
-[data-theme="retro"] .inline-edit-title,
 [data-theme="retro"] .category h2,
 [data-theme="retro"] .video-modal-title,
 [data-theme="retro"] .video-title {
@@ -93,9 +90,7 @@
 [data-theme="retro"] .stat-item,
 [data-theme="retro"] .about-card,
 [data-theme="retro"] .faq-item,
-[data-theme="retro"] .latest-video-container,
-[data-theme="retro"] .blog-editor,
-[data-theme="retro"] .admin-edit-form {
+[data-theme="retro"] .latest-video-container {
   background: silver;
   border-radius: 0;
   box-shadow:

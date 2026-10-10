@@ -1,5 +1,5 @@
 window.SITE_CONFIG = {
-  // 'api': Express + SQLite from server/ (on-site admin); 'sanity': Sanity CDN, no server needed (edit in Studio)
+  // 'sanity': Sanity CDN, edit in Studio, no server needed; 'api': read-only Express + SQLite from server/ (fallback)
   dataSource: 'sanity',
   sanity: {
     projectId: 'ev6593d3',

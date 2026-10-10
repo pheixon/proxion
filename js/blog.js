@@ -1,5 +1,3 @@
-const API_BASE = 'api';
-
 document.addEventListener('DOMContentLoaded', () => {
   const page = document.getElementById('page-fade');
 
@@ -10,12 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   loadBlog();
-
-  if (adminMode) {
-    adminLogin().then(ok => {
-      if (ok) document.getElementById('editor').classList.remove('hidden');
-    });
-  }
 });
 
 let allPosts = [];
@@ -166,7 +158,6 @@ function renderPosts(posts, append = false) {
       renderSinglePost(post);
     });
 
-    if (adminMode) el.appendChild(adminButtons(() => editPost(post, el), () => deletePost(post.id)));
 
     wireBlogButtons(el);
     wireShareButtons(el);
@@ -320,78 +311,4 @@ function renderSinglePost(post, from) {
 
 window.addEventListener('popstate', () => {
   loadBlog();
-});
-
-document.getElementById('publish-post')?.addEventListener('click', publishPost);
-
-async function publishPost() {
-  const title = document.getElementById('post-title').value.trim();
-  const content = document.getElementById('post-content').value.trim();
-
-  if (!title || !content) {
-    alert('Title and content required');
-    return;
-  }
-
-  const res = await adminFetch(`${API_BASE}/posts`, {
-    method: 'POST',
-    body: JSON.stringify({ title, content }),
-  });
-  if (!res.ok) return;
-
-  document.getElementById('post-title').value = '';
-  document.getElementById('post-content').value = '';
-  document.getElementById('preview').innerHTML = '';
-
-  loadBlog();
-}
-
-function editPost(post, el) {
-  el.innerHTML = `
-    <div class="blog-meta">
-      <div class="blog-id">post #${post.id}</div>
-    </div>
-    <input class="inline-edit-title" type="text" value="${escapeHtml(post.title)}">
-    <textarea class="inline-edit-content">${escapeHtml(post.content)}</textarea>
-    <div class="post-preview inline-edit-preview"></div>
-    <div class="inline-edit-actions">
-      <span class="blog-admin-btn inline-save">save</span>
-      <span class="blog-admin-btn inline-cancel">cancel</span>
-    </div>
-  `;
-
-  const textarea = el.querySelector('.inline-edit-content');
-  const preview = el.querySelector('.inline-edit-preview');
-
-  preview.innerHTML = renderMarkdown(textarea.value);
-  textarea.addEventListener('input', () => {
-    preview.innerHTML = renderMarkdown(textarea.value);
-  });
-
-  el.querySelector('.inline-save').onclick = async () => {
-    const title = el.querySelector('.inline-edit-title').value.trim();
-    const content = textarea.value.trim();
-    if (!title || !content) return;
-    const res = await adminFetch(`${API_BASE}/posts/${post.id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ title, content }),
-    });
-    if (res.ok) loadBlog();
-  };
-
-  el.querySelector('.inline-cancel').onclick = () => loadBlog();
-}
-
-async function deletePost(id) {
-  if (!confirm('Delete this post?')) return;
-
-  const res = await adminFetch(`${API_BASE}/posts/${id}`, { method: 'DELETE' });
-  if (res.ok) loadBlog();
-}
-
-const contentInput = document.getElementById('post-content');
-const preview = document.getElementById('preview');
-
-contentInput?.addEventListener('input', () => {
-  preview.innerHTML = renderMarkdown(contentInput.value);
 });

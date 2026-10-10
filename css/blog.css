@@ -130,48 +130,6 @@ svg.brand-svg {
   gap: 0;
 }
 
-.blog-editor textarea {
-  min-height: 160px;
-  margin-bottom: 10px;
-}
-
-.blog-editor button {
-  margin-top: 12px;
-}
-
-.post-preview {
-  margin: 10px 0 10px 0;
-  padding: 16px;
-  background: var(--bg);
-}
-
-.inline-edit-title,
-.inline-edit-content {
-  width: 100%;
-  background: var(--bg);
-  border: none;
-  color: var(--text);
-  padding: 10px;
-  font-family: 'DINPro';
-  font-size: 16px;
-  margin-bottom: 10px;
-  display: block;
-}
-
-.inline-edit-title {
-  font-family: 'DINProBold';
-  font-size: 20px;
-  margin-top: 10px;
-}
-
-.inline-edit-content {
-  min-height: 140px;
-}
-
-.inline-edit-preview {
-  margin-bottom: 10px;
-}
-
 .blog-search-wrap {
   display: flex;
   align-items: center;

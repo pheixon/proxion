@@ -34,7 +34,6 @@
 [data-theme="luna"] .faq-question,
 [data-theme="luna"] .timeline-year,
 [data-theme="luna"] strong,
-[data-theme="luna"] .inline-edit-title,
 [data-theme="luna"] .video-modal-title,
 [data-theme="luna"] .video-title {
   font-family: "Tahoma", sans-serif !important; font-weight: 700 !important;
@@ -44,8 +43,6 @@
   --bg: #5a7edc;
   --bg-card: #ece9d8;
   --bg-elevated: #ffffff;
-  --bg-admin: #ece9d8;
-  --bg-admin-delete: #e8b0b0;
   --text: #000000;
 
   --color-blue: #0054e3;
@@ -156,9 +153,7 @@
 [data-theme="luna"] .stat-item,
 [data-theme="luna"] .about-card,
 [data-theme="luna"] .faq-item,
-[data-theme="luna"] .latest-video-container,
-[data-theme="luna"] .blog-editor,
-[data-theme="luna"] .admin-edit-form {
+[data-theme="luna"] .latest-video-container {
   background: #ece9d8;
   border-radius: 8px 8px 0 0;
   box-shadow:

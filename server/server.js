@@ -1,17 +1,8 @@
 require('dotenv').config();
-const crypto = require('crypto');
 const express = require('express');
 const Database = require('better-sqlite3');
-const jwt = require('jsonwebtoken');
 
 const path = require('path');
-
-const SECRET = process.env.JWT_SECRET;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-if (!SECRET || !ADMIN_PASSWORD) {
-  console.error('JWT_SECRET and ADMIN_PASSWORD must be set in server/.env');
-  process.exit(1);
-}
 
 const app = express();
 const db = new Database(process.env.DB_PATH || 'blog.db');
@@ -21,7 +12,6 @@ const ROOT = path.join(__dirname, '..');
 
 app.disable('x-powered-by');
 app.set('trust proxy', 'loopback');
-app.use(express.json());
 ['css', 'js', 'pages', 'assets'].forEach(dir => app.use(`/${dir}`, express.static(path.join(ROOT, dir))));
 app.get(['/', '/:page.html'], (req, res, next) =>
   res.sendFile(`${req.params.page || 'index'}.html`, { root: ROOT }, err => err && next())
@@ -68,41 +58,7 @@ db.exec(`
     url TEXT,
     description TEXT
   );
-  CREATE TABLE IF NOT EXISTS updates (
-    name TEXT PRIMARY KEY,
-    at TEXT NOT NULL
-  );
 `);
-
-const touch = name =>
-  db.prepare('INSERT INTO updates (name, at) VALUES (?, ?) ON CONFLICT(name) DO UPDATE SET at = excluded.at').run(name, new Date().toISOString());
-
-function setLastModified(res, name) {
-  const row = db.prepare('SELECT at FROM updates WHERE name = ?').get(name);
-  if (row) res.set('Last-Modified', new Date(row.at).toUTCString());
-}
-
-function auth(req, res, next) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' });
-  try {
-    jwt.verify(header.slice(7), SECRET);
-    next();
-  } catch {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-}
-
-const sha256 = value => crypto.createHash('sha256').update(value).digest();
-
-app.post('/api/auth', rateLimit(15 * 60 * 1000, 10), (req, res) => {
-  const { password } = req.body;
-  if (typeof password !== 'string' || !crypto.timingSafeEqual(sha256(password), sha256(ADMIN_PASSWORD))) {
-    return res.status(401).json({ error: 'Wrong password' });
-  }
-  const token = jwt.sign({ admin: true }, SECRET, { expiresIn: '7d' });
-  res.json({ token });
-});
 
 app.get('/api/posts', (_req, res) => {
   res.json(db.prepare('SELECT * FROM posts ORDER BY date DESC').all());
@@ -114,53 +70,6 @@ app.get('/api/posts/:id', (req, res) => {
   res.json(post);
 });
 
-app.post('/api/posts', auth, (req, res) => {
-  const { title, date, content } = req.body;
-  if (!title || !content) return res.status(400).json({ error: 'title, content required' });
-  const { lastInsertRowid } = db.prepare('INSERT INTO posts (title, date, content) VALUES (?, ?, ?)').run(
-    title, date || new Date().toISOString(), content
-  );
-  res.json({ ok: true, id: lastInsertRowid });
-});
-
-app.put('/api/posts/:id', auth, (req, res) => {
-  const { title, content } = req.body;
-  db.prepare('UPDATE posts SET title = ?, content = ?, updated_at = ? WHERE id = ?').run(
-    title, content, new Date().toISOString(), req.params.id
-  );
-  res.json({ ok: true });
-});
-
-app.delete('/api/posts/:id', auth, (req, res) => {
-  db.prepare('DELETE FROM posts WHERE id = ?').run(req.params.id);
-  res.json({ ok: true });
-});
-
-app.post('/api/phones', auth, (req, res) => {
-  const { brand, model, type, year, image, article, clone, aka } = req.body;
-  if (!brand || !model) return res.status(400).json({ error: 'brand and model required' });
-  const { lastInsertRowid } = db.prepare(
-    'INSERT INTO phones (brand, model, type, year, image, article, clone, aka) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-  ).run(brand, model, type || null, year || null, image || '', article ? 1 : 0, clone ? 1 : 0, aka || '');
-  touch('phones');
-  res.json({ ok: true, id: lastInsertRowid });
-});
-
-app.put('/api/phones/:id', auth, (req, res) => {
-  const { brand, model, type, year, image, article, clone, aka } = req.body;
-  db.prepare(
-    'UPDATE phones SET brand=?, model=?, type=?, year=?, image=?, article=?, clone=?, aka=? WHERE id=?'
-  ).run(brand, model, type || null, year || null, image || '', article ? 1 : 0, clone ? 1 : 0, aka || '', req.params.id);
-  touch('phones');
-  res.json({ ok: true });
-});
-
-app.delete('/api/phones/:id', auth, (req, res) => {
-  db.prepare('DELETE FROM phones WHERE id = ?').run(req.params.id);
-  touch('phones');
-  res.json({ ok: true });
-});
-
 function stripDotZero(v) {
   if (typeof v === 'string' && v.endsWith('.0')) return v.slice(0, -2);
   if (typeof v === 'number' && Number.isInteger(v)) return v;
@@ -170,39 +79,12 @@ function stripDotZero(v) {
 
 app.get('/api/phones', (_req, res) => {
   const rows = db.prepare('SELECT * FROM phones ORDER BY brand, model').all();
-  setLastModified(res, 'phones');
   res.json(rows.map(r => ({ ...r, model: stripDotZero(r.model), year: stripDotZero(r.year), article: !!r.article, clone: !!r.clone })));
 });
 
 app.get('/api/projects', (_req, res) => {
   const rows = db.prepare('SELECT * FROM projects').all();
-  setLastModified(res, 'projects');
   res.json(rows.map(r => ({ ...r, year: stripDotZero(r.year), images: r.images ? JSON.parse(r.images) : [] })));
-});
-
-app.post('/api/projects', auth, (req, res) => {
-  const { id, title, type, year, image, images, url, description } = req.body;
-  if (!id || !title) return res.status(400).json({ error: 'id and title required' });
-  db.prepare(
-    'INSERT INTO projects (id, title, type, year, image, images, url, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-  ).run(id, title, type || null, year || null, image || '', images ? JSON.stringify(images) : null, url || '', description || '');
-  touch('projects');
-  res.json({ ok: true, id });
-});
-
-app.put('/api/projects/:id', auth, (req, res) => {
-  const { title, type, year, image, images, url, description } = req.body;
-  db.prepare(
-    'UPDATE projects SET title=?, type=?, year=?, image=?, images=?, url=?, description=? WHERE id=?'
-  ).run(title, type || null, year || null, image || '', images ? JSON.stringify(images) : null, url || '', description || '', req.params.id);
-  touch('projects');
-  res.json({ ok: true });
-});
-
-app.delete('/api/projects/:id', auth, (req, res) => {
-  db.prepare('DELETE FROM projects WHERE id = ?').run(req.params.id);
-  touch('projects');
-  res.json({ ok: true });
 });
 
 app.get('/api/search', (req, res) => {
