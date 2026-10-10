@@ -44,20 +44,23 @@ function createPageScope() {
   let alive = true;
   const cleanups = [];
   const hang = new Promise(() => {});
-  const gate = value => (alive ? value : hang);
+  const track = promise => promise.then(value => (alive ? value : hang), err => {
+    if (alive) throw err;
+    return hang;
+  });
+  const wrapApi = api => Object.fromEntries(Object.entries(api).map(([key, value]) =>
+    [key, typeof value === 'function' ? (...args) => track(value(...args)) : wrapApi(value)]));
   return {
     setTimeout: (fn, ms, ...args) => window.setTimeout(() => alive && fn(...args), ms),
     requestAnimationFrame: fn => window.requestAnimationFrame(time => alive && fn(time)),
-    fetch: (...args) => window.fetch(...args).then(res => {
+    fetch: (...args) => track(window.fetch(...args).then(res => {
       ['json', 'text'].forEach(method => {
         const read = res[method].bind(res);
-        res[method] = () => read().then(gate);
+        res[method] = () => track(read());
       });
-      return gate(res);
-    }, err => {
-      if (alive) throw err;
-      return hang;
-    }),
+      return res;
+    })),
+    siteData: wrapApi(window.siteData),
     listen(target, type, fn, options) {
       EventTarget.prototype.addEventListener.call(target, type, fn, options);
       cleanups.push(() => target.removeEventListener(type, fn, options));
@@ -71,7 +74,7 @@ function createPageScope() {
 
 function wrapPageScript(code) {
   return `(function(scope) {
-    var setTimeout = scope.setTimeout, requestAnimationFrame = scope.requestAnimationFrame, fetch = scope.fetch;
+    var setTimeout = scope.setTimeout, requestAnimationFrame = scope.requestAnimationFrame, fetch = scope.fetch, siteData = scope.siteData;
     document.addEventListener = function(type, fn, options) {
       if (type === 'DOMContentLoaded') return fn();
       scope.listen(document, type, fn, options);
@@ -295,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       const isStale = () => !controls.classList.contains('searching') || searchInput.value.trim() !== q;
-      const results = await fetch(`api/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => null);
+      const results = await siteData.search(q).catch(() => null);
       if (!results || isStale()) return;
       container.style.opacity = '0';
       container.style.pointerEvents = 'none';

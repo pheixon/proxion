@@ -1,7 +1,6 @@
 // =====================================================
 // CONFIG
 // =====================================================
-const DATA_URL = "api/phones";
 const PHONES_PER_BATCH = 6;
 
 // =====================================================
@@ -119,11 +118,9 @@ function getFilteredPhones() {
 // =====================================================
 async function loadPhones() {
   try {
-    const res = await fetch(DATA_URL, { cache: "no-store" });
-    allPhones = await res.json();
-
-    const lastModified = res.headers.get("Last-Modified");
-    updateMeta(lastModified);
+    const { items, updatedAt } = await siteData.phones();
+    allPhones = items;
+    updateMeta(updatedAt);
 
     updateTotalCount();
     render();

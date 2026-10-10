@@ -10,7 +10,7 @@ function adminToken() {
   return null;
 }
 
-const adminMode = new URLSearchParams(location.search).get('admin') === '1' || !!adminToken();
+const adminMode = SITE_CONFIG.dataSource === 'api' && (new URLSearchParams(location.search).get('admin') === '1' || !!adminToken());
 
 async function adminLogin() {
   if (adminToken()) return true;

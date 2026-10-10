@@ -3,18 +3,17 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function loadStats() {
-  fetchCount('api/phones', 'stat-phones');
-  fetchCount('api/projects', 'stat-projects');
-  fetchCount('api/posts', 'stat-posts');
+  showCount(siteData.phones().then(r => r.items), 'stat-phones');
+  showCount(siteData.projects().then(r => r.items), 'stat-projects');
+  showCount(siteData.posts(), 'stat-posts');
   fetchYouTubeCount();
 }
 
-function fetchCount(url, id) {
-  fetch(url)
-    .then(r => r.json())
-    .then(data => {
+function showCount(list, id) {
+  list
+    .then(items => {
       const el = document.getElementById(id);
-      if (el && Array.isArray(data)) el.textContent = data.length;
+      if (el && Array.isArray(items)) el.textContent = items.length;
     })
     .catch(() => {});
 }
@@ -29,8 +28,7 @@ function fetchYouTubeCount() {
       return;
     } catch (e) {}
   }
-  fetch('api/youtube/channels?id=UCalOFAYtXcoCeVj48OB_w9w')
-    .then(r => r.json())
+  siteData.youtube.channel('UCalOFAYtXcoCeVj48OB_w9w')
     .then(data => {
       const el = document.getElementById('stat-videos');
       if (el && data.items?.[0]?.statistics?.videoCount) {

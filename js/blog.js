@@ -22,8 +22,7 @@ let allPosts = [];
 
 async function loadBlog() {
   try {
-    const res = await fetch(`${API_BASE}/posts`);
-    allPosts = await res.json();
+    allPosts = await siteData.posts();
 
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');

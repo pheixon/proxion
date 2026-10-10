@@ -7,10 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function fetchChannelStats() {
-  fetch(
-    `api/youtube/channels?id=${SOCIALS_CHANNEL_ID}`
-  )
-    .then(res => res.json())
+  siteData.youtube.channel(SOCIALS_CHANNEL_ID)
     .then(data => {
       if (!data.items || !data.items.length) return;
       const stats = data.items[0].statistics;
@@ -24,14 +21,12 @@ function fetchChannelStats() {
 async function fetchLatestContent() {
   const playlistId = "UU" + SOCIALS_CHANNEL_ID.substring(2);
   try {
-    const res = await fetch(`api/youtube/playlist?playlistId=${playlistId}&pageToken=`);
-    const data = await res.json();
+    const data = await siteData.youtube.playlist(playlistId);
     if (!data.items || !data.items.length) return;
 
     const items = data.items.slice(0, 50);
     const ids = items.map(i => i.snippet.resourceId.videoId).join(",");
-    const detRes = await fetch(`api/youtube/videos?ids=${ids}`);
-    const detData = await detRes.json();
+    const detData = await siteData.youtube.videos(ids);
     const liveSet = new Set();
     (detData.items || []).forEach(v => {
       if (v.liveStreamingDetails) liveSet.add(v.id);

@@ -29,7 +29,9 @@
     <a class="login-back" href="./">← back to home</a>
   </form>
 
+  <script src="js/config.js"></script>
   <script>
+    if (SITE_CONFIG.dataSource === 'sanity') location.replace(SITE_CONFIG.sanity.studioUrl);
     const API_BASE = 'api';
     const form = document.getElementById('login-form');
     const errEl = document.getElementById('error');

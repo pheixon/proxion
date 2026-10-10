@@ -1,4 +1,3 @@
-const PROJECTS_URL = "api/projects";
 const ITEMS_PER_BATCH = 6;
 
 let allProjects = [];
@@ -38,13 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadProjects() {
   try {
-    const res = await fetch(PROJECTS_URL, { cache: "no-store" });
-    const data = await res.json();
-
-    allProjects = Array.isArray(data) ? data : (data.items || []);
-
-    const lastModified = res.headers.get("Last-Modified");
-    updateMeta(lastModified);
+    const { items, updatedAt } = await siteData.projects();
+    allProjects = items;
+    updateMeta(updatedAt);
 
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");

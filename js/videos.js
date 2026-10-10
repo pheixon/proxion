@@ -152,10 +152,7 @@ function fetchAllUploads(pageToken = "", collected = []) {
   const uploadsPlaylistId =
     "UU" + CHANNEL_ID.substring(2); // UCxxxx → UUxxxx
 
-  fetch(
-    `api/youtube/playlist?playlistId=${uploadsPlaylistId}&pageToken=${pageToken}`
-  )
-    .then(res => res.json())
+  siteData.youtube.playlist(uploadsPlaylistId, pageToken)
     .then(data => {
 
       const validItems = data.items.filter(item =>
@@ -212,10 +209,7 @@ async function fetchLiveStreamIds(videoIds) {
   for (let i = 0; i < videoIds.length; i += 50) {
     const batch = videoIds.slice(i, i + 50).join(",");
     try {
-      const res = await fetch(
-        `api/youtube/videos?ids=${batch}`
-      );
-      const data = await res.json();
+      const data = await siteData.youtube.videos(batch);
       if (data.items) {
         data.items.forEach(v => {
           if (v.liveStreamingDetails) liveIds.add(v.id);
