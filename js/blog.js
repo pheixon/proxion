@@ -211,7 +211,7 @@ function renderPosts(posts, append = false) {
         <div class="blog-id">post #${post.id}</div>
         <div class="blog-share" data-id="${post.id}">share</div>
       </div>
-      <h2 class="blog-title">${post.title}</h2>
+      <h2 class="blog-title">${escapeHtml(post.title)}</h2>
       <div class="blog-date">${dateStr}</div>
       <div class="blog-content">${html}</div>
     `;
@@ -256,6 +256,10 @@ function renderPosts(posts, append = false) {
   }
 }
 
+function renderMarkdown(md) {
+  return DOMPurify.sanitize(marked.parse(md));
+}
+
 function renderMarkdownWithButtons(md) {
   md = md.replace(/\[button:(.*?)\]/gi, (_, label) => {
     const key = label.trim().toLowerCase();
@@ -273,7 +277,7 @@ function renderMarkdownWithButtons(md) {
     return `<span class="watch-btn ${btn.color} blog-inline-btn" data-hash="${btn.hash}">${label} →</span>`;
   });
 
-  return marked.parse(md);
+  return renderMarkdown(md);
 }
 
 function wireBlogButtons() {
@@ -368,7 +372,7 @@ function renderSinglePost(post, from) {
         <span class="blog-id">post #${post.id}</span>
         <span class="blog-share" data-id="${post.id}">share</span>
       </div>
-      <h2 class="blog-title">${post.title}</h2>
+      <h2 class="blog-title">${escapeHtml(post.title)}</h2>
       <div class="blog-date">${dateStr}</div>
       <div class="blog-content">${html}</div>
       <div class="blog-nav">
@@ -415,8 +419,8 @@ function editPost(post, el) {
     <div class="blog-meta">
       <div class="blog-id">post #${post.id}</div>
     </div>
-    <input class="inline-edit-title" type="text" value="${post.title.replace(/"/g, '&quot;')}">
-    <textarea class="inline-edit-content">${post.content}</textarea>
+    <input class="inline-edit-title" type="text" value="${escapeHtml(post.title)}">
+    <textarea class="inline-edit-content">${escapeHtml(post.content)}</textarea>
     <div class="post-preview inline-edit-preview"></div>
     <div class="inline-edit-actions">
       <span class="blog-admin-btn inline-save">save</span>
@@ -427,9 +431,9 @@ function editPost(post, el) {
   const textarea = el.querySelector('.inline-edit-content');
   const preview = el.querySelector('.inline-edit-preview');
 
-  preview.innerHTML = marked.parse(textarea.value);
+  preview.innerHTML = renderMarkdown(textarea.value);
   textarea.addEventListener('input', () => {
-    preview.innerHTML = marked.parse(textarea.value);
+    preview.innerHTML = renderMarkdown(textarea.value);
   });
 
   el.querySelector('.inline-save').onclick = async () => {
@@ -462,5 +466,5 @@ const contentInput = document.getElementById('post-content');
 const preview = document.getElementById('preview');
 
 contentInput?.addEventListener('input', () => {
-  preview.innerHTML = marked.parse(contentInput.value);
+  preview.innerHTML = renderMarkdown(contentInput.value);
 });

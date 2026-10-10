@@ -263,7 +263,7 @@ function renderSections(groups, orderedKeys) {
 
     section.innerHTML = `
       <h2>
-        ${key}
+        ${escapeHtml(key)}
         <span class="video-count">
           · ${phones.length} ${phones.length === 1 ? "phone" : "phones"}
         </span>
@@ -371,13 +371,13 @@ function createPhoneCard(phone) {
 
   card.innerHTML = `
     <div class="thumb-wrap">
-      <img class="thumbnail ${images.length > 1 ? "clickable" : ""}" src="${images[0]}">
+      <img class="thumbnail ${images.length > 1 ? "clickable" : ""}" src="${escapeHtml(images[0])}">
       ${dotsHTML}
     </div>
 
     <div class="video-info">
-      <div class="video-title">${phone.brand} ${phone.model}</div>
-      <div class="video-date">${meta}</div>
+      <div class="video-title">${escapeHtml(`${phone.brand} ${phone.model}`)}</div>
+      <div class="video-date">${escapeHtml(meta)}</div>
 
       ${
         phone.article
@@ -434,12 +434,12 @@ function editPhone(phone, card) {
   const saved = card.innerHTML;
   card.innerHTML = `
     <div class="admin-edit-form">
-      <input class="admin-field" placeholder="brand" value="${phone.brand}">
-      <input class="admin-field" placeholder="model" value="${phone.model}">
-      <input class="admin-field" placeholder="type" value="${phone.type || ""}">
-      <input class="admin-field" placeholder="year" type="number" value="${phone.year || ""}">
-      <input class="admin-field" placeholder="image url" value="${phone.image || ""}">
-      <input class="admin-field" placeholder="aka" value="${phone.aka || ""}">
+      <input class="admin-field" placeholder="brand" value="${escapeHtml(phone.brand)}">
+      <input class="admin-field" placeholder="model" value="${escapeHtml(phone.model)}">
+      <input class="admin-field" placeholder="type" value="${escapeHtml(phone.type)}">
+      <input class="admin-field" placeholder="year" type="number" value="${escapeHtml(phone.year)}">
+      <input class="admin-field" placeholder="image url" value="${escapeHtml(phone.image)}">
+      <input class="admin-field" placeholder="aka" value="${escapeHtml(phone.aka)}">
       <label class="admin-check"><input type="checkbox" id="edit-article" ${phone.article ? "checked" : ""}> has wiki article</label>
       <label class="admin-check"><input type="checkbox" id="edit-clone" ${phone.clone ? "checked" : ""}> clone</label>
       <div class="admin-actions">

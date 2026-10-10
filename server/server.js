@@ -1,23 +1,43 @@
 require('dotenv').config();
+const crypto = require('crypto');
 const express = require('express');
 const Database = require('better-sqlite3');
 const jwt = require('jsonwebtoken');
-const cors = require('cors');
 
 const path = require('path');
 
-const app = express();
-const db = new Database(process.env.DB_PATH || 'blog.db');
 const SECRET = process.env.JWT_SECRET;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const PORT = process.env.PORT || 3000;
-const ROOT = path.join(__dirname, '..');
-const PUBLIC_PATH = /^\/(?:$|[^/]+\.html$|(?:css|js|pages|assets)\/)/;
-const serveStatic = express.static(ROOT);
+if (!SECRET || !ADMIN_PASSWORD) {
+  console.error('JWT_SECRET and ADMIN_PASSWORD must be set in server/.env');
+  process.exit(1);
+}
 
-app.use(cors());
+const app = express();
+const db = new Database(process.env.DB_PATH || 'blog.db');
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '127.0.0.1';
+const ROOT = path.join(__dirname, '..');
+
+app.disable('x-powered-by');
+app.set('trust proxy', 'loopback');
 app.use(express.json());
-app.use((req, res, next) => (PUBLIC_PATH.test(req.path) ? serveStatic(req, res, next) : next()));
+['css', 'js', 'pages', 'assets'].forEach(dir => app.use(`/${dir}`, express.static(path.join(ROOT, dir))));
+app.get(['/', '/:page.html'], (req, res, next) =>
+  res.sendFile(`${req.params.page || 'index'}.html`, { root: ROOT }, err => err && next())
+);
+
+function rateLimit(windowMs, max) {
+  const hits = new Map();
+  return (req, res, next) => {
+    const now = Date.now();
+    for (const [ip, hit] of hits) if (now - hit.start > windowMs) hits.delete(ip);
+    const hit = hits.get(req.ip) || { start: now, count: 0 };
+    hits.set(req.ip, hit);
+    if (++hit.count > max) return res.status(429).json({ error: 'Too many requests' });
+    next();
+  };
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS posts (
@@ -61,8 +81,13 @@ function auth(req, res, next) {
   }
 }
 
-app.post('/api/auth', (req, res) => {
-  if (req.body.password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Wrong password' });
+const sha256 = value => crypto.createHash('sha256').update(value).digest();
+
+app.post('/api/auth', rateLimit(15 * 60 * 1000, 10), (req, res) => {
+  const { password } = req.body;
+  if (typeof password !== 'string' || !crypto.timingSafeEqual(sha256(password), sha256(ADMIN_PASSWORD))) {
+    return res.status(401).json({ error: 'Wrong password' });
+  }
   const token = jwt.sign({ admin: true }, SECRET, { expiresIn: '7d' });
   res.json({ token });
 });
@@ -161,7 +186,7 @@ app.delete('/api/projects/:id', auth, (req, res) => {
 });
 
 app.get('/api/search', (req, res) => {
-  const q = (req.query.q || '').trim();
+  const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
   if (!q) return res.json([]);
   const like = `%${q}%`;
   const posts = db.prepare("SELECT id, title, content as detail, 'post' as source FROM posts WHERE title LIKE ? OR content LIKE ?").all(like, like);
@@ -182,34 +207,64 @@ app.get('/api/search', (req, res) => {
 });
 
 const YT_KEY = process.env.YOUTUBE_API_KEY;
+const YT_CHANNELS = ['UCalOFAYtXcoCeVj48OB_w9w'];
+const YT_PLAYLISTS = YT_CHANNELS.map(id => 'UU' + id.slice(2));
+const YT_VIDEO_IDS = /^[\w-]{11}(,[\w-]{11}){0,49}$/;
+const YT_PAGE_TOKEN = /^[\w-]*$/;
+const YT_TTL = 10 * 60 * 1000;
+const YT_CACHE_SIZE = 500;
+const ytCache = new Map();
+const ytLimit = rateLimit(60 * 1000, 60);
 
-app.get('/api/youtube/playlist', async (req, res) => {
-  const { playlistId, pageToken } = req.query;
-  if (!playlistId) return res.status(400).json({ error: 'playlistId required' });
-  const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&pageToken=${pageToken || ''}&key=${YT_KEY}`;
-  const r = await fetch(url);
-  res.json(await r.json());
+async function youtube(res, endpoint, params) {
+  const url = `https://www.googleapis.com/youtube/v3/${endpoint}?${new URLSearchParams({ ...params, key: YT_KEY })}`;
+  const cached = ytCache.get(url);
+  if (cached && Date.now() - cached.time < YT_TTL) return res.json(cached.data);
+  try {
+    const r = await fetch(url);
+    const data = await r.json();
+    if (r.ok) {
+      if (ytCache.size >= YT_CACHE_SIZE) ytCache.delete(ytCache.keys().next().value);
+      ytCache.set(url, { time: Date.now(), data });
+    }
+    if (!r.ok && cached) return res.json(cached.data);
+    res.status(r.status).json(data);
+  } catch {
+    if (cached) return res.json(cached.data);
+    res.status(502).json({ error: 'YouTube unavailable' });
+  }
+}
+
+app.get('/api/youtube/playlist', ytLimit, (req, res) => {
+  const { playlistId, pageToken = '' } = req.query;
+  if (!YT_PLAYLISTS.includes(playlistId) || !YT_PAGE_TOKEN.test(pageToken)) {
+    return res.status(400).json({ error: 'Invalid request' });
+  }
+  youtube(res, 'playlistItems', { part: 'snippet', playlistId, maxResults: 50, pageToken });
 });
 
-app.get('/api/youtube/videos', async (req, res) => {
-  const { ids, part } = req.query;
-  if (!ids) return res.status(400).json({ error: 'ids required' });
-  const url = `https://www.googleapis.com/youtube/v3/videos?part=${part || 'liveStreamingDetails'}&id=${ids}&key=${YT_KEY}`;
-  const r = await fetch(url);
-  res.json(await r.json());
+app.get('/api/youtube/videos', ytLimit, (req, res) => {
+  const { ids } = req.query;
+  if (typeof ids !== 'string' || !YT_VIDEO_IDS.test(ids)) return res.status(400).json({ error: 'Invalid request' });
+  youtube(res, 'videos', { part: 'liveStreamingDetails', id: ids });
 });
 
-app.get('/api/youtube/channels', async (req, res) => {
+app.get('/api/youtube/channels', ytLimit, (req, res) => {
   const { id } = req.query;
-  if (!id) return res.status(400).json({ error: 'id required' });
-  const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${id}&key=${YT_KEY}`;
-  const r = await fetch(url);
-  res.json(await r.json());
+  if (!YT_CHANNELS.includes(id)) return res.status(400).json({ error: 'Invalid request' });
+  youtube(res, 'channels', { part: 'statistics', id });
 });
 
 app.use((req, res) => {
   if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
-  res.status(404).sendFile(path.join(ROOT, '404.html'));
+  res.status(404).sendFile('404.html', { root: ROOT });
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.use((err, req, res, _next) => {
+  const status = err.status || err.statusCode || 500;
+  if (status >= 500) console.error(err);
+  if (req.path.startsWith('/api/')) return res.status(status).json({ error: status < 500 ? 'Bad request' : 'Server error' });
+  res.status(status).sendFile(`${[403, 404].includes(status) ? status : 500}.html`, { root: ROOT });
+});
+
+app.listen(PORT, HOST, () => console.log(`Server running on http://${HOST}:${PORT}`));

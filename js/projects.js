@@ -167,7 +167,7 @@ function renderSections(groups, orderedKeys) {
     section.className = "category";
 
     section.innerHTML = `
-      <h2>${key} <span class="video-count">· ${projects.length} ${projects.length === 1 ? "project" : "projects"}</span></h2>
+      <h2>${escapeHtml(key)} <span class="video-count">· ${projects.length} ${projects.length === 1 ? "project" : "projects"}</span></h2>
       <div class="videos-grid"></div>
       <div class="load-more label purple">load more</div>
     `;
@@ -205,10 +205,10 @@ function createProjectCard(project) {
   }
 
   card.innerHTML = `
-    <img class="thumbnail" src="${hasPhoto ? images[0] : "assets/images/placeholder.png"}">
+    <img class="thumbnail" src="${escapeHtml(hasPhoto ? images[0] : "assets/images/placeholder.png")}">
     <div class="video-info">
-      <div class="video-title">${project.title}</div>
-      <div class="video-date">released ${yearText} · ${project.type || "other"}</div>
+      <div class="video-title">${escapeHtml(project.title)}</div>
+      <div class="video-date">${escapeHtml(`released ${yearText} · ${project.type || "other"}`)}</div>
       ${project.url ? `<div class="watch-btn purple">more info →</div>` : `<div class="no-article">no project page yet</div>`}
     </div>
   `;
@@ -241,13 +241,13 @@ function editProject(project, card) {
   const saved = card.innerHTML;
   card.innerHTML = `
     <div class="admin-edit-form">
-      <input class="admin-field" id="ep-title" placeholder="title" value="${project.title}">
-      <input class="admin-field" id="ep-type" placeholder="type" value="${project.type || ""}">
-      <input class="admin-field" id="ep-year" placeholder="year" value="${project.year || ""}">
-      <input class="admin-field" id="ep-image" placeholder="image url" value="${project.image || ""}">
-      <textarea class="admin-field" id="ep-images" placeholder="extra images (one url per line)">${Array.isArray(project.images) ? project.images.join("\n") : ""}</textarea>
-      <input class="admin-field" id="ep-url" placeholder="project url" value="${project.url || ""}">
-      <textarea class="admin-field" id="ep-desc" placeholder="description">${project.description || ""}</textarea>
+      <input class="admin-field" id="ep-title" placeholder="title" value="${escapeHtml(project.title)}">
+      <input class="admin-field" id="ep-type" placeholder="type" value="${escapeHtml(project.type)}">
+      <input class="admin-field" id="ep-year" placeholder="year" value="${escapeHtml(project.year)}">
+      <input class="admin-field" id="ep-image" placeholder="image url" value="${escapeHtml(project.image)}">
+      <textarea class="admin-field" id="ep-images" placeholder="extra images (one url per line)">${escapeHtml(Array.isArray(project.images) ? project.images.join("\n") : "")}</textarea>
+      <input class="admin-field" id="ep-url" placeholder="project url" value="${escapeHtml(project.url)}">
+      <textarea class="admin-field" id="ep-desc" placeholder="description">${escapeHtml(project.description)}</textarea>
       <div class="admin-actions">
         <span class="blog-admin-btn">save</span>
         <span class="blog-admin-btn delete">cancel</span>
@@ -265,7 +265,7 @@ function editProject(project, card) {
       url: document.getElementById("ep-url").value.trim(),
       description: document.getElementById("ep-desc").value.trim(),
     };
-    const res = await fetch(`api/projects/${project.id}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(body) });
+    const res = await fetch(`api/projects/${encodeURIComponent(project.id)}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(body) });
     if (res.ok) { allProjects = allProjects.map(p => p.id === project.id ? { ...p, ...body } : p); render(); }
   };
   card.querySelector(".blog-admin-btn.delete").onclick = () => { card.innerHTML = saved; };
@@ -273,7 +273,7 @@ function editProject(project, card) {
 
 async function deleteProject(id, card) {
   if (!confirm("Delete this project?")) return;
-  const res = await fetch(`api/projects/${id}`, { method: "DELETE", headers: authHeaders() });
+  const res = await fetch(`api/projects/${encodeURIComponent(id)}`, { method: "DELETE", headers: authHeaders() });
   if (res.ok) { allProjects = allProjects.filter(p => p.id !== id); card.remove(); updateMeta(null); }
 }
 
@@ -352,7 +352,7 @@ function renderSingleProject(project) {
           <div class="image-row">
             <div class="image-nav-btn prev hidden">←</div>
             <div class="image-wrapper">
-              <img class="thumbnail clickable" src="${images[0] || "assets/images/placeholder.png"}">
+              <img class="thumbnail clickable" src="${escapeHtml(images[0] || "assets/images/placeholder.png")}">
               <div class="image-dots hidden">
                 ${images.map((_, i) => `<div class="dot ${i === 0 ? "active" : ""}"></div>`).join("")}
               </div>
@@ -361,10 +361,10 @@ function renderSingleProject(project) {
           </div>
 
           <div class="video-info">
-            <div class="video-title">${project.title}</div>
-            <div class="video-date">released ${yearText} · ${project.type || "other"}</div>
+            <div class="video-title">${escapeHtml(project.title)}</div>
+            <div class="video-date">${escapeHtml(`released ${yearText} · ${project.type || "other"}`)}</div>
             ${project.url ? `<div class="watch-btn purple" id="open-project">open project →</div>` : `<div class="no-article">no project page yet</div>`}
-            <div class="project-description">${project.description || "No description yet."}</div>
+            <div class="project-description">${escapeHtml(project.description || "No description yet.")}</div>
           </div>
         </div>
       </div>
@@ -372,7 +372,8 @@ function renderSingleProject(project) {
   `;
 
   document.getElementById("open-project")?.addEventListener("click", () => {
-    window.open(project.url, "_blank");
+    const { protocol } = new URL(project.url, document.baseURI);
+    if (protocol === "http:" || protocol === "https:") window.open(project.url, "_blank");
   });
 
   setupCarousel(images);

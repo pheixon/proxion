@@ -393,7 +393,7 @@ function renderSections(groups, useCategoryLabels = false) {
 
     section.innerHTML = `
       <h2>
-        ${titleText}
+        ${escapeHtml(titleText)}
         <span class="video-count">
           · ${count} ${count === 1 ? "video" : "videos"}
         </span>
@@ -466,13 +466,13 @@ function createVideoCard(video) {
 
   card.innerHTML = `
     <div class="thumb-wrap">
-      <img class="thumbnail" src="${video.thumbnails.medium.url}">
+      <img class="thumbnail" src="${escapeHtml(video.thumbnails.medium.url)}">
       <div class="thumb-play">
         <svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
       </div>
     </div>
     <div class="video-info">
-      <div class="video-title">${video.cleanTitle}</div>
+      <div class="video-title">${escapeHtml(video.cleanTitle)}</div>
       <div class="video-date">${formatDate(video.date)}</div>
 
       <div class="watch-btn red">
@@ -615,7 +615,7 @@ function renderSectionsFromOrderedKeys(groups, orderedKeys, useCategoryLabels = 
 
     section.innerHTML = `
       <h2>
-        ${titleText}
+        ${escapeHtml(titleText)}
         <span class="video-count">
           · ${count} ${count === 1 ? "video" : "videos"}
         </span>
@@ -651,8 +651,8 @@ function openVideoModal(video) {
   overlay.innerHTML = `
     <div class="video-modal">
       <div class="video-modal-close">✕</div>
-      <iframe src="https://www.youtube.com/embed/${video.id}?autoplay=1" allowfullscreen allow="autoplay"></iframe>
-      <div class="video-modal-title">${video.cleanTitle}</div>
+      <iframe src="https://www.youtube.com/embed/${encodeURIComponent(video.id)}?autoplay=1" allowfullscreen allow="autoplay"></iframe>
+      <div class="video-modal-title">${escapeHtml(video.cleanTitle)}</div>
       <div class="video-modal-date">${formatDate(video.date)}</div>
     </div>
   `;

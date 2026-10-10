@@ -280,12 +280,12 @@ document.addEventListener('DOMContentLoaded', () => {
               .trim()
               .slice(0, 100);
             return `
-            <div class="global-search-result" data-source="${r.source}" data-id="${r.id}">
+            <div class="global-search-result" data-source="${escapeHtml(r.source)}" data-id="${escapeHtml(r.id)}">
               <div class="global-search-result-info">
-                <div class="global-search-result-title">${r.title}</div>
-                ${detail ? `<div class="global-search-result-detail">${detail}${r.detail.length > 100 ? '...' : ''}</div>` : ''}
+                <div class="global-search-result-title">${escapeHtml(r.title)}</div>
+                ${detail ? `<div class="global-search-result-detail">${escapeHtml(detail)}${r.detail.length > 100 ? '...' : ''}</div>` : ''}
               </div>
-              <span class="global-search-result-source">${sourceLabels[r.source] || r.source}</span>
+              <span class="global-search-result-source">${escapeHtml(sourceLabels[r.source] || r.source)}</span>
             </div>
           `;
           })

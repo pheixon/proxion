@@ -60,8 +60,8 @@ function renderEmbed(containerId, item, label) {
   const title = item.snippet.title.replace(/#shorts?\b/gi, '').trim();
   container.innerHTML = `
     <div class="latest-video-label">latest ${label}</div>
-    <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
-    <div class="latest-video-title">${title}</div>
+    <iframe src="https://www.youtube.com/embed/${encodeURIComponent(videoId)}" allowfullscreen></iframe>
+    <div class="latest-video-title">${escapeHtml(title)}</div>
     <div class="latest-video-date">${date}</div>
   `;
 }
