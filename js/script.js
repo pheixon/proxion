@@ -75,8 +75,9 @@ function createPageScope() {
 function wrapPageScript(code) {
   return `(function(scope) {
     var setTimeout = scope.setTimeout, requestAnimationFrame = scope.requestAnimationFrame, fetch = scope.fetch, siteData = scope.siteData;
+    var ready = [];
     document.addEventListener = function(type, fn, options) {
-      if (type === 'DOMContentLoaded') return fn();
+      if (type === 'DOMContentLoaded') return ready.push(fn);
       scope.listen(document, type, fn, options);
     };
     window.addEventListener = function(type, fn, options) {
@@ -84,6 +85,7 @@ function wrapPageScript(code) {
     };
     try {
       ${code}
+      ready.forEach(function(fn) { fn(); });
     } finally {
       delete document.addEventListener;
       delete window.addEventListener;
