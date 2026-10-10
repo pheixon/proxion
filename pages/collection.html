@@ -18,13 +18,13 @@
         <input id="new-brand" class="admin-field" placeholder="brand">
         <input id="new-model" class="admin-field" placeholder="model">
         <input id="new-type" class="admin-field" placeholder="type">
-        <input id="new-year" class="admin-field" placeholder="year" type="number">
+        <input id="new-year" class="admin-field" placeholder="year (2004 or 2004?)">
         <input id="new-image" class="admin-field" placeholder="image url">
         <input id="new-aka" class="admin-field" placeholder="aka">
         <label class="admin-check"><input type="checkbox" id="new-article"> has wiki article</label>
         <label class="admin-check"><input type="checkbox" id="new-clone"> clone</label>
       </div>
-      <span class="watch-btn green" onclick="createPhone()">add phone</span>
+      <span class="watch-btn green" id="create-phone-btn">add phone</span>
     </div>
 
     <div id="phones-container" class="phones-container">
@@ -43,6 +43,7 @@
   </div>
 
   <script src="js/html.js"></script>
+  <script src="js/admin.js"></script>
   <script src="js/collection.js"></script>
 </body>
 </html>

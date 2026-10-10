@@ -81,7 +81,10 @@ function wrapPageScript(code) {
 async function loadPage(menuItem) {
   const [html, ...codes] = await Promise.all(
     [menuItem.page, ...menuItem.scripts.map(src => `${src}?t=${Date.now()}`)]
-      .map(url => fetch(url).then(res => res.text()))
+      .map(url => fetch(url).then(res => {
+        if (!res.ok) throw new Error(`${res.status} ${url}`);
+        return res.text();
+      }))
   );
   if (currentPage !== menuItem.page) return false;
   clearPage();
@@ -121,6 +124,7 @@ function clearPage() {
   pageScope = null;
   pageContent.innerHTML = '';
   pageContent.className = '';
+  document.querySelectorAll('.page-overlay').forEach(el => el.remove());
   document.getElementById('page-inline-styles')?.remove();
   loadedScripts.forEach(s => s.remove());
   loadedScripts = [];
@@ -146,7 +150,6 @@ items.forEach((item, index) => {
     if (isSelectedMode && isAlreadySelected && !isFirst) return;
 
     if (isFirst && isSelectedMode) {
-      document.querySelector('.sort-bar')?.classList.remove('visible');
       embedContainer.classList.remove('active');
       container.classList.remove('selected');
       items.forEach(i => {
@@ -161,7 +164,7 @@ items.forEach((item, index) => {
         if (currentPage) return;
         clearPage();
         window.scrollTo({ top: 0 });
-        if (location.hash) history.pushState(null, '', window.location.pathname);
+        if (location.hash) pushSectionUrl('');
         document.documentElement.style.removeProperty('--backdrop-width');
       }, TRANSITION_MS);
 
@@ -181,7 +184,6 @@ items.forEach((item, index) => {
     item.classList.add('selected');
 
     if (menuItem.page !== currentPage) {
-      document.querySelector('.sort-bar')?.classList.remove('visible');
       embedContainer.classList.remove('active');
       currentPage = menuItem.page;
 
@@ -193,21 +195,33 @@ items.forEach((item, index) => {
         if (rgb) {
           document.documentElement.style.setProperty('--scrollbar-thumb', `rgba(${rgb}, 1)`);
         }
-        const loaded = await loadPage(menuItem);
+        const loaded = await loadPage(menuItem).catch(err => {
+          console.error(err);
+          if (currentPage !== menuItem.page) return false;
+          clearPage();
+          pageContent.innerHTML = '<section class="category"><h2>oops</h2><div class="video-info">failed to load this page.</div></section>';
+          return true;
+        });
         document.body.style.overflow = '';
         if (!loaded) return;
         embedContainer.classList.add('active');
         setTimeout(() => {
-          document.querySelector('.sort-bar')?.classList.add('visible');
           updateBackdropWidth();
           setTimeout(updateBackdropWidth, 500);
         }, 350);
       }, TRANSITION_MS);
 
-      if (location.hash !== `#${menuItem.hash}`) history.pushState(null, '', `#${menuItem.hash}`);
+      if (location.hash !== `#${menuItem.hash}`) pushSectionUrl(menuItem.hash);
     }
   });
 });
+
+function pushSectionUrl(hash) {
+  const url = new URL(location.href);
+  url.searchParams.delete('id');
+  url.hash = hash;
+  history.pushState(null, '', url);
+}
 
 function navigateToHash(hash) {
   if (!hash) return false;
@@ -258,11 +272,13 @@ document.addEventListener('DOMContentLoaded', () => {
         container.style.pointerEvents = '';
         return;
       }
-      const res = await fetch(`api/search?q=${encodeURIComponent(q)}`);
-      const results = await res.json();
+      const isStale = () => !controls.classList.contains('searching') || searchInput.value.trim() !== q;
+      const results = await fetch(`api/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => null);
+      if (!results || isStale()) return;
       container.style.opacity = '0';
       container.style.pointerEvents = 'none';
       setTimeout(() => {
+        if (isStale()) return;
         searchResults.classList.add('active');
         if (!results.length) {
           searchResults.innerHTML = '<div class="global-search-empty">no results</div>';

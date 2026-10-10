@@ -1,29 +1,5 @@
 const PROJECTS_URL = "api/projects";
 const ITEMS_PER_BATCH = 6;
-const adminMode = new URLSearchParams(window.location.search).get("admin") === "1";
-
-async function adminLogin() {
-  const existing = sessionStorage.getItem("proxion:blog_token");
-  if (existing) return true;
-  const pass = prompt("Enter admin password");
-  if (!pass) return false;
-  const res = await fetch("api/auth", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ password: pass }),
-  });
-  if (!res.ok) { alert("Access denied"); return false; }
-  const { token } = await res.json();
-  sessionStorage.setItem("proxion:blog_token", token);
-  return true;
-}
-
-function authHeaders() {
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${sessionStorage.getItem("proxion:blog_token")}`,
-  };
-}
 
 let allProjects = [];
 let currentSort = "type";
@@ -36,6 +12,7 @@ const pageFade = document.getElementById("page-fade");
 document.addEventListener("DOMContentLoaded", () => {
   injectSortBar();
   loadProjects();
+  document.getElementById("create-project-btn")?.addEventListener("click", createProject);
   if (adminMode) {
     adminLogin().then(ok => {
       if (ok) document.getElementById("projects-editor").classList.remove("hidden");
@@ -72,7 +49,7 @@ async function loadProjects() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
-    if (id) {
+    if (allProjects.some(p => p.id === id)) {
       openProjectById(id, false);
     } else {
       render();
@@ -127,13 +104,11 @@ function renderByYear() {
     groups[year].push(p);
   });
 
-  const ordered = Object.keys(groups)
-    .map(y => (y === "unknown" ? y : Number(y)))
-    .sort((a, b) => {
-      if (a === "unknown") return 1;
-      if (b === "unknown") return -1;
-      return b - a;
-    });
+  const ordered = Object.keys(groups).sort((a, b) => {
+    if (a === "unknown") return 1;
+    if (b === "unknown") return -1;
+    return Number(b) - Number(a) || b.localeCompare(a);
+  });
 
   renderSections(groups, ordered);
 }
@@ -191,11 +166,15 @@ function renderNextBatch(key) {
   if (state.rendered >= state.projects.length) state.loadBtn.classList.add("hidden");
 }
 
+function projectImages(project) {
+  return [...new Set([project.image, ...(Array.isArray(project.images) ? project.images : [])])].filter(Boolean);
+}
+
 function createProjectCard(project) {
   const card = document.createElement("div");
   card.className = "video";
 
-  const images = Array.isArray(project.images) ? project.images.filter(Boolean) : [];
+  const images = projectImages(project);
   const hasPhoto = images.length > 0;
 
   let yearText = "unknown";
@@ -255,17 +234,17 @@ function editProject(project, card) {
     </div>
   `;
   card.querySelector(".admin-actions .blog-admin-btn").onclick = async () => {
-    const imagesRaw = document.getElementById("ep-images").value.trim();
+    const imagesRaw = card.querySelector("#ep-images").value.trim();
     const body = {
-      title: document.getElementById("ep-title").value.trim(),
-      type: document.getElementById("ep-type").value.trim(),
-      year: document.getElementById("ep-year").value.trim(),
-      image: document.getElementById("ep-image").value.trim(),
+      title: card.querySelector("#ep-title").value.trim(),
+      type: card.querySelector("#ep-type").value.trim(),
+      year: card.querySelector("#ep-year").value.trim(),
+      image: card.querySelector("#ep-image").value.trim(),
       images: imagesRaw ? imagesRaw.split("\n").map(s => s.trim()).filter(Boolean) : [],
-      url: document.getElementById("ep-url").value.trim(),
-      description: document.getElementById("ep-desc").value.trim(),
+      url: card.querySelector("#ep-url").value.trim(),
+      description: card.querySelector("#ep-desc").value.trim(),
     };
-    const res = await fetch(`api/projects/${encodeURIComponent(project.id)}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(body) });
+    const res = await adminFetch(`api/projects/${encodeURIComponent(project.id)}`, { method: "PUT", body: JSON.stringify(body) });
     if (res.ok) { allProjects = allProjects.map(p => p.id === project.id ? { ...p, ...body } : p); render(); }
   };
   card.querySelector(".blog-admin-btn.delete").onclick = () => { card.innerHTML = saved; };
@@ -273,7 +252,7 @@ function editProject(project, card) {
 
 async function deleteProject(id, card) {
   if (!confirm("Delete this project?")) return;
-  const res = await fetch(`api/projects/${encodeURIComponent(id)}`, { method: "DELETE", headers: authHeaders() });
+  const res = await adminFetch(`api/projects/${encodeURIComponent(id)}`, { method: "DELETE" });
   if (res.ok) { allProjects = allProjects.filter(p => p.id !== id); card.remove(); updateMeta(null); }
 }
 
@@ -287,7 +266,7 @@ async function createProject() {
     url: get("new-p-url"), description: get("new-p-desc"),
   };
   if (!body.id || !body.title) return alert("ID and title are required");
-  const res = await fetch("api/projects", { method: "POST", headers: authHeaders(), body: JSON.stringify(body) });
+  const res = await adminFetch("api/projects", { method: "POST", body: JSON.stringify(body) });
   if (res.ok) {
     allProjects.push(body);
     ["new-p-id","new-p-title","new-p-type","new-p-year","new-p-image","new-p-images","new-p-url","new-p-desc"].forEach(id => document.getElementById(id).value = "");
@@ -314,7 +293,11 @@ function openProjectById(id, pushState = true) {
     pageFade.classList.add("fade-in");
     setTimeout(() => pageFade.classList.remove("fade-in"), 300);
 
-    if (pushState) history.pushState(null, "", `?id=${id}`);
+    if (pushState) {
+      const url = new URL(location.href);
+      url.searchParams.set("id", id);
+      history.pushState(null, "", url);
+    }
   }, 300);
 }
 
@@ -329,7 +312,11 @@ function switchToListView(pushState = true) {
     pageFade.classList.add("fade-in");
     setTimeout(() => pageFade.classList.remove("fade-in"), 300);
 
-    if (pushState) history.pushState(null, "", window.location.pathname);
+    if (pushState) {
+      const url = new URL(location.href);
+      url.searchParams.delete("id");
+      history.pushState(null, "", url);
+    }
   }, 300);
 }
 
@@ -337,7 +324,7 @@ function renderSingleProject(project) {
   const container = document.getElementById("project-sections-container");
   container.innerHTML = "";
 
-  const images = Array.isArray(project.images) ? project.images.filter(Boolean) : [];
+  const images = projectImages(project);
 
   let yearText = "unknown";
   if (project.year) {

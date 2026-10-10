@@ -68,7 +68,19 @@ db.exec(`
     url TEXT,
     description TEXT
   );
+  CREATE TABLE IF NOT EXISTS updates (
+    name TEXT PRIMARY KEY,
+    at TEXT NOT NULL
+  );
 `);
+
+const touch = name =>
+  db.prepare('INSERT INTO updates (name, at) VALUES (?, ?) ON CONFLICT(name) DO UPDATE SET at = excluded.at').run(name, new Date().toISOString());
+
+function setLastModified(res, name) {
+  const row = db.prepare('SELECT at FROM updates WHERE name = ?').get(name);
+  if (row) res.set('Last-Modified', new Date(row.at).toUTCString());
+}
 
 function auth(req, res, next) {
   const header = req.headers.authorization;
@@ -130,6 +142,7 @@ app.post('/api/phones', auth, (req, res) => {
   const { lastInsertRowid } = db.prepare(
     'INSERT INTO phones (brand, model, type, year, image, article, clone, aka) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
   ).run(brand, model, type || null, year || null, image || '', article ? 1 : 0, clone ? 1 : 0, aka || '');
+  touch('phones');
   res.json({ ok: true, id: lastInsertRowid });
 });
 
@@ -138,11 +151,13 @@ app.put('/api/phones/:id', auth, (req, res) => {
   db.prepare(
     'UPDATE phones SET brand=?, model=?, type=?, year=?, image=?, article=?, clone=?, aka=? WHERE id=?'
   ).run(brand, model, type || null, year || null, image || '', article ? 1 : 0, clone ? 1 : 0, aka || '', req.params.id);
+  touch('phones');
   res.json({ ok: true });
 });
 
 app.delete('/api/phones/:id', auth, (req, res) => {
   db.prepare('DELETE FROM phones WHERE id = ?').run(req.params.id);
+  touch('phones');
   res.json({ ok: true });
 });
 
@@ -155,11 +170,13 @@ function stripDotZero(v) {
 
 app.get('/api/phones', (_req, res) => {
   const rows = db.prepare('SELECT * FROM phones ORDER BY brand, model').all();
+  setLastModified(res, 'phones');
   res.json(rows.map(r => ({ ...r, model: stripDotZero(r.model), year: stripDotZero(r.year), article: !!r.article, clone: !!r.clone })));
 });
 
 app.get('/api/projects', (_req, res) => {
   const rows = db.prepare('SELECT * FROM projects').all();
+  setLastModified(res, 'projects');
   res.json(rows.map(r => ({ ...r, year: stripDotZero(r.year), images: r.images ? JSON.parse(r.images) : [] })));
 });
 
@@ -169,6 +186,7 @@ app.post('/api/projects', auth, (req, res) => {
   db.prepare(
     'INSERT INTO projects (id, title, type, year, image, images, url, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
   ).run(id, title, type || null, year || null, image || '', images ? JSON.stringify(images) : null, url || '', description || '');
+  touch('projects');
   res.json({ ok: true, id });
 });
 
@@ -177,11 +195,13 @@ app.put('/api/projects/:id', auth, (req, res) => {
   db.prepare(
     'UPDATE projects SET title=?, type=?, year=?, image=?, images=?, url=?, description=? WHERE id=?'
   ).run(title, type || null, year || null, image || '', images ? JSON.stringify(images) : null, url || '', description || '', req.params.id);
+  touch('projects');
   res.json({ ok: true });
 });
 
 app.delete('/api/projects/:id', auth, (req, res) => {
   db.prepare('DELETE FROM projects WHERE id = ?').run(req.params.id);
+  touch('projects');
   res.json({ ok: true });
 });
 
@@ -201,7 +221,7 @@ app.get('/api/search', (req, res) => {
   const all = [...posts, ...phones, ...projects].map(r => ({
     ...r,
     title: stripDotZero(r.title),
-    detail: typeof r.detail === 'string' ? r.detail.replace(/(\d+)\.0/g, '$1') : r.detail,
+    detail: r.source === 'phone' ? r.detail.replace(/\b(\d+)\.0\b/g, '$1') : r.detail,
   }));
   res.json(all);
 });

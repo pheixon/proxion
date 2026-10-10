@@ -647,7 +647,7 @@ function openVideoModal(video) {
   if (existing) existing.remove();
 
   const overlay = document.createElement('div');
-  overlay.className = 'video-modal-overlay';
+  overlay.className = 'video-modal-overlay page-overlay';
   overlay.innerHTML = `
     <div class="video-modal">
       <div class="video-modal-close">✕</div>

@@ -3,30 +3,6 @@
 // =====================================================
 const DATA_URL = "api/phones";
 const PHONES_PER_BATCH = 6;
-const adminMode = new URLSearchParams(window.location.search).get("admin") === "1";
-
-async function adminLogin() {
-  const existing = sessionStorage.getItem("proxion:blog_token");
-  if (existing) return true;
-  const pass = prompt("Enter admin password");
-  if (!pass) return false;
-  const res = await fetch("api/auth", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ password: pass }),
-  });
-  if (!res.ok) { alert("Access denied"); return false; }
-  const { token } = await res.json();
-  sessionStorage.setItem("proxion:blog_token", token);
-  return true;
-}
-
-function authHeaders() {
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${sessionStorage.getItem("proxion:blog_token")}`,
-  };
-}
 
 // =====================================================
 // STATE
@@ -41,6 +17,7 @@ let sectionState = {};
 document.addEventListener("DOMContentLoaded", () => {
   injectSortBar();
   loadPhones();
+  document.getElementById("create-phone-btn")?.addEventListener("click", createPhone);
   if (adminMode) {
     adminLogin().then(ok => {
       if (ok) document.getElementById("collection-editor").classList.remove("hidden");
@@ -437,7 +414,7 @@ function editPhone(phone, card) {
       <input class="admin-field" placeholder="brand" value="${escapeHtml(phone.brand)}">
       <input class="admin-field" placeholder="model" value="${escapeHtml(phone.model)}">
       <input class="admin-field" placeholder="type" value="${escapeHtml(phone.type)}">
-      <input class="admin-field" placeholder="year" type="number" value="${escapeHtml(phone.year)}">
+      <input class="admin-field" placeholder="year (2004 or 2004?)" value="${escapeHtml(phone.year)}">
       <input class="admin-field" placeholder="image url" value="${escapeHtml(phone.image)}">
       <input class="admin-field" placeholder="aka" value="${escapeHtml(phone.aka)}">
       <label class="admin-check"><input type="checkbox" id="edit-article" ${phone.article ? "checked" : ""}> has wiki article</label>
@@ -456,13 +433,13 @@ function editPhone(phone, card) {
       brand: brandEl.value.trim(),
       model: modelEl.value.trim(),
       type: typeEl.value.trim(),
-      year: yearEl.value ? Number(yearEl.value) : null,
+      year: yearEl.value.trim() || null,
       image: imageEl.value.trim(),
       aka: akaEl.value.trim(),
       article: card.querySelector("#edit-article").checked,
       clone: card.querySelector("#edit-clone").checked,
     };
-    const res = await fetch(`api/phones/${phone.id}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(body) });
+    const res = await adminFetch(`api/phones/${phone.id}`, { method: "PUT", body: JSON.stringify(body) });
     if (res.ok) { Object.assign(phone, body); allPhones = allPhones.map(p => p.id === phone.id ? { ...p, ...body } : p); render(); }
   };
   card.querySelector(".blog-admin-btn.delete").onclick = () => { card.innerHTML = saved; };
@@ -470,7 +447,7 @@ function editPhone(phone, card) {
 
 async function deletePhone(id, card) {
   if (!confirm("Delete this phone?")) return;
-  const res = await fetch(`api/phones/${id}`, { method: "DELETE", headers: authHeaders() });
+  const res = await adminFetch(`api/phones/${id}`, { method: "DELETE" });
   if (res.ok) { allPhones = allPhones.filter(p => p.id !== id); card.remove(); updateTotalCount(); }
 }
 
@@ -478,13 +455,13 @@ async function createPhone() {
   const get = id => document.getElementById(id).value.trim();
   const body = {
     brand: get("new-brand"), model: get("new-model"), type: get("new-type"),
-    year: get("new-year") ? Number(get("new-year")) : null,
+    year: get("new-year") || null,
     image: get("new-image"), aka: get("new-aka"),
     article: document.getElementById("new-article").checked,
     clone: document.getElementById("new-clone").checked,
   };
   if (!body.brand || !body.model) return alert("Brand and model are required");
-  const res = await fetch("api/phones", { method: "POST", headers: authHeaders(), body: JSON.stringify(body) });
+  const res = await adminFetch("api/phones", { method: "POST", body: JSON.stringify(body) });
   if (res.ok) {
     const { id } = await res.json();
     allPhones.push({ ...body, id });

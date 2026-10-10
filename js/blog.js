@@ -1,6 +1,4 @@
 const API_BASE = 'api';
-const params = new URLSearchParams(window.location.search);
-const adminMode = params.get('admin') === '1';
 
 document.addEventListener('DOMContentLoaded', () => {
   const page = document.getElementById('page-fade');
@@ -19,36 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-async function adminLogin() {
-  const existing = sessionStorage.getItem('proxion:blog_token');
-  if (existing) return true;
-
-  const pass = prompt('Enter admin password');
-  if (!pass) return false;
-
-  const res = await fetch(`${API_BASE}/auth`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password: pass }),
-  });
-
-  if (!res.ok) {
-    alert('Access denied');
-    return false;
-  }
-
-  const { token } = await res.json();
-  sessionStorage.setItem('proxion:blog_token', token);
-  return true;
-}
-
-function authHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${sessionStorage.getItem('proxion:blog_token')}`,
-  };
-}
 
 let allPosts = [];
 
@@ -70,7 +38,7 @@ async function loadBlog() {
     }
 
     injectSortBar();
-    renderPosts(allPosts);
+    applyFilters();
   } catch (err) {
     console.error('Failed to load posts', err);
     renderError();
@@ -79,6 +47,7 @@ async function loadBlog() {
 
 function injectSortBar() {
   const container = document.querySelector('.sort-bar-container');
+  if (container.children.length) return;
   container.innerHTML = `
     <div class="sort-bar">
       <div class="blog-search-wrap">
@@ -142,38 +111,11 @@ function closeSearch() {
 
 function applyFilters() {
   const query = (document.getElementById('blogSearchInput')?.value || '').toLowerCase();
-  const order = document.getElementById('sortSelect')?.value || 'newest';
-  const container = document.getElementById('blog-container');
-  const posts = container.querySelectorAll('.blog-post');
-
-  if (!posts.length) {
-    let filtered = query
-      ? allPosts.filter(p => p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query))
-      : [...allPosts];
-    filtered.sort((a, b) => (order === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date)));
-    renderPosts(filtered);
-    return;
-  }
-
-  const matchIds = new Set(
-    (query ? allPosts.filter(p => p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query)) : allPosts)
-      .map(p => String(p.id))
-  );
-
-  posts.forEach(el => {
-    const id = el.querySelector('.blog-id')?.textContent.replace('post #', '');
-    el.style.display = matchIds.has(id) ? '' : 'none';
-  });
-
-  const visible = [...posts].filter(el => el.style.display !== 'none');
-  if (order === 'oldest') {
-    visible.reverse().forEach(el => container.appendChild(el));
-  } else {
-    visible.forEach(el => container.appendChild(el));
-  }
-
-  const loadBtn = document.getElementById('load-more-btn');
-  if (loadBtn) container.appendChild(loadBtn);
+  const direction = (document.getElementById('sortSelect')?.value || 'newest') === 'newest' ? 1 : -1;
+  const filtered = allPosts
+    .filter(p => !query || p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query))
+    .sort((a, b) => direction * (new Date(b.date) - new Date(a.date)));
+  renderPosts(filtered);
 }
 
 function formatDate(iso) {
@@ -219,7 +161,9 @@ function renderPosts(posts, append = false) {
     container.appendChild(el);
 
     el.querySelector('.blog-id').addEventListener('click', () => {
-      history.pushState(null, '', `?id=${post.id}`);
+      const url = new URL(location.href);
+      url.searchParams.set('id', post.id);
+      history.pushState(null, '', url);
       renderSinglePost(post);
     });
 
@@ -237,10 +181,10 @@ function renderPosts(posts, append = false) {
       el.appendChild(editBtn);
       el.appendChild(deleteBtn);
     }
-  });
 
-  wireBlogButtons();
-  wireShareButtons();
+    wireBlogButtons(el);
+    wireShareButtons(el);
+  });
 
   const oldBtn = document.getElementById('load-more-btn');
   if (oldBtn) oldBtn.remove();
@@ -280,21 +224,21 @@ function renderMarkdownWithButtons(md) {
   return renderMarkdown(md);
 }
 
-function wireBlogButtons() {
-  document.querySelectorAll('.blog-inline-btn').forEach(btn => {
+function wireBlogButtons(root) {
+  root.querySelectorAll('.blog-inline-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const hash = btn.dataset.hash;
-      if (window.parent && window.parent !== window) {
-        window.parent.location.hash = hash;
+      if (document.getElementById('page-content')) {
+        location.hash = hash;
       } else {
-        window.location.hash = hash;
+        location.href = new URL(`index.html${hash}`, document.baseURI).href;
       }
     });
   });
 }
 
-function wireShareButtons() {
-  document.querySelectorAll('.blog-share').forEach(btn => {
+function wireShareButtons(root) {
+  root.querySelectorAll('.blog-share').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.dataset.id;
       const shareUrl = new URL(`pages/blog.html?id=${id}&from=share`, document.baseURI).href;
@@ -318,7 +262,9 @@ function wireSingleNav() {
     const action = btn.dataset.action;
 
     if (action === 'back') {
-      history.pushState(null, '', window.location.pathname);
+      const url = new URL(location.href);
+      url.searchParams.delete('id');
+      history.pushState(null, '', url);
       loadBlog();
     }
 
@@ -381,8 +327,8 @@ function renderSinglePost(post, from) {
     </section>
   `;
 
-  wireBlogButtons();
-  wireShareButtons();
+  wireBlogButtons(container);
+  wireShareButtons(container);
   wireSingleNav();
 }
 
@@ -401,11 +347,11 @@ async function publishPost() {
     return;
   }
 
-  await fetch(`${API_BASE}/posts`, {
+  const res = await adminFetch(`${API_BASE}/posts`, {
     method: 'POST',
-    headers: authHeaders(),
     body: JSON.stringify({ title, content }),
   });
+  if (!res.ok) return;
 
   document.getElementById('post-title').value = '';
   document.getElementById('post-content').value = '';
@@ -440,12 +386,11 @@ function editPost(post, el) {
     const title = el.querySelector('.inline-edit-title').value.trim();
     const content = textarea.value.trim();
     if (!title || !content) return;
-    await fetch(`${API_BASE}/posts/${post.id}`, {
+    const res = await adminFetch(`${API_BASE}/posts/${post.id}`, {
       method: 'PUT',
-      headers: authHeaders(),
       body: JSON.stringify({ title, content }),
     });
-    loadBlog();
+    if (res.ok) loadBlog();
   };
 
   el.querySelector('.inline-cancel').onclick = () => loadBlog();
@@ -454,12 +399,8 @@ function editPost(post, el) {
 async function deletePost(id) {
   if (!confirm('Delete this post?')) return;
 
-  await fetch(`${API_BASE}/posts/${id}`, {
-    method: 'DELETE',
-    headers: authHeaders(),
-  });
-
-  loadBlog();
+  const res = await adminFetch(`${API_BASE}/posts/${id}`, { method: 'DELETE' });
+  if (res.ok) loadBlog();
 }
 
 const contentInput = document.getElementById('post-content');

@@ -318,12 +318,11 @@ body {
   align-items: center;
   gap: 8px;
   z-index: 1000;
-  opacity: 0;
-  transition: opacity 0.35s ease;
+  animation: sort-bar-in 0.35s ease 0.35s backwards;
 }
 
-.sort-bar.visible {
-  opacity: 1;
+@keyframes sort-bar-in {
+  from { opacity: 0; }
 }
 
 .sort-label {
