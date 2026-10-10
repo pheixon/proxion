@@ -85,10 +85,6 @@ body {
 
 
 
-.watch-btn.teal {
-  background-color: var(--color-teal);
-}
-
 .latest-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

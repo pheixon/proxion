@@ -49,18 +49,6 @@
    GREEN LABEL VARIANT
 ================================ */
 
-.label.green {
-  background-color: var(--color-green);
-}
-
-.watch-btn.green {
-  background-color: var(--color-green);
-}
-
-.load-more.green {
-  background-color: var(--color-green);
-}
-
 .wiki-row {
   margin-top: 6px;
 }

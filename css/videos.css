@@ -250,10 +250,6 @@ body {
   visibility: visible;
 }
 
-.load-more.red {
-  background-color: var(--color-red);
-}
-
 /* ================================
    WATCH ON YOUTUBE (LABEL STYLE)
 ================================ */
@@ -283,10 +279,6 @@ body {
   pointer-events: auto;
 
   visibility: visible;
-}
-
-.watch-btn.red {
-  background-color: var(--color-red);
 }
 
 /* SVG inside button */
