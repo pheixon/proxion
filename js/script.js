@@ -6,6 +6,15 @@ const firstItem = items[0];
 
 const TRANSITION_MS = 350;
 const HOME_TITLE = document.title;
+const favicon = document.querySelector('link[rel="icon"]');
+const HOME_FAVICON = favicon.href;
+
+function setSectionFavicon(item) {
+  const color = getComputedStyle(item).getPropertyValue('--tint').trim();
+  const icon = item.querySelector('.button svg').innerHTML;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="${color}"/><g fill="#fff" transform="translate(3 3) scale(0.8125)">${icon}</g></svg>`;
+  favicon.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
 
 const scrollbarColors = {
   videos: [231, 76, 60],
@@ -164,6 +173,7 @@ items.forEach((item, index) => {
       });
       firstItem.classList.add('active');
       currentPage = null;
+      favicon.href = HOME_FAVICON;
       document.documentElement.style.removeProperty('--scrollbar-thumb');
 
       setTimeout(() => {
@@ -193,6 +203,7 @@ items.forEach((item, index) => {
     if (menuItem.page !== currentPage) {
       embedContainer.classList.remove('active');
       currentPage = menuItem.page;
+      setSectionFavicon(item);
 
       setTimeout(async () => {
         if (currentPage !== menuItem.page) return;
