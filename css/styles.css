@@ -253,16 +253,16 @@ body {
 
 /* --- Colors --- */
 
-.item.blue { --tint: var(--color-blue); }
-.item.red { --tint: var(--color-red); }
-.item.green { --tint: var(--color-green); }
-.item.purple { --tint: var(--color-purple); }
-.item.orange { --tint: var(--color-orange); }
-.item.teal { --tint: var(--color-teal); }
-.item.pink { --tint: var(--color-pink); }
+.item.blue { --tint: var(--color-blue); --label-shade: 77%; }
+.item.red { --tint: var(--color-red); --label-shade: 86%; }
+.item.green { --tint: var(--color-green); --label-shade: 62%; }
+.item.purple { --tint: var(--color-purple); --label-shade: 97%; }
+.item.orange { --tint: var(--color-orange); --label-shade: 64%; }
+.item.teal { --tint: var(--color-teal); --label-shade: 67%; }
+.item.pink { --tint: var(--color-pink); --label-shade: 85%; }
 
-.button-container .item .button,
-.button-container .item .label { background: var(--tint); }
+.button-container .item .button { background: var(--tint); }
+.button-container .item .label { background: color-mix(in srgb, var(--tint) var(--label-shade), black); }
 
 /* --- Embed container --- */
 
