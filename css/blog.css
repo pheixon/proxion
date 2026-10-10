@@ -130,25 +130,6 @@ svg.brand-svg {
   gap: 0;
 }
 
-.blog-editor {
-  background: var(--bg-card);
-  padding: 28px;
-  margin-bottom: 32px;
-  border-left: 20px solid var(--color-orange);
-}
-
-.blog-editor input,
-.blog-editor textarea {
-  width: 100%;
-  margin-top: 10px;
-  background: var(--bg);
-  border: none;
-  color: white;
-  padding: 10px;
-  font-family: 'DINPro';
-  font-weight: 600;
-}
-
 .blog-editor textarea {
   min-height: 160px;
   margin-bottom: 10px;
@@ -162,20 +143,6 @@ svg.brand-svg {
   margin: 10px 0 10px 0;
   padding: 16px;
   background: var(--bg);
-}
-
-.blog-admin-btn {
-  display: inline-block;
-  margin-top: 10px;
-  margin-right: 10px;
-  padding: 6px 10px;
-  background: var(--bg-admin);
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.blog-admin-btn.delete {
-  background: var(--bg-admin-delete);
 }
 
 .inline-edit-title,

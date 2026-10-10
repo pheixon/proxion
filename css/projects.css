@@ -144,7 +144,3 @@
   align-items: center;
   gap: 2px;
 }
-
-.blog-editor {
-  border-left: 20px solid var(--color-purple);
-}

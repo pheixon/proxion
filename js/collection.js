@@ -374,18 +374,7 @@ function createPhoneCard(phone) {
   };
 
   if (adminMode) {
-    const editBtn = document.createElement("div");
-    editBtn.className = "blog-admin-btn";
-    editBtn.textContent = "edit";
-    editBtn.onclick = () => editPhone(phone, card);
-
-    const deleteBtn = document.createElement("div");
-    deleteBtn.className = "blog-admin-btn delete";
-    deleteBtn.textContent = "delete";
-    deleteBtn.onclick = () => deletePhone(phone.id, card);
-
-    card.appendChild(editBtn);
-    card.appendChild(deleteBtn);
+    card.querySelector(".video-info").appendChild(adminButtons(() => editPhone(phone, card), () => deletePhone(phone.id, card)));
   }
 
   // Image cycling + dots
@@ -408,7 +397,6 @@ function createPhoneCard(phone) {
 }
 
 function editPhone(phone, card) {
-  const saved = card.innerHTML;
   card.innerHTML = `
     <div class="admin-edit-form">
       <input class="admin-field" placeholder="brand" value="${escapeHtml(phone.brand)}">
@@ -442,7 +430,7 @@ function editPhone(phone, card) {
     const res = await adminFetch(`api/phones/${phone.id}`, { method: "PUT", body: JSON.stringify(body) });
     if (res.ok) { Object.assign(phone, body); allPhones = allPhones.map(p => p.id === phone.id ? { ...p, ...body } : p); render(); }
   };
-  card.querySelector(".blog-admin-btn.delete").onclick = () => { card.innerHTML = saved; };
+  card.querySelector(".blog-admin-btn.delete").onclick = () => card.replaceWith(createPhoneCard(phone));
 }
 
 async function deletePhone(id, card) {

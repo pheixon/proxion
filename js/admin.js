@@ -42,3 +42,16 @@ async function adminFetch(url, options = {}) {
   if (!res.ok) alert(`Request failed (${res.status})`);
   return res;
 }
+
+function adminButtons(onEdit, onDelete) {
+  const actions = document.createElement('div');
+  actions.className = 'admin-actions';
+  [['edit', onEdit], ['delete', onDelete]].forEach(([label, onClick]) => {
+    const btn = document.createElement('div');
+    btn.className = label === 'delete' ? 'blog-admin-btn delete' : 'blog-admin-btn';
+    btn.textContent = label;
+    btn.onclick = onClick;
+    actions.appendChild(btn);
+  });
+  return actions;
+}

@@ -197,18 +197,7 @@ function createProjectCard(project) {
   });
 
   if (adminMode) {
-    const editBtn = document.createElement("div");
-    editBtn.className = "blog-admin-btn";
-    editBtn.textContent = "edit";
-    editBtn.onclick = () => editProject(project, card);
-
-    const deleteBtn = document.createElement("div");
-    deleteBtn.className = "blog-admin-btn delete";
-    deleteBtn.textContent = "delete";
-    deleteBtn.onclick = () => deleteProject(project.id, card);
-
-    card.appendChild(editBtn);
-    card.appendChild(deleteBtn);
+    card.querySelector(".video-info").appendChild(adminButtons(() => editProject(project, card), () => deleteProject(project.id, card)));
   }
 
   return card;
@@ -217,7 +206,6 @@ function createProjectCard(project) {
 /* ---------------- ADMIN ---------------- */
 
 function editProject(project, card) {
-  const saved = card.innerHTML;
   card.innerHTML = `
     <div class="admin-edit-form">
       <input class="admin-field" id="ep-title" placeholder="title" value="${escapeHtml(project.title)}">
@@ -247,7 +235,7 @@ function editProject(project, card) {
     const res = await adminFetch(`api/projects/${encodeURIComponent(project.id)}`, { method: "PUT", body: JSON.stringify(body) });
     if (res.ok) { allProjects = allProjects.map(p => p.id === project.id ? { ...p, ...body } : p); render(); }
   };
-  card.querySelector(".blog-admin-btn.delete").onclick = () => { card.innerHTML = saved; };
+  card.querySelector(".blog-admin-btn.delete").onclick = () => card.replaceWith(createProjectCard(project));
 }
 
 async function deleteProject(id, card) {

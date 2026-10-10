@@ -167,20 +167,7 @@ function renderPosts(posts, append = false) {
       renderSinglePost(post);
     });
 
-    if (adminMode) {
-      const editBtn = document.createElement('div');
-      editBtn.className = 'blog-admin-btn';
-      editBtn.textContent = 'edit';
-      editBtn.onclick = () => editPost(post, el);
-
-      const deleteBtn = document.createElement('div');
-      deleteBtn.className = 'blog-admin-btn delete';
-      deleteBtn.textContent = 'delete';
-      deleteBtn.onclick = () => deletePost(post.id);
-
-      el.appendChild(editBtn);
-      el.appendChild(deleteBtn);
-    }
+    if (adminMode) el.appendChild(adminButtons(() => editPost(post, el), () => deletePost(post.id)));
 
     wireBlogButtons(el);
     wireShareButtons(el);
