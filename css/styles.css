@@ -256,7 +256,7 @@ body {
 .blue { --tint: var(--color-blue); --text-bg: color-mix(in srgb, var(--color-blue) 77%, black); }
 .red { --tint: var(--color-red); --text-bg: color-mix(in srgb, var(--color-red) 86%, black); }
 .green { --tint: var(--color-green); --text-bg: color-mix(in srgb, var(--color-green) 62%, black); }
-.purple { --tint: var(--color-purple); --text-bg: color-mix(in srgb, var(--color-purple) 97%, black); }
+.purple { --tint: var(--color-purple); --text-bg: color-mix(in srgb, var(--color-purple) 85%, black); }
 .orange { --tint: var(--color-orange); --text-bg: color-mix(in srgb, var(--color-orange) 64%, black); }
 .teal { --tint: var(--color-teal); --text-bg: color-mix(in srgb, var(--color-teal) 67%, black); }
 .pink { --tint: var(--color-pink); --text-bg: color-mix(in srgb, var(--color-pink) 85%, black); }
