@@ -3,8 +3,12 @@ ErrorDocument 403 /403.html
 ErrorDocument 500 /500.html
 
 <IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
   <IfModule mod_proxy_http.c>
-    RewriteEngine On
     RewriteRule ^api/(.*)$ http://127.0.0.1:3000/api/$1 [P,L]
   </IfModule>
 </IfModule>
