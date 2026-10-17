@@ -2,13 +2,8 @@
 // Replaces posts, phones and projects in blog.db with the published Sanity content (backs up blog.db first).
 require('dotenv').config();
 const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
 const Database = require('better-sqlite3');
-
-const context = { window: {} };
-vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../js/config.js'), 'utf8'), context);
-const { projectId, dataset, apiVersion } = context.window.SITE_CONFIG.sanity;
+const { projectId, dataset, apiVersion } = require('./sanity-config');
 const DB_PATH = process.env.DB_PATH || 'blog.db';
 
 const QUERY = `{
