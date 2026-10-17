@@ -62,6 +62,7 @@ function render() {
     if (currentSort === "type") renderByType();
     if (currentSort === "year") renderByYear();
     if (currentSort === "title") renderByTitle();
+    if (!container.children.length) showEmptyState(container, "projects", "purple", searchQuery);
 
     updateMeta();
 

@@ -50,6 +50,13 @@ function wirePageSearch(onSearch) {
   return query.toLowerCase();
 }
 
+function showEmptyState(container, noun, color, query) {
+  container.innerHTML = query
+    ? `<div class="empty-state"><p>nothing matches "${escapeHtml(query)}"</p><div class="watch-btn ${color}">clear search</div></div>`
+    : `<div class="empty-state"><p>no ${noun} yet — check back soon</p></div>`;
+  container.querySelector('.watch-btn')?.addEventListener('click', () => document.getElementById('pageSearchBtn')?.click());
+}
+
 function findPhone(title, phones) {
   const words = text => ` ${String(text).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()} `;
   const haystack = words(title);

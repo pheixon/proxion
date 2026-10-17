@@ -109,6 +109,7 @@ function render() {
     if (currentSort === "brand") renderByBrand();
     if (currentSort === "type") renderByType();
     if (currentSort === "year") renderByYear();
+    if (!container.children.length) showEmptyState(container, "phones", "green", searchQuery);
 
     updateTotalCount();
 

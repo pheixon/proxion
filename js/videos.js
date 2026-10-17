@@ -181,6 +181,7 @@ function render() {
     if (currentSort === "category") renderByCategory();
     if (currentSort === "year") renderByYear();
     if (currentSort === "title") renderByTitle();
+    if (!container.children.length) showEmptyState(container, "videos", "red", searchQuery);
 
     updateVideoMeta(allVideos);
 

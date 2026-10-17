@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let allPosts = [];
+let searchQuery = '';
 
 async function loadBlog() {
   try {
@@ -42,8 +43,8 @@ function injectSortBar() {
   container.innerHTML = `
     <div class="sort-bar">
       <div class="blog-search-wrap">
-        <input id="blogSearchInput" class="blog-search-input" type="text" placeholder="search posts..." />
-        <button id="blogSearchBtn" class="blog-search-btn" aria-label="Search" tabindex="0">
+        <input id="pageSearchInput" class="blog-search-input" type="text" placeholder="search posts..." />
+        <button id="pageSearchBtn" class="blog-search-btn" aria-label="Search" tabindex="0">
           <svg class="icon-search" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
             <line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -62,51 +63,29 @@ function injectSortBar() {
     </div>
   `;
 
-  document.getElementById('sortSelect').addEventListener('change', () => {
-    applyFilters();
-  });
-
-  document.getElementById('blogSearchBtn').addEventListener('click', () => {
-    const input = document.getElementById('blogSearchInput');
-    const btn = document.getElementById('blogSearchBtn');
-    if (btn.classList.contains('cancel')) {
-      closeSearch();
-    } else {
-      input.classList.add('active');
-      btn.classList.add('cancel');
-      input.focus();
-    }
-  });
-
-  document.getElementById('blogSearchInput').addEventListener('input', () => applyFilters());
-
-  document.getElementById('blogSearchInput').addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeSearch();
-  });
-
-  document.getElementById('blogSearchInput').addEventListener('blur', e => {
-    if (e.relatedTarget === document.getElementById('blogSearchBtn')) return;
-    if (!document.getElementById('blogSearchInput').value) closeSearch();
-  });
-}
-
-function closeSearch() {
-  const input = document.getElementById('blogSearchInput');
-  const btn = document.getElementById('blogSearchBtn');
-  if (!input) return;
-  input.value = '';
-  input.classList.remove('active');
-  btn.classList.remove('cancel');
-  applyFilters();
+  document.getElementById('sortSelect').addEventListener('change', applyFilters);
+  searchQuery = wirePageSearch(query => { searchQuery = query; applyFilters(); });
 }
 
 function applyFilters() {
-  const query = (document.getElementById('blogSearchInput')?.value || '').toLowerCase();
   const direction = (document.getElementById('sortSelect')?.value || 'newest') === 'newest' ? 1 : -1;
   const filtered = allPosts
-    .filter(p => matchesSearch(query, p.title, p.content))
+    .filter(p => matchesSearch(searchQuery, p.title, p.content))
     .sort((a, b) => direction * (new Date(b.date) - new Date(a.date)));
+  updateCounter(filtered.length);
   renderPosts(filtered);
+}
+
+function updateCounter(found) {
+  document.querySelector('#page-fade .list-header')?.classList.remove('hidden');
+  const totalEl = document.getElementById('posts-total');
+  if (!totalEl) return;
+  const count = searchQuery ? found : allPosts.length;
+  totalEl.textContent = `${count} ${count === 1 ? 'post' : 'posts'} ${searchQuery ? 'found' : 'total'}`;
+  const latest = allPosts.reduce((max, p) => (new Date(p.date) > new Date(max) ? p.date : max), allPosts[0]?.date);
+  document.getElementById('posts-updated').textContent = latest
+    ? ` · last posted ${new Date(latest).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}`
+    : '';
 }
 
 function formatDate(iso) {
@@ -128,6 +107,7 @@ const PAGE_SIZE = 5;
 function renderPosts(posts, append = false) {
   const container = document.getElementById('blog-container');
   if (!append) container.innerHTML = '';
+  if (!posts.length) return showEmptyState(container, 'posts', 'orange', searchQuery);
 
   const existing = container.querySelectorAll('.blog-post').length;
   const slice = posts.slice(existing, existing + PAGE_SIZE);
@@ -254,6 +234,7 @@ function renderError() {
 function renderSinglePost(post, from) {
   const container = document.getElementById('blog-container');
   container.innerHTML = '';
+  document.querySelector('#page-fade .list-header')?.classList.add('hidden');
 
   const dateStr = `posted ${formatDate(post.date)}${post.updated_at ? ` · last edited ${formatDate(post.updated_at)}` : ''}`;
   const html = renderMarkdownWithButtons(post.content);
