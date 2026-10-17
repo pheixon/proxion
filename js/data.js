@@ -46,24 +46,38 @@ window.siteData = (() => {
 
   const UPLOADS_CACHE = 'proxion:youtube_full_channel_cache_v3';
   const UPLOADS_TTL = 6 * 60 * 60 * 1000;
+  const LIVE_CACHE = 'proxion:live';
+  const LIVE_TTL = 5 * 60 * 1000;
+  const uploadsId = () => 'UU' + config.youtubeChannelId.slice(2);
 
-  const withUploads = api => ({
+  const withChannel = api => ({
     ...api,
     uploads: async () => {
       try {
         const cached = JSON.parse(localStorage.getItem(UPLOADS_CACHE));
         if (Date.now() - cached.timestamp < UPLOADS_TTL) return cached.items;
       } catch {}
-      const playlistId = 'UU' + config.youtubeChannelId.slice(2);
       let items = [];
       let pageToken = '';
       do {
-        const data = await api.playlist(playlistId, pageToken);
+        const data = await api.playlist(uploadsId(), pageToken);
         items = items.concat(data.items.filter(item => item.snippet.resourceId?.videoId));
         pageToken = data.nextPageToken || '';
       } while (pageToken);
       try { localStorage.setItem(UPLOADS_CACHE, JSON.stringify({ timestamp: Date.now(), items })); } catch {}
       return items;
+    },
+    liveNow: async () => {
+      try {
+        const cached = JSON.parse(sessionStorage.getItem(LIVE_CACHE));
+        if (Date.now() - cached.time < LIVE_TTL) return cached.id;
+      } catch {}
+      const { items = [] } = await api.playlist(uploadsId());
+      const ids = items.slice(0, 5).map(item => item.snippet.resourceId?.videoId).filter(Boolean).join(',');
+      const { items: videos = [] } = ids ? await api.videos(ids) : {};
+      const id = videos.find(v => v.liveStreamingDetails?.actualStartTime && !v.liveStreamingDetails.actualEndTime)?.id || null;
+      try { sessionStorage.setItem(LIVE_CACHE, JSON.stringify({ time: Date.now(), id })); } catch {}
+      return id;
     },
   });
 
@@ -75,7 +89,7 @@ window.siteData = (() => {
       phones: () => withUpdatedAt('phones').then(withWikiArticles),
       projects: () => withUpdatedAt('projects'),
       search: q => get(`search?q=${encodeURIComponent(q)}`).then(json),
-      youtube: withUploads({
+      youtube: withChannel({
         channel: id => get(`youtube/channels?id=${id}`).then(json),
         playlist: (playlistId, pageToken = '') => get(`youtube/playlist?playlistId=${playlistId}&pageToken=${pageToken}`).then(json),
         videos: ids => get(`youtube/videos?ids=${ids}`).then(json),
@@ -114,7 +128,7 @@ window.siteData = (() => {
         select(aka != null && aka != "" => "aka " + brand + " " + aka + " · ", "") + coalesce(string(year), "") + " · " + coalesce(type, "") + select(clone == true => " · clone", "")
       )
     }`, { q: q.trim().split(/\s+/).map(word => `${word}*`).join(' ') }),
-    youtube: withUploads({
+    youtube: withChannel({
       channel: id => youtube('channels', { part: 'statistics', id }),
       playlist: (playlistId, pageToken = '') => youtube('playlistItems', { part: 'snippet', playlistId, maxResults: 50, pageToken }),
       videos: ids => youtube('videos', { part: 'liveStreamingDetails', id: ids }),

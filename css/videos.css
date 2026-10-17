@@ -466,11 +466,11 @@ body {
 }
 
 @media (max-width: 480px) {
-  .sort-bar:has(.blog-search-input.active) {
+  .sort-bar {
     flex-wrap: wrap;
   }
 
-  .sort-bar:has(.blog-search-input.active) .blog-search-wrap {
+  .blog-search-wrap:has(.blog-search-input.active) {
     flex-basis: 100%;
   }
 

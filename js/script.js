@@ -273,6 +273,11 @@ function navigateToHash(hash) {
 document.addEventListener('DOMContentLoaded', () => {
   navigateToHash(window.location.hash.replace('#', ''));
 
+  const videosItem = items[menuItems.findIndex(m => m?.hash === 'videos')];
+  siteData.youtube.liveNow()
+    .then(id => videosItem?.classList.toggle('live', Boolean(id)))
+    .catch(() => {});
+
   const controls = document.getElementById('bottom-controls');
   const searchBtn = document.getElementById('global-search-btn');
   const searchInput = document.getElementById('global-search-input');

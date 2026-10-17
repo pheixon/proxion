@@ -1,4 +1,4 @@
-const SOCIALS_CHANNEL_ID = "UCalOFAYtXcoCeVj48OB_w9w";
+const SOCIALS_CHANNEL_ID = window.SITE_CONFIG.youtubeChannelId;
 
 document.addEventListener("DOMContentLoaded", () => {
   fetchChannelStats();
@@ -36,10 +36,11 @@ async function fetchLatestContent() {
     const latestVideo = items.find(i => !liveSet.has(i.snippet.resourceId.videoId) && !isShort(i));
     const latestLive = items.find(i => liveSet.has(i.snippet.resourceId.videoId));
     const latestShort = items.find(i => isShort(i));
+    const liveNowId = await siteData.youtube.liveNow().catch(() => null);
 
-    renderEmbed("latest-video-container", latestVideo, "video");
-    renderEmbed("latest-stream-container", latestLive, "livestream");
-    renderEmbed("latest-short-container", latestShort, "short");
+    renderEmbed("latest-video-container", latestVideo, "latest video");
+    renderEmbed("latest-stream-container", latestLive, latestLive?.snippet.resourceId.videoId === liveNowId ? "live now" : "latest livestream");
+    renderEmbed("latest-short-container", latestShort, "latest short");
   } catch (e) {}
 }
 
@@ -54,7 +55,7 @@ function renderEmbed(containerId, item, label) {
   });
   const title = item.snippet.title.replace(/#shorts?\b/gi, '').trim();
   container.innerHTML = `
-    <div class="latest-video-label">latest ${label}</div>
+    <div class="latest-video-label">${label}</div>
     <iframe src="https://www.youtube.com/embed/${encodeURIComponent(videoId)}" allowfullscreen></iframe>
     <div class="latest-video-title">${escapeHtml(title)}</div>
     <div class="latest-video-date">${date}</div>

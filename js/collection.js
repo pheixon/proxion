@@ -40,12 +40,25 @@ function injectSortBar() {
         <option value="type">type</option>
         <option value="year">release year</option>
       </select>
+      <div class="blog-search-wrap">
+        <button id="randomPhone" class="blog-search-btn" aria-label="Random phone" title="random phone">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="10.5" cy="10.5" r="1" fill="currentColor"/></svg>
+        </button>
+      </div>
     </div>
   `;
 
   document.getElementById("sortSelect").addEventListener("change", e => {
     currentSort = e.target.value;
     render();
+  });
+
+  document.getElementById("randomPhone").addEventListener("click", () => {
+    const phone = allPhones[Math.floor(Math.random() * allPhones.length)];
+    if (!phone) return;
+    const input = document.getElementById("pageSearchInput");
+    input.value = `${phone.brand} ${phone.model}`;
+    input.dispatchEvent(new Event("input"));
   });
 
   searchQuery = wirePageSearch(query => { searchQuery = query; render(); });
@@ -55,7 +68,7 @@ let searchQuery = "";
 
 function getFilteredPhones() {
   if (!searchQuery) return allPhones;
-  return allPhones.filter(p => matchesSearch(searchQuery, p.brand, p.model, p.aka));
+  return allPhones.filter(p => matchesSearch(searchQuery, p.brand, p.model, p.aka, p.type, p.year));
 }
 
 // =====================================================

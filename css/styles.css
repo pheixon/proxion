@@ -558,3 +558,20 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+.item.live .button::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  z-index: 1;
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  50% { opacity: 0.25; }
+}

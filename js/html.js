@@ -33,7 +33,10 @@ function wirePageSearch(onSearch) {
     toggle(true);
     input.focus();
   });
-  input.addEventListener('input', () => search(input.value));
+  input.addEventListener('input', () => {
+    if (input.value) toggle(true);
+    search(input.value);
+  });
   input.addEventListener('keydown', e => e.key === 'Escape' && clear());
   input.addEventListener('blur', e => {
     if (e.relatedTarget !== btn && !input.value) toggle(false);
