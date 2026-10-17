@@ -246,9 +246,18 @@ document.addEventListener('click', e => {
 function pushSectionUrl(hash) {
   const url = new URL(location.href);
   url.searchParams.delete('id');
+  url.searchParams.delete('q');
   url.hash = hash;
   history.pushState(null, '', url);
 }
+
+document.addEventListener('click', e => {
+  const link = e.target.closest('a[data-section]');
+  if (!link || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  e.preventDefault();
+  history.pushState(null, '', link.href);
+  navigateToHash(link.dataset.section);
+});
 
 function navigateToHash(hash) {
   if (!hash) return false;

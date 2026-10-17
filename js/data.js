@@ -44,6 +44,29 @@ window.siteData = (() => {
     return data;
   };
 
+  const UPLOADS_CACHE = 'proxion:youtube_full_channel_cache_v3';
+  const UPLOADS_TTL = 6 * 60 * 60 * 1000;
+
+  const withUploads = api => ({
+    ...api,
+    uploads: async () => {
+      try {
+        const cached = JSON.parse(localStorage.getItem(UPLOADS_CACHE));
+        if (Date.now() - cached.timestamp < UPLOADS_TTL) return cached.items;
+      } catch {}
+      const playlistId = 'UU' + config.youtubeChannelId.slice(2);
+      let items = [];
+      let pageToken = '';
+      do {
+        const data = await api.playlist(playlistId, pageToken);
+        items = items.concat(data.items.filter(item => item.snippet.resourceId?.videoId));
+        pageToken = data.nextPageToken || '';
+      } while (pageToken);
+      try { localStorage.setItem(UPLOADS_CACHE, JSON.stringify({ timestamp: Date.now(), items })); } catch {}
+      return items;
+    },
+  });
+
   if (config.dataSource !== 'sanity') {
     const get = path => fetch(`api/${path}`, { cache: 'no-store' });
     const withUpdatedAt = path => get(path).then(async res => ({ items: await json(res), updatedAt: res.headers.get('Last-Modified') }));
@@ -52,11 +75,11 @@ window.siteData = (() => {
       phones: () => withUpdatedAt('phones').then(withWikiArticles),
       projects: () => withUpdatedAt('projects'),
       search: q => get(`search?q=${encodeURIComponent(q)}`).then(json),
-      youtube: {
+      youtube: withUploads({
         channel: id => get(`youtube/channels?id=${id}`).then(json),
         playlist: (playlistId, pageToken = '') => get(`youtube/playlist?playlistId=${playlistId}&pageToken=${pageToken}`).then(json),
         videos: ids => get(`youtube/videos?ids=${ids}`).then(json),
-      },
+      }),
     };
   }
 
@@ -91,10 +114,10 @@ window.siteData = (() => {
         select(aka != null && aka != "" => "aka " + brand + " " + aka + " · ", "") + coalesce(string(year), "") + " · " + coalesce(type, "") + select(clone == true => " · clone", "")
       )
     }`, { q: q.trim().split(/\s+/).map(word => `${word}*`).join(' ') }),
-    youtube: {
+    youtube: withUploads({
       channel: id => youtube('channels', { part: 'statistics', id }),
       playlist: (playlistId, pageToken = '') => youtube('playlistItems', { part: 'snippet', playlistId, maxResults: 50, pageToken }),
       videos: ids => youtube('videos', { part: 'liveStreamingDetails', id: ids }),
-    },
+    }),
   };
 })();

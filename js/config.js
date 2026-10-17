@@ -9,4 +9,5 @@ window.SITE_CONFIG = {
   },
   // sanity mode only: browser key restricted to your domain and the YouTube Data API v3
   youtubeApiKey: 'AIzaSyBwz6Ry2_TYaG5Vdq_JlmfVy1fbXYkQlLc',
+  youtubeChannelId: 'UCalOFAYtXcoCeVj48OB_w9w',
 };

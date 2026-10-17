@@ -1,10 +1,6 @@
 // =====================================================
 // CONFIG
 // =====================================================
-const CHANNEL_ID = "UCalOFAYtXcoCeVj48OB_w9w";
-
-const CACHE_KEY = "proxion:youtube_full_channel_cache_v3";
-const CACHE_TIME = 1000 * 60 * 60 * 6; // 6 hours
 const VIDEOS_PER_BATCH = 6;
 
 // Category configuration (single source of truth)
@@ -71,56 +67,10 @@ function injectSortBar() {
       render();
     });
 
-  wirePageSearch();
+  searchQuery = wirePageSearch(query => { searchQuery = query; render(); });
 }
 
 let searchQuery = "";
-
-function wirePageSearch() {
-  const input = document.getElementById("pageSearchInput");
-  const btn = document.getElementById("pageSearchBtn");
-
-  btn.addEventListener("click", () => {
-    if (btn.classList.contains("cancel")) {
-      input.value = "";
-      input.classList.remove("active");
-      btn.classList.remove("cancel");
-      if (searchQuery) {
-        searchQuery = "";
-        render();
-      }
-    } else {
-      input.classList.add("active");
-      btn.classList.add("cancel");
-      input.focus();
-    }
-  });
-
-  input.addEventListener("input", () => {
-    searchQuery = input.value.toLowerCase();
-    render();
-  });
-
-  input.addEventListener("keydown", e => {
-    if (e.key === "Escape") {
-      input.value = "";
-      input.classList.remove("active");
-      btn.classList.remove("cancel");
-      if (searchQuery) {
-        searchQuery = "";
-        render();
-      }
-    }
-  });
-
-  input.addEventListener("blur", e => {
-    if (e.relatedTarget === btn) return;
-    if (!input.value) {
-      input.classList.remove("active");
-      btn.classList.remove("cancel");
-    }
-  });
-}
 
 function getFilteredVideos() {
   if (!searchQuery) return allVideos;
@@ -128,54 +78,11 @@ function getFilteredVideos() {
 }
 
 // =====================================================
-// LOAD WITH CACHE
+// LOAD DATA
 // =====================================================
 function loadVideos() {
-  const cached = localStorage.getItem(CACHE_KEY);
-
-  if (cached) {
-    const { timestamp, items } = JSON.parse(cached);
-    if (Date.now() - timestamp < CACHE_TIME) {
-      processVideos(items);
-      return;
-    }
-  }
-
-  fetchAllUploads();
-}
-
-// =====================================================
-// FETCH FULL CHANNEL (Uploads Playlist)
-// =====================================================
-function fetchAllUploads(pageToken = "", collected = []) {
-
-  const uploadsPlaylistId =
-    "UU" + CHANNEL_ID.substring(2); // UCxxxx → UUxxxx
-
-  siteData.youtube.playlist(uploadsPlaylistId, pageToken)
-    .then(data => {
-
-      const validItems = data.items.filter(item =>
-        item.snippet.resourceId &&
-        item.snippet.resourceId.videoId
-      );
-
-      collected = collected.concat(validItems);
-
-      if (data.nextPageToken) {
-        fetchAllUploads(data.nextPageToken, collected);
-      } else {
-        localStorage.setItem(
-          CACHE_KEY,
-          JSON.stringify({
-            timestamp: Date.now(),
-            items: collected
-          })
-        );
-
-        processVideos(collected);
-      }
-    })
+  siteData.youtube.uploads()
+    .then(processVideos)
     .catch(err => console.error(err));
 }
 
@@ -184,19 +91,24 @@ function fetchAllUploads(pageToken = "", collected = []) {
 // =====================================================
 async function processVideos(items) {
   const videoIds = items.map(i => i.snippet.resourceId.videoId);
-  const liveIds = await fetchLiveStreamIds(videoIds);
+  const [liveIds, phones] = await Promise.all([
+    fetchLiveStreamIds(videoIds),
+    siteData.phones().then(data => data.items).catch(() => [])
+  ]);
 
   allVideos = items.map(item => {
     const id = item.snippet.resourceId.videoId;
     const isLive = liveIds.has(id);
     const keywordCategory = getCategory(item.snippet.title);
+    const phone = findPhone(item.snippet.title, phones)?.phone;
     return {
       id,
       rawTitle: item.snippet.title,
       cleanTitle: cleanTitle(item.snippet.title),
       date: item.snippet.publishedAt,
       thumbnails: item.snippet.thumbnails,
-      category: isLive && keywordCategory === "other" ? "livestreams" : keywordCategory
+      category: isLive && keywordCategory === "other" ? "livestreams" : keywordCategory,
+      phoneName: phone && `${phone.brand} ${phone.model}`
     };
   });
 
@@ -510,6 +422,7 @@ function createVideoCard(video) {
 </g>
 </svg>
       </a>
+      ${video.phoneName ? `<a class="watch-btn green" href="?q=${encodeURIComponent(video.phoneName)}#collection" data-section="collection">my collection →</a>` : ""}
     </div>
   `;
 

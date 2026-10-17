@@ -159,7 +159,6 @@ function renderPosts(posts, append = false) {
     });
 
 
-    wireBlogButtons(el);
     wireShareButtons(el);
   });
 
@@ -186,32 +185,19 @@ function renderMarkdownWithButtons(md) {
     const key = label.trim().toLowerCase();
 
     const map = {
-      'my videos': { hash: '#videos', color: 'red' },
-      'my collection': { hash: '#collection', color: 'green' },
-      'my projects': { hash: '#projects', color: 'purple' },
-      'my blog': { hash: '#blog', color: 'orange' },
+      'my videos': { section: 'videos', color: 'red' },
+      'my collection': { section: 'collection', color: 'green' },
+      'my projects': { section: 'projects', color: 'purple' },
+      'my blog': { section: 'blog', color: 'orange' },
     };
 
     const btn = map[key];
     if (!btn) return label;
 
-    return `<span class="watch-btn ${btn.color} blog-inline-btn" data-hash="${btn.hash}">${label} →</span>`;
+    return `<a class="watch-btn ${btn.color} blog-inline-btn" href="#${btn.section}" data-section="${btn.section}">${label} →</a>`;
   });
 
   return renderMarkdown(md);
-}
-
-function wireBlogButtons(root) {
-  root.querySelectorAll('.blog-inline-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const hash = btn.dataset.hash;
-      if (document.getElementById('page-content')) {
-        location.hash = hash;
-      } else {
-        location.href = new URL(`index.html${hash}`, document.baseURI).href;
-      }
-    });
-  });
 }
 
 function wireShareButtons(root) {
@@ -304,7 +290,6 @@ function renderSinglePost(post, from) {
     </section>
   `;
 
-  wireBlogButtons(container);
   wireShareButtons(container);
   wireSingleNav();
 }

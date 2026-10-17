@@ -337,53 +337,7 @@ function injectSortBar() {
     render();
   });
 
-  wirePageSearch();
-}
-
-function wirePageSearch() {
-  const input = document.getElementById("pageSearchInput");
-  const btn = document.getElementById("pageSearchBtn");
-
-  btn.addEventListener("click", () => {
-    if (btn.classList.contains("cancel")) {
-      input.value = "";
-      input.classList.remove("active");
-      btn.classList.remove("cancel");
-      if (searchQuery) {
-        searchQuery = "";
-        render();
-      }
-    } else {
-      input.classList.add("active");
-      btn.classList.add("cancel");
-      input.focus();
-    }
-  });
-
-  input.addEventListener("input", () => {
-    searchQuery = input.value.toLowerCase();
-    render();
-  });
-
-  input.addEventListener("keydown", e => {
-    if (e.key === "Escape") {
-      input.value = "";
-      input.classList.remove("active");
-      btn.classList.remove("cancel");
-      if (searchQuery) {
-        searchQuery = "";
-        render();
-      }
-    }
-  });
-
-  input.addEventListener("blur", e => {
-    if (e.relatedTarget === btn) return;
-    if (!input.value) {
-      input.classList.remove("active");
-      btn.classList.remove("cancel");
-    }
-  });
+  searchQuery = wirePageSearch(query => { searchQuery = query; render(); });
 }
 
 function getFilteredProjects() {

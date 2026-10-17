@@ -7,6 +7,7 @@ const PHONES_PER_BATCH = 6;
 // STATE
 // =====================================================
 let allPhones = [];
+let videoNames = new Map();
 let currentSort = "brand";
 let sectionState = {};
 
@@ -47,56 +48,10 @@ function injectSortBar() {
     render();
   });
 
-  wirePageSearch();
+  searchQuery = wirePageSearch(query => { searchQuery = query; render(); });
 }
 
 let searchQuery = "";
-
-function wirePageSearch() {
-  const input = document.getElementById("pageSearchInput");
-  const btn = document.getElementById("pageSearchBtn");
-
-  btn.addEventListener("click", () => {
-    if (btn.classList.contains("cancel")) {
-      input.value = "";
-      input.classList.remove("active");
-      btn.classList.remove("cancel");
-      if (searchQuery) {
-        searchQuery = "";
-        render();
-      }
-    } else {
-      input.classList.add("active");
-      btn.classList.add("cancel");
-      input.focus();
-    }
-  });
-
-  input.addEventListener("input", () => {
-    searchQuery = input.value.toLowerCase();
-    render();
-  });
-
-  input.addEventListener("keydown", e => {
-    if (e.key === "Escape") {
-      input.value = "";
-      input.classList.remove("active");
-      btn.classList.remove("cancel");
-      if (searchQuery) {
-        searchQuery = "";
-        render();
-      }
-    }
-  });
-
-  input.addEventListener("blur", e => {
-    if (e.relatedTarget === btn) return;
-    if (!input.value) {
-      input.classList.remove("active");
-      btn.classList.remove("cancel");
-    }
-  });
-}
 
 function getFilteredPhones() {
   if (!searchQuery) return allPhones;
@@ -108,8 +63,15 @@ function getFilteredPhones() {
 // =====================================================
 async function loadPhones() {
   try {
-    const { items, updatedAt } = await siteData.phones();
+    const [{ items, updatedAt }, uploads] = await Promise.all([
+      siteData.phones(),
+      siteData.youtube.uploads().catch(() => [])
+    ]);
     allPhones = items;
+    uploads.forEach(item => {
+      const match = findPhone(item.snippet.title, items);
+      if (match && !videoNames.has(match.phone)) videoNames.set(match.phone, match.name);
+    });
     updateMeta(updatedAt);
 
     updateTotalCount();
@@ -351,6 +313,7 @@ function createPhoneCard(phone) {
             <div class="watch-btn green">want to create it?</div>
           `
       }
+      ${videoNames.has(phone) ? `<a class="watch-btn red" href="?q=${encodeURIComponent(videoNames.get(phone))}#videos" data-section="videos">my videos →</a>` : ""}
     </div>
   `;
 
