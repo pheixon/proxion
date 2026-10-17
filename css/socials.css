@@ -168,7 +168,8 @@ body {
 
 @media (max-width: 768px) {
   .socials-grid.primary,
-  .socials-grid.secondary {
+  .socials-grid.secondary,
+  .latest-grid {
     grid-template-columns: 1fr;
   }
 }
