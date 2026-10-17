@@ -413,10 +413,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  .videos-grid {
-    grid-template-columns: 1fr;
-  }
-
   .thumbnail,
   .thumb-wrap {
     width: 120px;
@@ -433,5 +429,11 @@ body {
   .sort-bar {
     position: static;
     margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 700px) {
+  .videos-grid {
+    grid-template-columns: 1fr;
   }
 }

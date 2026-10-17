@@ -167,9 +167,14 @@ body {
 }
 
 @media (max-width: 768px) {
-  .socials-grid.primary,
-  .socials-grid.secondary,
   .latest-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .socials-grid.primary,
+  .socials-grid.secondary {
     grid-template-columns: 1fr;
   }
 }
