@@ -124,7 +124,7 @@ function wirePageSearch() {
 
 function getFilteredVideos() {
   if (!searchQuery) return allVideos;
-  return allVideos.filter(v => v.rawTitle.toLowerCase().includes(searchQuery) || v.cleanTitle.toLowerCase().includes(searchQuery));
+  return allVideos.filter(v => matchesSearch(searchQuery, v.rawTitle, v.cleanTitle));
 }
 
 // =====================================================

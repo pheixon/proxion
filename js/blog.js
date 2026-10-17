@@ -104,7 +104,7 @@ function applyFilters() {
   const query = (document.getElementById('blogSearchInput')?.value || '').toLowerCase();
   const direction = (document.getElementById('sortSelect')?.value || 'newest') === 'newest' ? 1 : -1;
   const filtered = allPosts
-    .filter(p => !query || p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query))
+    .filter(p => matchesSearch(query, p.title, p.content))
     .sort((a, b) => direction * (new Date(b.date) - new Date(a.date)));
   renderPosts(filtered);
 }

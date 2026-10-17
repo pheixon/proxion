@@ -81,7 +81,7 @@ window.siteData = (() => {
       "items": *[_type == "project"] { "id": slug.current, title, type, year, image, "images": coalesce(images, []), url, description },
       "updatedAt": ${latest('project')}
     }`),
-    search: q => query(`*[_type in ["post", "phone", "project"] && [title, content, description, brand, model, aka] match $q] {
+    search: q => query(`*[_type in ["post", "phone", "project"] && array::join(array::compact([title, content, description, brand, model, aka]), " ") match $q] {
       "source": _type,
       "id": select(_type == "post" => number, _type == "project" => slug.current, _id),
       "title": select(_type == "phone" => brand + " " + model, title),
@@ -90,7 +90,7 @@ window.siteData = (() => {
         _type == "project" => description,
         select(aka != null && aka != "" => "aka " + brand + " " + aka + " · ", "") + coalesce(string(year), "") + " · " + coalesce(type, "") + select(clone == true => " · clone", "")
       )
-    }`, { q: `${q}*` }),
+    }`, { q: q.trim().split(/\s+/).map(word => `${word}*`).join(' ') }),
     youtube: {
       channel: id => youtube('channels', { part: 'statistics', id }),
       playlist: (playlistId, pageToken = '') => youtube('playlistItems', { part: 'snippet', playlistId, maxResults: 50, pageToken }),

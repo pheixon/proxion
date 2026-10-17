@@ -90,16 +90,17 @@ app.get('/api/projects', (_req, res) => {
 app.get('/api/search', (req, res) => {
   const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
   if (!q) return res.json([]);
-  const like = `%${q}%`;
-  const posts = db.prepare("SELECT id, title, content as detail, 'post' as source FROM posts WHERE title LIKE ? OR content LIKE ?").all(like, like);
+  const words = q.split(/\s+/).map(word => `%${word}%`);
+  const matchAll = text => words.map(() => `${text} LIKE ?`).join(' AND ');
+  const posts = db.prepare(`SELECT id, title, content as detail, 'post' as source FROM posts WHERE ${matchAll("title || ' ' || COALESCE(content, '')")}`).all(...words);
   const phones = db.prepare(`SELECT id, brand || ' ' || model as title,
     CASE WHEN aka IS NOT NULL AND aka != '' THEN 'aka ' || brand || ' ' || aka || ' · ' ELSE '' END
     || COALESCE(year,'')
     || ' · ' || type
     || CASE WHEN clone = 1 THEN ' · clone' ELSE '' END
     as detail, 'phone' as source
-    FROM phones WHERE brand LIKE ? OR model LIKE ? OR aka LIKE ?`).all(like, like, like);
-  const projects = db.prepare("SELECT id, title, description as detail, 'project' as source FROM projects WHERE title LIKE ? OR description LIKE ?").all(like, like);
+    FROM phones WHERE ${matchAll("brand || ' ' || model || ' ' || COALESCE(aka, '')")}`).all(...words);
+  const projects = db.prepare(`SELECT id, title, description as detail, 'project' as source FROM projects WHERE ${matchAll("title || ' ' || COALESCE(description, '')")}`).all(...words);
   const all = [...posts, ...phones, ...projects].map(r => ({
     ...r,
     title: stripDotZero(r.title),

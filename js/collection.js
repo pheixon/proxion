@@ -100,11 +100,7 @@ function wirePageSearch() {
 
 function getFilteredPhones() {
   if (!searchQuery) return allPhones;
-  return allPhones.filter(p =>
-    p.brand.toLowerCase().includes(searchQuery) ||
-    p.model.toString().toLowerCase().includes(searchQuery) ||
-    (p.aka || "").toLowerCase().includes(searchQuery)
-  );
+  return allPhones.filter(p => matchesSearch(searchQuery, p.brand, p.model, p.aka));
 }
 
 // =====================================================

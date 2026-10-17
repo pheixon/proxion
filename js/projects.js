@@ -388,11 +388,7 @@ function wirePageSearch() {
 
 function getFilteredProjects() {
   if (!searchQuery) return allProjects;
-  return allProjects.filter(p =>
-    p.title.toLowerCase().includes(searchQuery) ||
-    (p.description || "").toLowerCase().includes(searchQuery) ||
-    (p.type || "").toLowerCase().includes(searchQuery)
-  );
+  return allProjects.filter(p => matchesSearch(searchQuery, p.title, p.description, p.type));
 }
 
 let lastUpdatedHeader = null;
