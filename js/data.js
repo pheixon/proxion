@@ -97,7 +97,7 @@ window.siteData = (() => {
   return {
     posts: () => query(`*[_type == "post"] | order(date desc) { "id": number, title, date, content, "updated_at": updatedAt }`),
     phones: () => query(`{
-      "items": *[_type == "phone"] | order(brand asc, model asc) { "id": _id, brand, model, type, year, image, "article": article == true, "clone": clone == true, aka },
+      "items": *[_type == "phone"] | order(brand asc, model asc) { "id": _id, brand, model, type, year, image, "images": photos[]{ "url": asset->url + "?w=480&h=640&fit=crop&auto=format" }[].url, "article": article == true, "clone": clone == true, aka },
       "updatedAt": ${latest('phone')}
     }`).then(withWikiArticles),
     projects: () => query(`{

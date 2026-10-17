@@ -8,7 +8,7 @@ const DB_PATH = process.env.DB_PATH || 'blog.db';
 
 const QUERY = `{
   "posts": *[_type == "post"] { number, title, date, content, updatedAt },
-  "phones": *[_type == "phone"] { _id, brand, model, type, year, image, article, clone, aka },
+  "phones": *[_type == "phone"] { _id, brand, model, type, year, "image": coalesce(photos[0].asset->url, image), article, clone, aka },
   "projects": *[_type == "project"] { "id": slug.current, title, type, year, image, images, url, description }
 }`;
 
