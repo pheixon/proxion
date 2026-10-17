@@ -71,6 +71,7 @@ body {
 
 .button-container.selected {
   transform: translate(-50%, -47vh);
+  transform: translate(-50%, -47dvh);
 }
 
 .menu-backdrop {
@@ -256,6 +257,10 @@ body {
 .orange { --tint: var(--color-orange); --text-bg: color-mix(in srgb, var(--color-orange) 64%, black); }
 .teal { --tint: var(--color-teal); --text-bg: color-mix(in srgb, var(--color-teal) 67%, black); }
 .pink { --tint: var(--color-pink); --text-bg: color-mix(in srgb, var(--color-pink) 85%, black); }
+
+@supports not (color: color-mix(in srgb, red, red)) {
+  .blue, .red, .green, .purple, .orange, .teal, .pink { --text-bg: var(--tint); }
+}
 
 .button-container .item .button { background: var(--tint); }
 .button-container .item .label { background: var(--text-bg); }
