@@ -288,12 +288,14 @@ body {
 /* --- Logo --- */
 
 .logo svg {
-  width: auto;
-  height: clamp(28px, 2.4vw, 36px);
+  width: min(calc(max(20%, 200px) * 1951 / 5069), 175px);
+  height: auto;
   aspect-ratio: 1951 / 446;
+  box-sizing: content-box;
+  padding: 12px 24px;
   position: fixed;
   opacity: 20%;
-  bottom: calc(15% + 8px);
+  bottom: calc(15% - 4px);
   left: 50%;
   transform: translateX(-50%);
   transition: opacity 0.3s ease;
