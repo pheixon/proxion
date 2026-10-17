@@ -504,3 +504,9 @@ body {
     font-size: 16px !important;
   }
 }
+
+@media (max-height: 440px) {
+  .logo:has(~ .bottom-controls.searching) svg {
+    opacity: 0;
+  }
+}

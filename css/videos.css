@@ -146,7 +146,7 @@ body {
 
 .video-modal {
   width: 90%;
-  max-width: 70%;
+  max-width: min(70%, calc((100vh - 160px) * 16 / 9));
   position: relative;
 }
 
@@ -422,6 +422,19 @@ body {
   .videos-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .sort-bar {
+    position: static;
+    margin-bottom: 16px;
+  }
+
+  .list-header {
+    margin-bottom: 16px;
+  }
+
+  .list-header .sort-bar {
+    margin-bottom: 0;
+  }
 }
 
 @media (max-width: 768px) {
@@ -436,19 +449,6 @@ body {
 
   .yt-video .thumb-wrap {
     width: 100%;
-  }
-
-  .sort-bar {
-    position: static;
-    margin-bottom: 16px;
-  }
-
-  .list-header {
-    margin-bottom: 16px;
-  }
-
-  .list-header .sort-bar {
-    margin-bottom: 0;
   }
 }
 
