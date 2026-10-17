@@ -291,6 +291,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   transition: opacity 0.3s ease;
+  touch-action: manipulation;
 }
 
 .button-container.selected ~ .logo svg {

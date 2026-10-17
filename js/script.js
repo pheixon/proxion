@@ -433,6 +433,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   loadLiquidGlass(document.documentElement.getAttribute('data-theme'));
 
+  function unlockThemes() {
+    document.body.style.transition = 'filter 0.3s';
+    document.body.style.filter = 'brightness(2)';
+    setTimeout(() => { document.body.style.filter = ''; }, 300);
+    activateThemeSelect();
+  }
+
   const konamiSequence = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'];
   let konamiIndex = 0;
   document.addEventListener('keydown', e => {
@@ -440,14 +447,20 @@ document.addEventListener('DOMContentLoaded', () => {
       konamiIndex++;
       if (konamiIndex === konamiSequence.length) {
         konamiIndex = 0;
-        document.body.style.transition = 'filter 0.3s';
-        document.body.style.filter = 'brightness(2)';
-        setTimeout(() => { document.body.style.filter = ''; }, 300);
-        activateThemeSelect();
+        unlockThemes();
       }
     } else {
       konamiIndex = 0;
     }
+  });
+
+  let logoTaps = [];
+  document.querySelector('.logo svg')?.addEventListener('click', () => {
+    const now = Date.now();
+    logoTaps = [...logoTaps.filter(time => now - time < 1500), now];
+    if (logoTaps.length < 4) return;
+    logoTaps = [];
+    unlockThemes();
   });
 });
 
