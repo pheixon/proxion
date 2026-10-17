@@ -12,7 +12,7 @@ const auth = token ? { Authorization: `Bearer ${token}` } : {};
 
 async function getJson(url, options) {
   const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} ${url}`);
+  if (!res.ok) throw new Error(`${res.status} ${url}\n${(await res.text()).slice(0, 500)}`);
   return res.json();
 }
 
