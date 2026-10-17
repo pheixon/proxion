@@ -173,7 +173,7 @@ function createProjectCard(project) {
   }
 
   card.innerHTML = `
-    <img class="thumbnail" src="${escapeHtml(hasPhoto ? images[0] : "assets/images/placeholder.png")}">
+    <img class="thumbnail" src="${escapeHtml(hasPhoto ? images[0] : "assets/images/placeholder.svg")}">
     <div class="video-info">
       <div class="video-title">${escapeHtml(project.title)}</div>
       <div class="video-date">${escapeHtml(`released ${yearText} · ${project.type || "other"}`)}</div>
@@ -252,7 +252,7 @@ function renderSingleProject(project) {
           <div class="image-row">
             <div class="image-nav-btn prev hidden">←</div>
             <div class="image-wrapper">
-              <img class="thumbnail clickable" src="${escapeHtml(images[0] || "assets/images/placeholder.png")}">
+              <img class="thumbnail clickable" src="${escapeHtml(images[0] || "assets/images/placeholder.svg")}">
               <div class="image-dots hidden">
                 ${images.map((_, i) => `<div class="dot ${i === 0 ? "active" : ""}"></div>`).join("")}
               </div>

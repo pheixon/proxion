@@ -254,6 +254,7 @@ function navigateToHash(hash) {
   if (!hash) return false;
   const index = menuItems.findIndex(m => m && m.hash === hash);
   if (index !== -1) {
+    items[index]?.classList.add('preview');
     items[index]?.click();
     return true;
   }

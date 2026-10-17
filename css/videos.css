@@ -72,6 +72,7 @@ body {
 /* Thumbnail */
 .thumb-wrap {
   position: relative;
+  display: block;
   width: 160px;
   flex-shrink: 0;
   cursor: pointer;
@@ -109,6 +110,12 @@ body {
 
 .thumb-wrap:hover .thumb-play {
   opacity: 1;
+}
+
+@media (hover: none) {
+  .thumb-play {
+    opacity: 1;
+  }
 }
 
 /* Video Modal */
@@ -265,6 +272,7 @@ body {
   gap: 6px;
   font-family: 'DINProBold';
   color: #f5f5f5;
+  text-decoration: none;
 }
 
 .watch-btn.hidden {
@@ -409,8 +417,17 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .thumbnail {
+  .thumbnail,
+  .thumb-wrap {
     width: 120px;
+  }
+
+  .yt-video {
+    flex-direction: column;
+  }
+
+  .yt-video .thumb-wrap {
+    width: 100%;
   }
 
   .sort-bar {

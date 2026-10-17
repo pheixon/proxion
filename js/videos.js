@@ -456,20 +456,21 @@ function renderNextBatch(key, immediate) {
 // =====================================================
 function createVideoCard(video) {
   const card = document.createElement("div");
-  card.className = "video";
+  card.className = "video yt-video";
+  const url = `https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`;
 
   card.innerHTML = `
-    <div class="thumb-wrap">
+    <a class="thumb-wrap" href="${url}" target="_blank" rel="noopener">
       <img class="thumbnail" src="${escapeHtml(video.thumbnails.medium.url)}">
       <div class="thumb-play">
         <svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
       </div>
-    </div>
+    </a>
     <div class="video-info">
       <div class="video-title">${escapeHtml(video.cleanTitle)}</div>
       <div class="video-date">${formatDate(video.date)}</div>
 
-      <div class="watch-btn red">
+      <a class="watch-btn red" href="${url}" target="_blank" rel="noopener">
         watch on
 <svg xmlns="http://www.w3.org/2000/svg"
 	 viewBox="0 0 512 214">
@@ -503,20 +504,16 @@ function createVideoCard(video) {
 	</g>
 </g>
 </svg>
-      </div>
+      </a>
     </div>
   `;
 
-  card.querySelector(".watch-btn")
-    .addEventListener("click", () => {
-      window.open(
-        `https://youtube.com/watch?v=${video.id}`,
-        "_blank"
-      );
-    });
-
   card.querySelector(".thumb-wrap")
-    .addEventListener("click", () => openVideoModal(video));
+    .addEventListener("click", e => {
+      if (matchMedia("(hover: none)").matches) return;
+      e.preventDefault();
+      openVideoModal(video);
+    });
 
   return card;
 }

@@ -156,3 +156,18 @@
   opacity: 0.8;
   line-height: 1.5;
 }
+
+@media (max-width: 768px) {
+  .intro {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

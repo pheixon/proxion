@@ -297,7 +297,7 @@ function createPhoneCard(phone) {
 
   const images = Array.isArray(phone.images) && phone.images.length
     ? phone.images
-    : (phone.image && String(phone.image).trim() !== "" ? [phone.image] : ["assets/images/placeholder.png"]);
+    : (phone.image && String(phone.image).trim() !== "" ? [phone.image] : ["assets/images/placeholder.svg"]);
 
   const wikiSlug = encodeURIComponent(`${phone.brand} ${phone.model}`.replace(/\s+/g, "_"));
   const viewUrl = `https://lpcwiki.miraheze.org/wiki/${wikiSlug}`;

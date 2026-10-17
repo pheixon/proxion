@@ -497,3 +497,10 @@ body {
     scrollbar-color: var(--scrollbar-thumb, rgba(255, 255, 255, 0.08)) var(--bg-card);
   }
 }
+
+@media (hover: none) {
+  input,
+  select {
+    font-size: 16px !important;
+  }
+}
