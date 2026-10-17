@@ -510,3 +510,31 @@ body {
     opacity: 0;
   }
 }
+
+@media (max-height: 500px) {
+  .button {
+    transition: height 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .button-container.selected .button {
+    height: 56px;
+  }
+
+  .button-container.selected .button svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .button-container.selected .label {
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .menu-backdrop {
+    height: 112px;
+  }
+
+  .embed-container {
+    margin-top: 104px;
+  }
+}
