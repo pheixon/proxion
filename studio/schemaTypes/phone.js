@@ -9,7 +9,7 @@ export default {
     { name: 'year', title: 'Year', description: '2004, or 2004? if approximate', type: 'string' },
     { name: 'image', title: 'Image URL', type: 'string' },
     { name: 'aka', title: 'Also Known As', type: 'string' },
-    { name: 'article', title: 'Has wiki article', description: 'Updated automatically every Monday from lpcwiki', type: 'boolean', initialValue: false, readOnly: true },
+    { name: 'article', title: 'Has wiki article', type: 'boolean', initialValue: false },
     { name: 'clone', title: 'Clone', type: 'boolean', initialValue: false },
   ],
   orderings: [

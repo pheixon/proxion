@@ -6,12 +6,50 @@ window.siteData = (() => {
     return res.json();
   };
 
+  const WIKI_CACHE = 'proxion:wiki';
+  const WIKI_TTL = 24 * 60 * 60 * 1000;
+
+  const wikiBatch = async titles => {
+    const params = new URLSearchParams({ action: 'query', titles: titles.join('|'), redirects: 1, format: 'json', formatversion: 2, origin: '*' });
+    const { query } = await fetch(`https://lpcwiki.miraheze.org/w/api.php?${params}`, { signal: AbortSignal.timeout(4000) }).then(json);
+    const normalized = new Map((query.normalized || []).map(n => [n.from, n.to]));
+    const redirects = new Map((query.redirects || []).map(r => [r.from, r.to]));
+    const pages = new Set(query.pages.filter(p => !p.missing && !p.invalid).map(p => p.title));
+    return titles.map(title => {
+      let target = normalized.get(title) ?? title;
+      for (let hops = 0; hops < 5 && redirects.has(target); hops++) target = redirects.get(target);
+      return [title, pages.has(target)];
+    });
+  };
+
+  const wikiArticles = async titles => {
+    try {
+      const cached = JSON.parse(localStorage.getItem(WIKI_CACHE));
+      if (Date.now() - cached.time < WIKI_TTL) return cached.articles;
+    } catch {}
+    const batches = [];
+    for (let i = 0; i < titles.length; i += 50) batches.push(wikiBatch(titles.slice(i, i + 50)).catch(() => null));
+    const results = await Promise.all(batches);
+    const articles = Object.fromEntries(results.filter(Boolean).flat());
+    if (results.every(Boolean)) {
+      try { localStorage.setItem(WIKI_CACHE, JSON.stringify({ time: Date.now(), articles })); } catch {}
+    }
+    return articles;
+  };
+
+  const withWikiArticles = async data => {
+    const title = p => `${p.brand} ${p.model}`;
+    const articles = await wikiArticles([...new Set(data.items.map(title))]);
+    data.items.forEach(p => { p.article = articles[title(p)] ?? p.article; });
+    return data;
+  };
+
   if (config.dataSource !== 'sanity') {
     const get = path => fetch(`api/${path}`, { cache: 'no-store' });
     const withUpdatedAt = path => get(path).then(async res => ({ items: await json(res), updatedAt: res.headers.get('Last-Modified') }));
     return {
       posts: () => get('posts').then(json),
-      phones: () => withUpdatedAt('phones'),
+      phones: () => withUpdatedAt('phones').then(withWikiArticles),
       projects: () => withUpdatedAt('projects'),
       search: q => get(`search?q=${encodeURIComponent(q)}`).then(json),
       youtube: {
@@ -38,7 +76,7 @@ window.siteData = (() => {
     phones: () => query(`{
       "items": *[_type == "phone"] | order(brand asc, model asc) { "id": _id, brand, model, type, year, image, "article": article == true, "clone": clone == true, aka },
       "updatedAt": ${latest('phone')}
-    }`),
+    }`).then(withWikiArticles),
     projects: () => query(`{
       "items": *[_type == "project"] { "id": slug.current, title, type, year, image, "images": coalesce(images, []), url, description },
       "updatedAt": ${latest('project')}
