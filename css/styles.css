@@ -283,7 +283,7 @@ body {
 /* --- Logo --- */
 
 .logo svg {
-  width: 20%;
+  width: max(20%, 200px);
   height: 40px;
   position: fixed;
   opacity: 20%;
