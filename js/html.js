@@ -9,5 +9,7 @@ function matchesSearch(query, ...fields) {
 
 document.addEventListener('error', e => {
   const img = e.target;
-  if (img.matches?.('img.thumbnail') && !img.src.endsWith('/placeholder.svg')) img.src = 'assets/images/placeholder.svg';
+  if (!img.matches?.('img.thumbnail') || img.src.endsWith('/placeholder.svg')) return;
+  img.removeAttribute('srcset');
+  img.src = 'assets/images/placeholder.svg';
 }, true);

@@ -6,6 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>proxion</title>
   <meta name="description" content="proxion's corner of the web: phone videos, a collection of classic mobile phones, projects and a blog.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="proxion">
+  <meta property="og:title" content="proxion">
+  <meta property="og:description" content="proxion's corner of the web: phone videos, a collection of classic mobile phones, projects and a blog.">
+  <meta property="og:image" content="assets/images/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/videos.css">
@@ -14,7 +22,7 @@
   <link rel="stylesheet" href="css/blog.css">
   <link rel="stylesheet" href="css/socials.css">
   <link rel="stylesheet" href="css/about.css">
-  <script>function loadThemeCss(t){const id='theme-css-'+t;if(!t||t==='dark'||t==='light'||document.getElementById(id))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/theme-'+t+'.css';l.id=id;l.setAttribute('blocking','render');document.head.appendChild(l);return l}const t=localStorage.getItem('proxion:theme');if(t&&t!=='dark'){document.documentElement.setAttribute('data-theme',t);loadThemeCss(t)}</script>
+  <script>function loadThemeCss(t){const id='theme-css-'+t;if(!t||t==='dark'||t==='light'||document.getElementById(id))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/theme-'+t+'.css';l.id=id;l.setAttribute('blocking','render');document.head.appendChild(l);return l}const t=localStorage.getItem('proxion:theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'');if(t&&t!=='dark'){document.documentElement.setAttribute('data-theme',t);loadThemeCss(t)}</script>
 </head>
 
 <body>

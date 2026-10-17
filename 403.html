@@ -7,7 +7,7 @@
   <title>403 — Forbidden</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="css/styles.css">
-  <script>function loadThemeCss(t){const id='theme-css-'+t;if(!t||t==='dark'||t==='light'||document.getElementById(id))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/theme-'+t+'.css';l.id=id;l.setAttribute('blocking','render');document.head.appendChild(l);return l}const t=localStorage.getItem('proxion:theme');if(t&&t!=='dark'){document.documentElement.setAttribute('data-theme',t);loadThemeCss(t)}</script>
+  <script>function loadThemeCss(t){const id='theme-css-'+t;if(!t||t==='dark'||t==='light'||document.getElementById(id))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/theme-'+t+'.css';l.id=id;l.setAttribute('blocking','render');document.head.appendChild(l);return l}const t=localStorage.getItem('proxion:theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'');if(t&&t!=='dark'){document.documentElement.setAttribute('data-theme',t);loadThemeCss(t)}</script>
   <style>
     body { display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; gap: 16px; padding: 24px; text-align: center; }
     .err-code { font-family: 'DINProBold'; font-size: 96px; line-height: 1; color: var(--color-orange); }

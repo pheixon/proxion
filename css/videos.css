@@ -88,6 +88,11 @@ body {
   display: block;
 }
 
+.yt-video .thumbnail {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
 .thumb-play {
   position: absolute;
   top: 50%;

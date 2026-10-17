@@ -458,10 +458,15 @@ function createVideoCard(video) {
   const card = document.createElement("div");
   card.className = "video yt-video";
   const url = `https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`;
+  const srcset = ["medium", "high", "standard"]
+    .map(size => video.thumbnails[size])
+    .filter(Boolean)
+    .map(t => `${t.url} ${t.width}w`)
+    .join(", ");
 
   card.innerHTML = `
     <a class="thumb-wrap" href="${url}" target="_blank" rel="noopener">
-      <img class="thumbnail" src="${escapeHtml(video.thumbnails.medium.url)}">
+      <img class="thumbnail" src="${escapeHtml(video.thumbnails.medium.url)}" srcset="${escapeHtml(srcset)}" sizes="(max-width: 768px) and (orientation: portrait) calc(100vw - 112px), 160px" loading="lazy" alt="${escapeHtml(video.cleanTitle)}">
       <div class="thumb-play">
         <svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
       </div>

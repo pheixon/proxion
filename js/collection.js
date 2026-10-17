@@ -335,7 +335,7 @@ function createPhoneCard(phone) {
 
   card.innerHTML = `
     <div class="thumb-wrap">
-      <img class="thumbnail ${images.length > 1 ? "clickable" : ""}" src="${escapeHtml(images[0])}">
+      <img class="thumbnail ${images.length > 1 ? "clickable" : ""}" src="${escapeHtml(images[0])}" alt="${escapeHtml(`${phone.brand} ${phone.model}`)}">
       ${dotsHTML}
     </div>
 
