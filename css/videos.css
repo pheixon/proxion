@@ -442,7 +442,9 @@ body {
   .thumb-wrap {
     width: 120px;
   }
+}
 
+@media (max-width: 768px) and (orientation: portrait) {
   .yt-video {
     flex-direction: column;
   }
