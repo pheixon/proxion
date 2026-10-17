@@ -192,10 +192,6 @@
   color: #222;
 }
 
-[data-theme="aero"] .watch-btn svg {
-  fill: #222;
-}
-
 /* Menu buttons keep their color with Win7 gloss */
 [data-theme="aero"] .item .button,
 [data-theme="aero"] .item .label {

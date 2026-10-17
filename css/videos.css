@@ -293,7 +293,7 @@ body {
 .watch-btn svg {
   width: 67px;
   height: 28px;
-  fill: white;
+  fill: currentColor;
 }
 
 ::-webkit-scrollbar {
