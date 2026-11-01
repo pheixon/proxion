@@ -111,11 +111,11 @@ window.siteData = (() => {
   return {
     posts: () => query(`*[_type == "post"] | order(date desc) { "id": number, title, date, content, "updated_at": updatedAt }`),
     phones: () => query(`{
-      "items": *[_type == "phone"] | order(brand asc, model asc) { "id": _id, brand, model, type, year, image, "images": photos[]{ "url": asset->url + "?w=480&h=640&fit=crop&auto=format" }[].url, "article": article == true, "clone": clone == true, aka },
+      "items": *[_type == "phone"] | order(brand asc, model asc) { "id": _id, brand, model, "type": coalesce(type->name, type), year, image, "images": photos[]{ "url": asset->url + "?w=480&h=640&fit=crop&auto=format" }[].url, "article": article == true, "clone": clone == true, aka },
       "updatedAt": ${latest('phone')}
     }`).then(withWikiArticles),
     projects: () => query(`{
-      "items": *[_type == "project"] { "id": slug.current, title, type, year, image, "images": coalesce(images, []), url, description },
+      "items": *[_type == "project"] { "id": slug.current, title, "type": coalesce(type->name, type), year, image, "images": coalesce(images, []), url, description },
       "updatedAt": ${latest('project')}
     }`),
     search: q => query(`*[_type in ["post", "phone", "project"] && array::join(array::compact([title, content, description, brand, model, aka]), " ") match $q] {
@@ -125,7 +125,7 @@ window.siteData = (() => {
       "detail": select(
         _type == "post" => content,
         _type == "project" => description,
-        select(aka != null && aka != "" => "aka " + brand + " " + aka + " · ", "") + coalesce(string(year), "") + " · " + coalesce(type, "") + select(clone == true => " · clone", "")
+        select(aka != null && aka != "" => "aka " + brand + " " + aka + " · ", "") + coalesce(string(year), "") + " · " + coalesce(type->name, type, "") + select(clone == true => " · clone", "")
       )
     }`, { q: q.trim().split(/\s+/).map(word => `${word}*`).join(' ') }),
     youtube: withChannel({

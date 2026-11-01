@@ -12,7 +12,7 @@ export default {
       options: { source: 'title' },
       validation: r => r.required(),
     },
-    { name: 'type', title: 'Type', type: 'string' },
+    { name: 'type', title: 'Type', type: 'reference', to: [{ type: 'projectType' }] },
     { name: 'year', title: 'Year', description: '2024, or 2024? if approximate', type: 'string' },
     { name: 'image', title: 'Cover Image URL', type: 'string' },
     { name: 'images', title: 'Gallery Image URLs', type: 'array', of: [{ type: 'string' }] },
@@ -20,6 +20,6 @@ export default {
     { name: 'description', title: 'Description', type: 'text', rows: 10 },
   ],
   preview: {
-    select: { title: 'title', subtitle: 'type' },
+    select: { title: 'title', subtitle: 'type.name' },
   },
 };

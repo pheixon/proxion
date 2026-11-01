@@ -5,7 +5,7 @@ export default {
   fields: [
     { name: 'brand', title: 'Brand', type: 'string', validation: r => r.required() },
     { name: 'model', title: 'Model', type: 'string', validation: r => r.required() },
-    { name: 'type', title: 'Type', description: 'e.g. bar, flip, slider, qwerty bar, flip smartphone', type: 'string' },
+    { name: 'type', title: 'Type', type: 'reference', to: [{ type: 'phoneType' }] },
     { name: 'year', title: 'Year', description: '2004, or 2004? if approximate', type: 'string' },
     {
       name: 'photos',

@@ -5,6 +5,17 @@ const Database = require('better-sqlite3');
 const db = new Database(process.env.DB_PATH || 'blog.db', { readonly: true });
 const text = value => (value === null || value === undefined || value === '' ? undefined : String(value).replace(/\.0$/, ''));
 const emit = doc => process.stdout.write(JSON.stringify(doc) + '\n');
+const emittedTypes = new Set();
+const typeRef = (kind, value) => {
+  const name = text(value);
+  if (!name) return undefined;
+  const _ref = `${kind}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+  if (!emittedTypes.has(_ref)) {
+    emittedTypes.add(_ref);
+    emit({ _id: _ref, _type: kind, name });
+  }
+  return { _type: 'reference', _ref };
+};
 
 db.prepare('SELECT * FROM posts').all().forEach(p => emit({
   _id: `post-${p.id}`,
@@ -21,7 +32,7 @@ db.prepare('SELECT * FROM phones').all().forEach(p => emit({
   _type: 'phone',
   brand: p.brand,
   model: text(p.model),
-  type: text(p.type),
+  type: typeRef('phoneType', p.type),
   year: text(p.year),
   image: text(p.image),
   article: !!p.article,
@@ -34,7 +45,7 @@ db.prepare('SELECT * FROM projects').all().forEach(p => emit({
   _type: 'project',
   slug: { _type: 'slug', current: p.id },
   title: p.title,
-  type: text(p.type),
+  type: typeRef('projectType', p.type),
   year: text(p.year),
   image: text(p.image),
   images: p.images ? JSON.parse(p.images) : undefined,
